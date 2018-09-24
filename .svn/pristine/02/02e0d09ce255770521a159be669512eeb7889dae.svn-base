@@ -1,0 +1,1505 @@
+﻿using ESRI.ArcGIS.ArcMapUI;
+using ESRI.ArcGIS.Carto;
+using ESRI.ArcGIS.Geodatabase;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using GSC_Legend_Renderer.Dictionaries;
+using ESRI.ArcGIS.Geometry;
+using ESRI.ArcGIS.Display;
+using stdole;
+using Newtonsoft.Json;
+using System.IO;
+
+namespace GSC_Legend_Renderer
+{
+    public partial class Form_Legend_Renderer : Form
+    {
+        #region Main Variables
+
+        //Public variables
+        public string dataPath { get; set; }
+        public string dataExtension { get; set; }
+        public List<string> dataFieldList { get; set; } //Alias will be used inside this list
+        public ITable inputDataTable { get; set; }
+        public ITable inMemoryDataTable { get; set; }
+
+        //Extensions
+        public const string gdbExt = Dictionaries.Constants.Extensions.gdbExt;
+        public const string mdbExt = Dictionaries.Constants.Extensions.mdbExt;
+        public const string xlExt = Dictionaries.Constants.Extensions.xlExt;
+        public const string txtExt = Dictionaries.Constants.Extensions.txtExt;
+        public const string csvExt = Dictionaries.Constants.Extensions.csvExt;
+        public const string dbfExt = Dictionaries.Constants.Extensions.dbfExt;
+
+        //Legend generator table
+        public const string fieldOrder = Dictionaries.Constants.LegendTable.legendOrderField;
+        public const string fieldColumn = Dictionaries.Constants.LegendTable.legendColumnField;
+        public const string fieldElement = Dictionaries.Constants.LegendTable.legendElementField;
+        public const string fieldStyle1 = Dictionaries.Constants.LegendTable.legendStyle1Field;
+        public const string fieldStyle2 = Dictionaries.Constants.LegendTable.legendStyle2Field;
+        public const string fieldLabel1 = Dictionaries.Constants.LegendTable.legendLabel1Field;
+        public const string fieldLabel1Style = Dictionaries.Constants.LegendTable.legendLabel1StyleField;
+        public const string fieldLabel2 = Dictionaries.Constants.LegendTable.legendLabel2Field;
+        public const string fieldLabel2Style = Dictionaries.Constants.LegendTable.legendLabel2StyleField;
+        public const string fieldHeading = Dictionaries.Constants.LegendTable.legendHeadingField;
+        public const string fieldDescription = Dictionaries.Constants.LegendTable.legendDescriptionField;
+
+
+        #endregion
+
+        #region PROPERTIES
+
+        //Graphics
+        public Dictionary<string, IElement> templateGraphicDico { get; set; }
+        
+        //Fields
+        public string orderFieldUser { get; set; }
+        public string columnFieldUser { get; set; }
+        public string elementFieldUser { get; set; }
+        public string style1FieldUser { get; set; }
+        public string style2FieldUser { get; set; }
+        public string label1FieldUser { get; set; }
+        public string label1StyleFieldUser { get; set; }
+        public string label2FieldUser { get; set; }
+        public string label2StyleFieldUser { get; set; }
+        public string headingFieldUser { get; set; }
+        public string descrîptionFieldUser { get; set; }
+
+        //Symbols
+        public Dictionary<string, object> fillSymbolDico { get; set; } //Will hold symbol name (01.01.0l) and it's associate style object
+        public Dictionary<string, object> lineSymbolDico { get; set; } //Will hold symbol name (01.01.0l) and it's associate style object
+        public Dictionary<string, object> markerSymbolDico { get; set; } //Will hold symbol name (01.01.0l) and it's associate style object
+
+        //Style
+        public IStyleGallery gscStyle { get; set; } //Whole arc map style gallery that holds all style files
+        public string gscStylePath { get; set; } //For search purposes inside style gallery
+
+        //JSON
+        public string jsonYSpacingFilePath { get; set; }
+        public string jsonXSpacingFilePath { get; set; }
+        public Dictionary<string, Dictionary<string, string>> ySpacings { get; set; }
+        public Dictionary<string, Dictionary<string, string>> xSpacings { get; set; }
+        #endregion
+
+        #region INIT
+        public Form_Legend_Renderer()
+        {
+            InitializeComponent();
+            this.textBox_selectTable.TextChanged += TextBox_selectTable_TextChanged;
+
+            templateGraphicDico = new Dictionary<string, IElement>();
+            ySpacings = new Dictionary<string, Dictionary<string, string>>();
+            xSpacings = new Dictionary<string, Dictionary<string, string>>();
+
+            //TODO fill legend text box file path automatically with internal settings with last selected one.
+
+
+        }
+
+        /// <summary>
+        /// Will retrieve a list of field depending on the data extension type
+        /// </summary>
+        private void InitFieldList()
+        {
+            if (dataPath.Contains(gdbExt) || dataPath.Contains(mdbExt))
+            {
+                //Open as table
+                inputDataTable = Services.Tables.OpenTableFromStringFaster(dataPath);
+
+
+                //Fill the field list with field names
+                dataFieldList = Services.Tables.GetFieldList(inputDataTable, true);
+
+            }
+            else if (dataPath.Contains(dbfExt))
+            {
+                //Get the table name and extension only
+                string fileNameOnly = System.IO.Path.GetFileName(dataPath);
+
+                //Get the excel workspace factory
+                IWorkspace dbfWorkspace = Services.Workspace.AccessWorkspace(dataPath);
+                inputDataTable = Services.Tables.OpenTableFromWorkspace(dbfWorkspace, fileNameOnly);
+
+                //Fill the field list with field names
+                dataFieldList = Services.Tables.GetFieldList(inputDataTable, true);
+
+            }
+            else if (dataPath.Contains(txtExt) || dataPath.Contains(csvExt))
+            {
+                //Get the sheet name only
+                string fileNameOnly = System.IO.Path.GetFileName(dataPath);
+
+                //Get the excel workspace factory
+                IWorkspace txtFileWorkspace = Services.Workspace.AccessTextfileWorkspace(dataPath);
+                inputDataTable = Services.Tables.OpenTableFromWorkspace(txtFileWorkspace, fileNameOnly);
+
+                //Fill the field list with field names
+                dataFieldList = Services.Tables.GetFieldList(inputDataTable, true);
+
+            }
+            else if (dataPath.Contains(xlExt))
+            {
+                //Get the sheet name
+                string[] splitedPath = dataPath.Split('\\');
+
+                //Build path to the file itself without the sheet
+                string dataPathFileOnly = string.Empty;
+
+                foreach (string parts in splitedPath)
+                {
+                    if (parts != splitedPath[splitedPath.Length - 1])
+                    {
+                        if (dataPathFileOnly != string.Empty)
+                        {
+                            dataPathFileOnly = dataPathFileOnly + "\\" + parts;
+                        }
+                        else
+                        {
+                            dataPathFileOnly = parts;
+                        }
+
+                    }
+
+                }
+
+                //Get the sheet name only
+                string fileSheetName = splitedPath[splitedPath.Length - 1];
+
+                //Get the excel workspace factory
+                IWorkspace excelWorkspace = Services.Workspace.AccessExcelWorkspace(dataPathFileOnly);
+                inputDataTable = Services.Tables.OpenTableFromWorkspace(excelWorkspace, fileSheetName);
+
+                //Fill the field list with field names
+                dataFieldList = Services.Tables.GetFieldList(inputDataTable, true);
+
+                dataFieldList.Add(string.Empty);
+            }
+
+        }
+
+        #endregion
+
+        #region EVENTS
+        /// <summary>
+        /// Will be triggered when user adds a new table path
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TextBox_selectTable_TextChanged(object sender, EventArgs e)
+        {
+            TextBox senderBox = sender as TextBox;
+            if (senderBox.Text != string.Empty && senderBox.Text.Contains('.'))
+            {
+                //Init field list
+                InitFieldList();
+
+                //Fill the fields comboboxes
+                FillFieldsComboboxes();
+            }
+        }
+
+        /// <summary>
+        /// Will close the form
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button_Cancel_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        /// <summary>
+        /// Will initiate a graphic legend creation
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button_Start_Click(object sender, EventArgs e)
+        {
+
+            //Process
+            CreateLegend();
+
+        }
+
+        /// <summary>
+        /// Will open a generic browse dialog in which the user can select the data that he wants to load inside the form
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button_selectTable_Click(object sender, EventArgs e)
+        {
+            //Open dialog
+            dataPath = Services.Dialog.GetDataPrompt(this.Handle.ToInt32(), Properties.GSC_LegendRenderer_Resources.Dialog_SelectTableTitle);
+            this.textBox_selectTable.Text = dataPath;
+
+        }
+
+        private void comboBox_orderField_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (this.comboBox_orderField.SelectedIndex != -1)
+            {
+                orderFieldUser = this.comboBox_orderField.SelectedItem.ToString();
+            }
+        }
+
+        private void comboBox_ColumnField_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+            if (this.comboBox_ColumnField.SelectedIndex != -1)
+            {
+                columnFieldUser = this.comboBox_ColumnField.SelectedItem.ToString();
+            }
+
+
+        }
+
+        private void comboBox_ElementField_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (this.comboBox_ElementField.SelectedIndex != -1)
+            {
+                elementFieldUser = this.comboBox_ElementField.SelectedItem.ToString();
+            }
+
+
+        }
+
+        private void comboBox_Style1Field_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (this.comboBox_Style1Field.SelectedIndex != -1)
+            {
+                style1FieldUser = this.comboBox_Style1Field.SelectedItem.ToString();
+            }
+
+
+        }
+
+        private void comboBox_Style2Field_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (this.comboBox_Style2Field.SelectedIndex != -1)
+            {
+                style2FieldUser = this.comboBox_Style2Field.SelectedItem.ToString();
+            }
+
+
+        }
+
+        private void comboBox_Label1Field_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (this.comboBox_Label1Field.SelectedIndex != -1)
+            {
+                label1FieldUser = this.comboBox_Label1Field.SelectedItem.ToString();
+            }
+
+
+        }
+
+        private void comboBox_Label1StyleField_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (this.comboBox_Label1StyleField.SelectedIndex != -1)
+            {
+                label1StyleFieldUser = this.comboBox_Label1StyleField.SelectedItem.ToString();
+            }
+
+
+        }
+
+        private void comboBox_Label2Field_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (this.comboBox_Label2Field.SelectedIndex != -1)
+            {
+                label2FieldUser = this.comboBox_Label2Field.SelectedItem.ToString();
+            }
+
+
+        }
+
+        private void comboBox_Label2StyleField_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (this.comboBox_Label2StyleField.SelectedIndex != -1)
+            {
+                label2StyleFieldUser = this.comboBox_Label2StyleField.SelectedItem.ToString();
+            }
+
+
+        }
+
+        private void comboBox_HeadingField_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (this.comboBox_HeadingField.SelectedIndex != -1)
+            {
+                headingFieldUser = this.comboBox_HeadingField.SelectedItem.ToString();
+            }
+
+        }
+
+        private void comboBox_DescriptionField_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+            if (this.comboBox_DescriptionField.SelectedIndex != -1)
+            {
+                descrîptionFieldUser = this.comboBox_DescriptionField.SelectedItem.ToString();
+            }
+        }
+
+        #endregion
+
+        #region METHODS
+
+        /// <summary>
+        /// Will create the legend.
+        /// </summary>
+        public void CreateLegend()
+        {
+            //Continu if table is valid
+            if (this.textBox_selectTable.Text != null && this.textBox_selectTable.Text != string.Empty)
+            {
+                //Validate if needed style has been loaded
+                if (ValidateStyleFile())
+                {
+
+                    #region GET and BUILD information
+                    //Get json config files - check properties for path
+                    ValidateJsonSpacingExistance();
+
+                    //Variables
+                    ITransform2D transformElement = null;
+                    List<string> addedElementNames = new List<string>(); //Will hold element names for validation purposes (espcially headers)                                     
+                    double ySpacing = 0;//Keep track of Y spacing
+                    double xSpacing = 0; //Keep track of X spacing
+                    bool firstIterationBreaker = true;
+                    IElement lastElement = null;
+                    string lastElementType = string.Empty;
+                    Tuple<double, double> anchorPoint = GetAnchorPointStart(); //TODO Find if mxd is a CGM one or not.
+
+                    //Get current document
+                    IMxDocument currentDoc = (IMxDocument)ArcMap.Application.Document;
+
+                    //Get selection of graphic (will help doing a clear)
+                    IPageLayout currentLayout = currentDoc.ActiveView as IPageLayout;
+                    IGraphicsContainerSelect currentGrapSelection = currentLayout as IGraphicsContainerSelect;
+
+                    //Get template graphics
+                    GetTemplateGraphicList();
+
+                    //Get legend table
+                    ITable legendTable = Services.Tables.OpenTableFromString(this.textBox_selectTable.Text);
+
+                    //Iterate through table and add elements
+                    IQueryFilter ascendingOrderQuery = new QueryFilter();
+                    IQueryFilterDefinition ascendingOrderQueryPostfix = ascendingOrderQuery as IQueryFilterDefinition;
+                    ascendingOrderQueryPostfix.PostfixClause = "ORDER BY " + orderFieldUser;
+                    ICursor legendCursor = legendTable.Search(ascendingOrderQuery, false);
+                    #endregion
+
+                    #region CURSOR inside Legend Table
+                    //Get fields indexes
+                    int elementFieldIndex = legendCursor.FindField(elementFieldUser);
+                    int orderFieldIndex = legendCursor.FindField(orderFieldUser);
+                    int style1FieldIndex = legendCursor.FindField(style1FieldUser);
+                    int labelFieldIndex = legendCursor.FindField(label1FieldUser);
+                    int descriptionFieldIndex = legendCursor.FindField(descrîptionFieldUser);
+                    int headingFieldIndex = legendCursor.FindField(headingFieldUser);
+ 
+
+                    IRow legendRow = legendCursor.NextRow();
+                    while (legendRow != null)
+                    {
+                        //Variables
+                        int currentOrder = Convert.ToInt32(legendRow.Value[orderFieldIndex]);
+                        string currentStyle1 = legendRow.Value[style1FieldIndex].ToString();
+                        string currentLabel1 = legendRow.Value[labelFieldIndex].ToString();
+                        string currentDescription = legendRow.Value[descriptionFieldIndex].ToString();
+                        string currentHeading = legendRow.Value[headingFieldIndex].ToString();
+                        string currentElement = legendRow.Value[elementFieldIndex].ToString();
+
+                        //Get spacings dictionnary loaded up
+                        if (!firstIterationBreaker)
+                        {
+                            ySpacing = GetYSpacing(lastElement, lastElementType, currentElement, anchorPoint.Item2);
+                            xSpacing = GetXSpacing(currentElement);
+                                
+                        }
+                        else
+                        {
+                            BuildYSpacingsDictionary();
+                            BuildXSpacingsDictionary();
+                            firstIterationBreaker = false;
+                        }
+
+
+
+                        #region HEADING
+                        if (currentElement.Contains(Constants.Graphics.heading1.Substring(0,6)))
+                        {
+
+                            //Get appropriate element
+                            if (templateGraphicDico.ContainsKey(currentElement))
+                            {
+                                IElement headElement = Services.ObjectManagement.CopyInputObject(templateGraphicDico[currentElement]) as IElement;
+                                IElementProperties headElProp = headElement as IElementProperties;
+
+                                string originalElementName = headElProp.Name;
+
+                                //TODO special cases heading 3 like description, heading 4 UL
+
+                                #region Move to right anchor
+
+                                //Set new anchor
+                                anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - ySpacing); 
+                                SetPolygonFromAnchorType(headElement, anchorPoint);
+
+                                //Move
+                                ITransform2D transElement = headElement as ITransform2D;
+                                transElement.Move(xSpacing, 0); //Move accordingly to x spacing if any
+
+                                #endregion
+
+                                //Rename
+                                headElProp.Name = headElProp.Name + currentOrder.ToString();
+
+                                //Add Heading text
+                                ITextElement tElement = headElement as ITextElement;
+                                if (currentHeading == null || currentHeading == string.Empty || currentHeading == " ")
+                                {
+                                    currentHeading = Constants.TextConfiguration.missingText;
+                                    tElement.Symbol = Services.Symbols.GetMissingTextSymbol(tElement.Symbol);
+                                }
+                                
+                                if (!currentElement.Contains(Constants.Graphics.heading5))
+                                {
+                                    currentHeading = Constants.TextConfiguration.tagAllCaps + Constants.TextConfiguration.tagBold + currentHeading + Constants.TextConfiguration.endTagBold + Constants.TextConfiguration.endTagAllCaps + " ";
+                                }
+                                else
+                                {
+                                    currentHeading = Constants.TextConfiguration.tagAllCaps + currentHeading + Constants.TextConfiguration.endTagAllCaps + " ";
+                                }
+
+                                //Add Description to text - Only for heading 3 in theory
+                                if (currentDescription != null && currentDescription != string.Empty && currentDescription != " ")
+                                {
+                                    //Add header if needed
+                                    if (currentHeading != null && currentHeading != string.Empty && currentHeading != " ")
+                                    {
+                                        currentHeading = currentHeading + currentDescription;
+                                    }
+                                }
+
+                                tElement.Text = currentHeading;
+
+                                //Set height for heading3 
+                                if (currentElement.Contains(Constants.Graphics.heading3))
+                                {
+                                    double heading3Height = GetTextHeight(currentHeading);
+                                    headElement.Geometry.Envelope.Height = heading3Height;
+                                }
+
+                                //Add base element
+                                currentDoc.ActiveView.GraphicsContainer.AddElement(headElement, 0);
+                                currentDoc.ActiveView.GraphicsContainer.SendToBack(currentGrapSelection.SelectedElements);
+
+                                //Unselect
+                                currentGrapSelection.UnselectElement(headElement);
+
+                                //Keep name
+                                lastElement = headElement;
+                                lastElementType = originalElementName;
+                                addedElementNames.Add(originalElementName);
+
+                            }
+
+                        }
+
+                        #endregion
+
+                        #region MAP UNITS
+                        if (legendRow.Value[elementFieldIndex].ToString().Contains(Constants.Graphics.unitBox))
+                        {
+
+                            //Fill in fill symbol dico if null
+                            if (fillSymbolDico == null)
+                            {
+                                GetSymbols(Dictionaries.Constants.Styles.styleFillClass);
+                            }
+
+                            //Get appropriate element
+                            IElement unitBoxElement = Services.ObjectManagement.CopyInputObject(templateGraphicDico[Constants.Graphics.unitBox]) as IElement;
+                            IElementProperties unitBoxElProp = unitBoxElement as IElementProperties;
+
+                            string originalElementName = unitBoxElProp.Name;
+
+                            #region Move to right anchor
+
+                            //Set new anchor
+                            anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - ySpacing); //New anchor point with proper move inside it
+                            SetPolygonFromAnchorType(unitBoxElement, anchorPoint);
+
+                            #endregion
+
+                            //Rename
+                            unitBoxElProp.Name = unitBoxElProp.Name + currentOrder.ToString();
+
+                            //Symbolize if symbol can be found in style file
+                            IFillShapeElement currentShapeElement = unitBoxElement as IFillShapeElement;
+                            ILineSymbol currentOutline = currentShapeElement.Symbol.Outline; //Cast to keep actual outline
+
+                            if (fillSymbolDico.ContainsKey(currentStyle1))
+                            {
+                                //Get symbol type and color
+                                string symbolTypeName = string.Empty;
+                                IColor symbolColor = Services.Symbols.GetPolygonSymbolColor(fillSymbolDico[currentStyle1] as ISymbol, out symbolTypeName);
+
+                                //Create new symbol and apply, else it won't update...
+                                ISimpleFillSymbol newSimpleFill = new SimpleFillSymbolClass();
+                                newSimpleFill.Color = symbolColor;
+                                newSimpleFill.Style = esriSimpleFillStyle.esriSFSSolid;
+                                newSimpleFill.Outline = currentOutline;
+
+                                currentShapeElement.Symbol = newSimpleFill;
+                            }
+                            else
+                            {
+                                //Apply missing style
+                                ISimpleFillSymbol missingFillSymbol = Services.Symbols.GetMissingPolygonSymbol();
+                                missingFillSymbol.Style = esriSimpleFillStyle.esriSFSSolid;
+                                missingFillSymbol.Outline = currentOutline;
+
+                                currentShapeElement.Symbol = missingFillSymbol;
+                            }
+
+                            //Add label
+                            if (currentLabel1 == null || currentLabel1 == string.Empty || currentLabel1 == " ")
+                            {
+                                currentLabel1 = Constants.TextConfiguration.missingText;
+                            }
+                            AddLabelInUnitBox(currentLabel1, unitBoxElement, currentDoc, anchorPoint);
+
+                            //Add base element
+                            currentDoc.ActiveView.GraphicsContainer.AddElement(unitBoxElement, 0);
+                            currentDoc.ActiveView.GraphicsContainer.SendToBack(currentGrapSelection.SelectedElements);
+
+                            //Unselect
+                            currentGrapSelection.UnselectElement(unitBoxElement);
+
+                            //Keep name
+                            lastElement = unitBoxElement;
+                            lastElementType = originalElementName;
+                            addedElementNames.Add(originalElementName);
+
+                            //Add header if needed
+                            if (currentHeading != null && currentHeading != string.Empty && currentHeading != " ")
+                            {
+                                currentDescription = Constants.TextConfiguration.tagBold + currentHeading + Constants.TextConfiguration.endTagBold + " " + currentDescription;
+                            }
+
+                            //Add Description
+                            IElement newDescriptionElement = AddDescription(currentDescription, unitBoxElement, currentDoc, anchorPoint, originalElementName);
+                            double descriptionHeight = newDescriptionElement.Geometry.Envelope.Height;
+                            if (descriptionHeight > Constants.YSpacings.smallDescriptionHeightLimit)
+                            {
+                                //Reset anchor point for next element
+                                anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - descriptionHeight); //New anchor point with proper move inside it
+                                                                                                                                   //Keep name
+                                lastElement = newDescriptionElement;
+                                lastElementType = Constants.Graphics.description;
+                                addedElementNames.Add(Constants.Graphics.description);
+                            }
+                        }
+                        #endregion
+
+                        #region LINE
+                        if (currentElement.Contains(Constants.Graphics.line) || currentElement.Contains(Constants.Graphics.wave))
+                        {
+                            //Fill in fill symbol dico if null
+                            if (lineSymbolDico == null)
+                            {
+                                GetSymbols(Dictionaries.Constants.Styles.styleLineClass);
+                            }
+
+                            //Get appropriate element
+                            IElement lineElement = Services.ObjectManagement.CopyInputObject(templateGraphicDico[currentElement]) as IElement;
+                            IElementProperties lineElProp = lineElement as IElementProperties;
+
+                            string originalElementName = lineElProp.Name;
+
+                            #region Move to right anchor
+
+                            //Set new anchor
+                            anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - ySpacing); //New anchor point with proper move inside it
+                            SetLineFromAnchorType(lineElement, anchorPoint, Constants.XSpacings.columElementWidth);
+                            
+
+                            #endregion
+
+                            //Rename
+                            lineElProp.Name = lineElProp.Name + currentOrder.ToString();
+
+                            //Symbolize if symbol can be found in style file
+                            ILineElement currentShapeElement = lineElement as ILineElement;
+                            double currentLineWidth = currentShapeElement.Symbol.Width; 
+
+                            if (lineSymbolDico.ContainsKey(currentStyle1))
+                            {
+                                currentShapeElement.Symbol = Services.ObjectManagement.CopyInputObject(lineSymbolDico[currentStyle1]) as ILineSymbol;
+                                
+                            }
+                            else
+                            {
+                                //Apply missing style
+                                ISimpleLineSymbol missingFillSymbol = Services.Symbols.GetMissingLineSymbol();
+                                currentShapeElement.Symbol = missingFillSymbol;
+                            }
+
+                            //Add base element
+                            currentDoc.ActiveView.GraphicsContainer.AddElement(lineElement, 0);
+                            currentDoc.ActiveView.GraphicsContainer.SendToBack(currentGrapSelection.SelectedElements);
+
+                            //Unselect
+                            currentGrapSelection.UnselectElement(lineElement);
+
+                            //Keep
+                            lastElement = lineElement;
+                            lastElementType = originalElementName;
+                            addedElementNames.Add(originalElementName);
+
+                            //Add Description
+                            IElement newDescriptionElement = AddDescription(currentDescription, lineElement, currentDoc, anchorPoint, originalElementName);
+                            double descriptionHeight = newDescriptionElement.Geometry.Envelope.Height;
+                            if (descriptionHeight > Constants.YSpacings.smallDescriptionHeightLimit)
+                            {
+                                //Reset anchor point for next element
+                                anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - descriptionHeight); //New anchor point with proper move inside it
+                                                                                                                                   //Keep name
+                                lastElement = newDescriptionElement;
+                                lastElementType = Constants.Graphics.description;
+                                addedElementNames.Add(Constants.Graphics.description);
+                            }
+                        }
+
+                        #endregion
+
+                        #region MARKERS/POINTS
+                        if (currentElement == Constants.Graphics.point || currentElement == Constants.Graphics.pointAngle)
+                        {
+                            //Fill in fill symbol dico if null
+                            if (markerSymbolDico == null)
+                            {
+                                GetSymbols(Dictionaries.Constants.Styles.styleMarkerClass);
+                            }
+
+                            //Get appropriate element
+                            IElement pointElement = Services.ObjectManagement.CopyInputObject(templateGraphicDico[currentElement]) as IElement;
+                            IElementProperties pointElProp = pointElement as IElementProperties;
+
+                            string originalElementName = pointElProp.Name;
+
+                            #region Move to right anchor
+
+                            //Set new anchor
+                            anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - ySpacing); //New anchor point with proper move inside it
+                            SetPointFromAnchorType(pointElement, anchorPoint);
+
+                            #endregion
+
+                            //Rename
+                            pointElProp.Name = pointElProp.Name + currentOrder.ToString();
+
+                            //Symbolize if symbol can be found in style file
+                            IMarkerElement currentShapeElement = pointElement as IMarkerElement;
+                            double originalAngle = currentShapeElement.Symbol.Angle;
+
+                            if (markerSymbolDico.ContainsKey(currentStyle1))
+                            {
+                                currentShapeElement.Symbol = Services.ObjectManagement.CopyInputObject(markerSymbolDico[currentStyle1]) as IMarkerSymbol;
+                                
+                            }
+                            else
+                            {
+                                //Apply missing style
+                                ICharacterMarkerSymbol missingFillSymbol = Services.Symbols.GetMissingPointSymbol();
+                                currentShapeElement.Symbol = missingFillSymbol;
+                            }
+                            currentShapeElement.Symbol.Angle = originalAngle;
+
+                            //Add base element
+                            currentDoc.ActiveView.GraphicsContainer.AddElement(pointElement, 0);
+                            currentDoc.ActiveView.GraphicsContainer.SendToBack(currentGrapSelection.SelectedElements);
+
+                            //Unselect
+                            currentGrapSelection.UnselectElement(pointElement);
+
+                            //Keep
+                            lastElement = pointElement;
+                            lastElementType = originalElementName;
+                            addedElementNames.Add(originalElementName);
+
+                            //Add Description
+                            IElement newDescriptionElement = AddDescription(currentDescription, pointElement, currentDoc, anchorPoint, originalElementName);
+                            double descriptionHeight = newDescriptionElement.Geometry.Envelope.Height;
+                            if (descriptionHeight > Constants.YSpacings.smallDescriptionHeightLimit)
+                            {
+                                //Reset anchor point for next element
+                                anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - descriptionHeight); //New anchor point with proper move inside it
+                                                                                                                                   //Keep name
+                                lastElement = newDescriptionElement;
+                                lastElementType = Constants.Graphics.description;
+                                addedElementNames.Add(Constants.Graphics.description);
+                            }
+                        }
+                        #endregion
+
+                        #region BRACKETS
+                        #endregion
+
+                        legendRow = legendCursor.NextRow();
+                    }
+
+                    #endregion
+                    //Release objects
+                    Services.ObjectManagement.ReleaseObject(legendCursor);
+
+                    currentDoc.ActiveView.Refresh();
+
+                    CloseForm();
+                }
+                else
+                {
+                    MessageBox.Show("Missing style file"); //TODO change this message for localized one and better text.
+                }
+  
+            }
+            else
+            {
+                MessageBox.Show("Fill in all inputs"); //TODO change text and make it localized.
+            }
+
+        }
+
+        /// <summary>
+        /// Will close current form.
+        /// </summary>
+        private void CloseForm()
+        {
+
+            this.Close();
+        }
+
+        /// <summary>
+        /// Will take from template mxd a set of graphics to use in the legend
+        /// </summary>
+        public void GetTemplateGraphicList()
+        {
+            //Validate if template mxd is available, else send copy resource to local folder
+            string templateMXDPath = ValidateTemplateMXDExistance();
+
+            //Open template mxd to retrieve graphics out of it
+            IMapDocument mapDoc = new MapDocumentClass();
+            mapDoc.Open(templateMXDPath);
+
+            //Get to layout view
+            Services.MXD mxdService = new Services.MXD();
+            mxdService.ActivateLayoutView(mapDoc.ActiveView);
+
+            //Get list of graphics
+            IGraphicsContainer graphiclist = mapDoc.ActiveView.GraphicsContainer;
+
+            //Filter graphics
+            IElement nextGraphic = graphiclist.Next();
+            while (nextGraphic != null)
+            {
+                IElementProperties nextGProperties = nextGraphic as IElementProperties;
+                if (nextGProperties.Name != "New Data Frame")
+                {
+                    ///For testing purposes
+                    //currentDoc.ActiveView.GraphicsContainer.AddElement(nextGraphic, 0);
+                    templateGraphicDico[nextGProperties.Name] = nextGraphic;
+                    //templateGraphics.Add(nextGraphic);
+                }
+
+                nextGraphic = graphiclist.Next();
+            }
+
+            //Close template mxd
+            mapDoc.Close();
+        }
+
+        /// <summary>
+        /// From table property, will fill all comboboxes with field values.
+        /// </summary>
+        private void FillFieldsComboboxes()
+        {
+            //Validate list existance
+            if (dataFieldList == null)
+            {
+                InitFieldList();
+            }
+
+            //Fill boxes
+            foreach (string fieldNames in dataFieldList)
+            {
+                this.comboBox_ColumnField.Items.Add(fieldNames);
+                this.comboBox_DescriptionField.Items.Add(fieldNames);
+                this.comboBox_ElementField.Items.Add(fieldNames);
+                this.comboBox_HeadingField.Items.Add(fieldNames);
+                this.comboBox_Label1Field.Items.Add(fieldNames);
+                this.comboBox_Label1StyleField.Items.Add(fieldNames);
+                this.comboBox_Label2Field.Items.Add(fieldNames);
+                this.comboBox_Label2StyleField.Items.Add(fieldNames);
+                this.comboBox_orderField.Items.Add(fieldNames);
+                this.comboBox_Style1Field.Items.Add(fieldNames);
+                this.comboBox_Style2Field.Items.Add(fieldNames);
+            }
+
+            //Select proper field if in list
+            SelectFields();
+        }
+
+        /// <summary>
+        /// Will automatically select field if they match default schema for legend table
+        /// </summary>
+        private void SelectFields()
+        {
+            if (this.comboBox_ColumnField.Items.Contains(fieldColumn))
+            {
+                int columnIndex = this.comboBox_ColumnField.Items.IndexOf(fieldColumn);
+                this.comboBox_ColumnField.SelectedIndex = columnIndex;
+            }
+            if (this.comboBox_DescriptionField.Items.Contains(fieldDescription))
+            {
+                int descriptionIndex = this.comboBox_DescriptionField.Items.IndexOf(fieldDescription);
+                this.comboBox_DescriptionField.SelectedIndex = descriptionIndex;
+            }
+            if (this.comboBox_ElementField.Items.Contains(fieldElement))
+            {
+                int elementIndex = this.comboBox_ElementField.Items.IndexOf(fieldElement);
+                this.comboBox_ElementField.SelectedIndex = elementIndex;
+            }
+            if (this.comboBox_HeadingField.Items.Contains(fieldHeading))
+            {
+                int headingIndex = this.comboBox_HeadingField.Items.IndexOf(fieldHeading);
+                this.comboBox_HeadingField.SelectedIndex = headingIndex;
+            }
+            if (this.comboBox_Label1Field.Items.Contains(fieldLabel1))
+            {
+                int label1Index = this.comboBox_Label1Field.Items.IndexOf(fieldLabel1);
+                this.comboBox_Label1Field.SelectedIndex = label1Index;
+            }
+            if (this.comboBox_Label1StyleField.Items.Contains(fieldLabel1Style))
+            {
+                int label1StyleIndex = this.comboBox_Label1StyleField.Items.IndexOf(fieldLabel1Style);
+                this.comboBox_Label1StyleField.SelectedIndex = label1StyleIndex;
+            }
+            if (this.comboBox_Label2Field.Items.Contains(fieldLabel2))
+            {
+                int label2Index = this.comboBox_Label2Field.Items.IndexOf(fieldLabel2);
+                this.comboBox_Label2Field.SelectedIndex = label2Index;
+            }
+            if (this.comboBox_Label2StyleField.Items.Contains(fieldLabel2Style))
+            {
+                int label2StyleIndex = this.comboBox_Label2StyleField.Items.IndexOf(fieldLabel2Style);
+                this.comboBox_Label2StyleField.SelectedIndex = label2StyleIndex;
+            }
+            if (this.comboBox_orderField.Items.Contains(fieldOrder))
+            {
+                int orderIndex = this.comboBox_orderField.Items.IndexOf(fieldOrder);
+                this.comboBox_orderField.SelectedIndex = orderIndex;
+            }
+            if (this.comboBox_Style1Field.Items.Contains(fieldStyle1))
+            {
+                int style1Index = this.comboBox_Style1Field.Items.IndexOf(fieldStyle1);
+                this.comboBox_Style1Field.SelectedIndex = style1Index;
+            }
+            if (this.comboBox_Style2Field.Items.Contains(fieldStyle2))
+            {
+                int style2Index = this.comboBox_Style2Field.Items.IndexOf(fieldStyle2);
+                this.comboBox_Style2Field.SelectedIndex = style2Index;
+            }
+        }
+
+        /// <summary>
+        /// Will fill in the appropriate symbol dictionary from needed style
+        /// </summary>
+        /// <param name="symbolClassName">Fill Symbols, Marker Symbols, Line Symbols</param>
+        private void GetSymbols(string symbolClassName)
+        {
+
+            //Iterate through all fill symbols
+            IStyleGalleryItem styleItem = null;
+            IEnumStyleGalleryItem enumStyle = gscStyle.Items[symbolClassName, gscStylePath, string.Empty];
+
+            while ((styleItem = enumStyle.Next()) != null)
+            {
+                if (symbolClassName == Dictionaries.Constants.Styles.styleFillClass)
+                {
+                    if (fillSymbolDico == null)
+                    {
+                        fillSymbolDico = new Dictionary<string, object>();
+                    }
+
+                    fillSymbolDico[styleItem.Name] = styleItem.Item;
+                }
+                else if (symbolClassName == Dictionaries.Constants.Styles.styleLineClass)
+                {
+                    if (lineSymbolDico == null)
+                    {
+                        lineSymbolDico = new Dictionary<string, object>();
+                    }
+
+                    lineSymbolDico[styleItem.Name] = styleItem.Item;
+                }
+                else if (symbolClassName == Dictionaries.Constants.Styles.styleMarkerClass)
+                {
+
+                    if (markerSymbolDico == null)
+                    {
+                        markerSymbolDico = new Dictionary<string, object>();
+                    }
+
+                    markerSymbolDico[styleItem.Name] = styleItem.Item;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Will deserialize a json file to get all key component for y spacings
+        /// </summary>
+        private void BuildYSpacingsDictionary()
+        {
+            if (ySpacings.Count() == 0)
+            {
+                ySpacings = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, string>>>(File.ReadAllText(jsonYSpacingFilePath));
+            }
+            
+        }
+
+        /// <summary>
+        /// Will deserialize a json file to get all key component for x spacings
+        /// </summary>
+        private void BuildXSpacingsDictionary()
+        {
+            if (xSpacings.Count() == 0)
+            {
+                xSpacings = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, string>>>(File.ReadAllText(jsonXSpacingFilePath));
+            }
+
+        }
+
+        /// <summary>
+        /// Will return a y spacing based on from and to element names
+        /// </summary>
+        /// <returns></returns>
+        private double GetYSpacing(IElement fromElement, string fromElementType, string toElementName, double lastYSpacing)
+        {
+            //Variable
+            double y = 0.0;
+            IElementProperties fromProperties = fromElement as IElementProperties;
+
+            //Get x-y spacing
+            if (ySpacings.ContainsKey(fromElementType))
+            {
+                if (ySpacings[fromElementType].ContainsKey(toElementName))
+                {
+                    if (ySpacings[fromElementType][toElementName] != null && ySpacings[fromElementType][toElementName] != string.Empty)
+                    {
+                        try
+                        {
+                            y = Convert.ToDouble(ySpacings[fromElementType][toElementName]);
+                        }
+                        catch (Exception)
+                        {
+                            if (ySpacings[fromElementType][toElementName].Contains(Constants.Graphics.anchorLowerLeft))
+                            {
+                                y = (fromElement.Geometry.Envelope.YMin - lastYSpacing) + Convert.ToDouble(ySpacings[fromElementType][toElementName].Split(' ')[0]);
+                            }
+                        }
+
+                        //Special case for heading3
+                        if (fromElementType == Constants.Graphics.heading3)
+                        {
+                            y = fromElement.Geometry.Envelope.Height + Convert.ToDouble(ySpacings[fromElementType][toElementName].Split(' ')[0]);
+                        }
+
+                    }
+                }
+            }
+
+            return y;
+        }
+
+        /// <summary>
+        /// Will return a x spacing based on from and to element names
+        /// </summary>
+        /// <returns></returns>
+        private double GetXSpacing(string toElementName)
+        {
+            //Variable
+            double x = 0.0;
+
+            if (xSpacings.ContainsKey(toElementName))
+            {
+
+                if (xSpacings[toElementName][Constants.XSpacings.spacingKey] != null && xSpacings[toElementName][Constants.XSpacings.spacingKey] != string.Empty)
+                {
+                    try
+                    {
+                        x = Convert.ToDouble(xSpacings[toElementName][Constants.XSpacings.spacingKey]);
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+                    
+                }
+
+            }
+
+            return x;
+        }
+
+        #endregion
+
+        #region ADD GRAPHIC
+
+        /// <summary>
+        /// Will add a new text element at the center a of map unit box
+        /// </summary>
+        /// <param name="inText"></param>
+        /// <param name="parentElement"></param>
+        /// <param name="inDocument"></param>
+        private void AddLabelInUnitBox(string inText, IElement parentElement, IMxDocument inDocument, Tuple<double, double> inAnchor)
+        {
+            //TODO get symbol from style file?? Ask Dave
+
+            //Get appropriate element
+            IElement unitBoxLabelElement = Services.ObjectManagement.CopyInputObject(templateGraphicDico[Constants.Graphics.unitLabel]) as IElement;
+
+            //Create new text graphic with default style
+            ITextElement tElement = unitBoxLabelElement as ITextElement;
+
+            //Manage missing
+            if (inText == null || inText == string.Empty || inText == " ")
+            {
+                inText = Constants.TextConfiguration.missingText;
+                tElement.Symbol = Services.Symbols.GetMissingTextSymbol(tElement.Symbol);
+            }
+            tElement.Text = inText;
+
+            //Rename
+            IElementProperties labelElementProperties = unitBoxLabelElement as IElementProperties;
+            labelElementProperties.Name = inText;
+            labelElementProperties.AutoTransform = false;
+
+            //Get width and height of parent
+            IGeometry parentGeom = parentElement.Geometry;
+            IEnvelope parentEnvelope = parentGeom.Envelope;
+            double parentHeight = parentEnvelope.Height;
+            double parentWidth = parentEnvelope.Width;
+
+            //Set new anchor point
+            SetPolygonFromAnchorType(unitBoxLabelElement, inAnchor);
+
+            //Move
+            ITransform2D transElement = unitBoxLabelElement as ITransform2D;
+            transElement.Move(parentWidth / 2.0, (-parentHeight / 2.0)); //Move accordingly to anchor point which is center center
+
+            //Add base element
+            IPageLayout l = inDocument.ActiveView as IPageLayout;
+            IGraphicsContainerSelect gcs = l as IGraphicsContainerSelect;
+            inDocument.ActiveView.GraphicsContainer.AddElement(unitBoxLabelElement as IElement, 10);
+
+            //Unselect
+            gcs.UnselectElement(unitBoxLabelElement);
+        }
+
+        /// <summary>
+        /// Will add anew text element for description in column description part
+        /// </summary>
+        /// <param name="inDescription"></param>
+        /// <param name="parentElem"></param>
+        /// <param name="inDocument"></param>
+        /// <param name="inAnchor"></param>
+        /// <returns> Description height for validation purposes</returns>
+        private IElement AddDescription(string inDescription, IElement parentElem, IMxDocument inDocument, Tuple<double, double> inAnchor, string parentElemType)
+        {
+            //Get appropriate element
+            IElement descriptionElement = Services.ObjectManagement.CopyInputObject(templateGraphicDico[Constants.Graphics.description]) as IElement;
+
+
+            //Create new text graphic with default style
+            ITextElement dtElement = descriptionElement as ITextElement;
+
+            //Manage missing
+            if (inDescription == null || inDescription == string.Empty || inDescription == " ")
+            {
+                inDescription = Constants.TextConfiguration.missingText;
+                dtElement.Symbol = Services.Symbols.GetMissingTextSymbol(dtElement.Symbol);
+            }
+            dtElement.Text = inDescription;
+
+            //Variables
+            double wantedTextHeight = GetTextHeight(inDescription);
+            IElementProperties3 parentProperties = parentElem as IElementProperties3;
+
+            //Get width and height of parent
+            IGeometry parentGeom = parentElem.Geometry;
+            double parentHeight = 1.0;
+            double parentWidth = Constants.XSpacings.columElementWidth;
+
+            try
+            {
+                //In case element is a unit box, try to get height
+                IEnvelope parentEnv = parentGeom.Envelope;
+                parentHeight = parentEnv.Height;
+            }
+            catch (Exception)
+            {
+
+            }
+
+            //Set width and height
+            IEnvelope env = descriptionElement.Geometry.Envelope;
+            env.Width = Constants.XSpacings.columnDescriptionWidth; //Set width
+            env.Height = wantedTextHeight;
+
+            IPolygon pol = new PolygonClass(); //Create new polygon from wanted envelope
+            ISegmentCollection polSegment = pol as ISegmentCollection;
+            polSegment.SetRectangle(env);
+
+            descriptionElement.Geometry = pol as IGeometry;
+
+            //Rename
+            IElementProperties parentElementProperties = parentElem as IElementProperties;
+            IElementProperties descriptionElementProperties = descriptionElement as IElementProperties;
+            descriptionElementProperties.Name = parentElementProperties.Name + "_" + Constants.Graphics.description;
+
+            //Set anchor
+            SetPolygonFromAnchorType(descriptionElement, inAnchor);
+
+            //Move based on different length of description
+            ITransform2D transElement = descriptionElement as ITransform2D;
+
+            if (wantedTextHeight <= Constants.YSpacings.smallDescriptionHeightLimit)
+            {
+                //When description height is less then align its center on parent center
+                if (wantedTextHeight <= parentHeight)
+                {
+                    if (parentElemType != Constants.Graphics.wave)
+                    {
+                        transElement.Move(Constants.XSpacings.columnGapWidth + parentWidth, -(parentHeight / 2.0 - wantedTextHeight / 2.0)); //Anchor is upper left but needs to be centered on unit box.
+                    }
+                    else
+                    {
+                        //Special case for wave since it's a line with anchor in center/center but behaves like bottom center...?
+                        transElement.Move(Constants.XSpacings.columnGapWidth + parentWidth, (parentHeight / 2.0) - (parentHeight - wantedTextHeight)/2.0); //Anchor is upper left but needs to be centered on unit box
+                    }
+                    
+                }
+                else
+                {
+                    transElement.Move(Constants.XSpacings.columnGapWidth + parentWidth, + wantedTextHeight / 2.0);
+                }
+                
+            }
+            else
+            {
+                transElement.Move(Constants.XSpacings.columnGapWidth + parentWidth, 0); // Anchor is upper left and needs to be horizontally aligned with it
+            }
+            
+
+            //Add base element
+            IPageLayout l = inDocument.ActiveView as IPageLayout;
+            IGraphicsContainerSelect gcs = l as IGraphicsContainerSelect;
+            inDocument.ActiveView.GraphicsContainer.AddElement(descriptionElement as IElement, 10);
+
+            //Unselect
+            gcs.UnselectElement(descriptionElement);
+
+            return descriptionElement;
+        }
+
+        /// <summary>
+        /// Will output the x,y coordinate for the first anchor of the legend
+        /// </summary>
+        /// <returns></returns>
+        public Tuple<double, double> GetAnchorPointStart()
+        {
+            Tuple<double, double> anchorCoord = new Tuple<double, double>(0.0, 0.0);
+
+            //IMxDocument currentDoc = (IMxDocument)ArcMap.Application.Document;
+            //IPageLayout l = currentDoc.ActiveView as IPageLayout;
+            //IGraphicsContainer gc = l as IGraphicsContainer;
+            //IFrameElement frameElement = gc.FindFrame(currentDoc.FocusMap);
+            //IMapFrame mapFrame = frameElement as IMapFrame;
+            //IEnvelope mapFrameEnv = mapFrame.MapBounds.Envelope;
+
+            //anchorCoord = new Tuple<double, double>(mapFrameEnv.Width / 2.0, mapFrameEnv.Height / 2.0);
+
+            return anchorCoord;
+
+        }
+        #endregion
+
+
+        #region VALIDATION
+        /// <summary>
+        /// Will save asset into default arcgis folder in user my document if it doesn't already exists.
+        /// </summary>
+        /// <returns>Output path for the new mxd.</returns>
+        private string ValidateTemplateMXDExistance()
+        {
+            string outputFolderName = System.IO.Path.Combine(Dictionaries.Constants.ESRI.defaultArcGISFolderName, Dictionaries.Constants.Namespaces.mainNamespace);
+            string outputFolderPath = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), outputFolderName);
+            string outputFilePath = System.IO.Path.Combine(outputFolderPath, Dictionaries.Constants.Assets.mxdEmbeddedFile);
+            if (!System.IO.File.Exists(outputFilePath))
+            {
+                Services.FolderAndFiles.WriteResourceToFile(Dictionaries.Constants.Assets.mxdEmbeddedFile, Dictionaries.Constants.Assets.AssetFolder, Dictionaries.Constants.Namespaces.mainNamespace, outputFolderPath);
+            }
+
+            return outputFilePath;
+        }
+
+        /// <summary>
+        /// Will return true if wanted style file is loaded inside map document
+        /// </summary>
+        /// <returns>true if style is loaded</returns>
+        public bool ValidateStyleFile()
+        {
+            //Variable
+            bool isLoaded = false;
+
+            //Create a style gallery object from current arc map document
+            IStyleGalleryStorage styleStore = ArcMap.Document.StyleGallery as IStyleGalleryStorage;
+
+            //Iterate through storage and detect existing files
+            int[] fileIndexes = Enumerable.Range(0, styleStore.FileCount).ToArray();
+            foreach (int indexes in fileIndexes)
+            {
+                //Detect already loaded styles
+                if (styleStore.File[indexes].Contains(Dictionaries.Constants.Styles.styleName))
+                {
+                    isLoaded = true;
+
+                    //Keep style path
+                    gscStyle = ArcMap.Document.StyleGallery;
+                    gscStylePath = styleStore.File[indexes];
+                    break;
+                }
+            }
+
+            return isLoaded;
+        }
+
+        /// <summary>
+        /// Will return wanted json file path, if it doesn't exist a copy will be made inside My Document\Arc GIS folder
+        /// </summary>
+        /// <returns></returns>
+        public void ValidateJsonSpacingExistance()
+        {
+            string outputFolderName = System.IO.Path.Combine(Dictionaries.Constants.ESRI.defaultArcGISFolderName, Dictionaries.Constants.Namespaces.mainNamespace);
+            string outputFolderPath = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), outputFolderName);
+            jsonYSpacingFilePath = System.IO.Path.Combine(outputFolderPath, Dictionaries.Constants.Assets.jsonYSpacingEmbeddedFile);
+            if (!System.IO.File.Exists(jsonYSpacingFilePath))
+            {
+                Services.FolderAndFiles.WriteResourceToFile(Dictionaries.Constants.Assets.jsonYSpacingEmbeddedFile, Dictionaries.Constants.Assets.AssetFolder, Dictionaries.Constants.Namespaces.mainNamespace, outputFolderPath);
+            }
+
+            jsonXSpacingFilePath = System.IO.Path.Combine(outputFolderPath, Dictionaries.Constants.Assets.jsonXSpacingEmbeddedFile);
+            if (!System.IO.File.Exists(jsonXSpacingFilePath))
+            {
+                Services.FolderAndFiles.WriteResourceToFile(Dictionaries.Constants.Assets.jsonXSpacingEmbeddedFile, Dictionaries.Constants.Assets.AssetFolder, Dictionaries.Constants.Namespaces.mainNamespace, outputFolderPath);
+            }
+
+        }
+        #endregion
+
+        #region CALCULATIONS
+
+        /// <summary>
+        /// Will calculate a text element height based on wanted text inside it, if width and font size is fixed.
+        /// </summary>
+        /// <param name="inText"></param>
+        /// <returns></returns>
+        public double GetTextHeight(string inText)
+        {
+            //Count character
+            double charCount = Convert.ToDouble(inText.Count());
+
+            //Calculate approx. number of lines
+            double numberLines = charCount / Constants.TextConfiguration.charactersPerLine;
+            numberLines = Math.Ceiling(numberLines); //Round to upper boundary
+
+            return numberLines * Constants.TextConfiguration.lineHeight;
+
+        }
+
+        /// <summary>
+        /// From a given element and anchor point, will calculate a new polygon enveloppe to fit anchor point so the element can
+        /// be set at the right place on the layout before being moved.
+        /// </summary>
+        /// <param name="inElement"></param>
+        /// <param name="inAnchor"></param>
+        /// <returns></returns>
+        public void SetPolygonFromAnchorType(IElement inElement, Tuple<double, double> inAnchor)
+        {
+            //Get anchor type
+            IElementProperties3 elemProp3 = inElement as IElementProperties3;
+            esriAnchorPointEnum currentAnchorPointType = elemProp3.AnchorPoint;
+
+            if (currentAnchorPointType == esriAnchorPointEnum.esriTopLeftCorner)
+            {
+                //Set new envelope
+                IEnvelope envUnitBox = new EnvelopeClass();
+                double minX = inAnchor.Item1;
+                double minY = inAnchor.Item2 - inElement.Geometry.Envelope.Height;
+                double maxX = inAnchor.Item1 + inElement.Geometry.Envelope.Width;
+                double maxY = inAnchor.Item2;
+                envUnitBox.PutCoords(minX, minY, maxX, maxY);
+                inElement.Geometry = envUnitBox;
+            }
+
+            if (currentAnchorPointType == esriAnchorPointEnum.esriCenterPoint)
+            {
+
+                //Set new envelope
+                IEnvelope envUnitLabelBox = new EnvelopeClass();
+                double minX = inAnchor.Item1 - inElement.Geometry.Envelope.Width / 2.0;
+                double minY = inAnchor.Item2 - inElement.Geometry.Envelope.Height / 2.0;
+                double maxX = inAnchor.Item1 + inElement.Geometry.Envelope.Width / 2.0;
+                double maxY = inAnchor.Item2 + inElement.Geometry.Envelope.Height / 2.0;
+                envUnitLabelBox.PutCoords(minX, minY, maxX, maxY);
+                inElement.Geometry = envUnitLabelBox;
+            }
+
+            if (currentAnchorPointType == esriAnchorPointEnum.esriTopMidPoint)
+            {
+
+                //Set new envelope
+                IEnvelope envUnitLabelBox = new EnvelopeClass();
+                double minX = inAnchor.Item1 - inElement.Geometry.Envelope.Width / 2.0;
+                double minY = inAnchor.Item2 - inElement.Geometry.Envelope.Height;
+                double maxX = inAnchor.Item1 + inElement.Geometry.Envelope.Width / 2.0;
+                double maxY = inAnchor.Item2;
+                envUnitLabelBox.PutCoords(minX, minY, maxX, maxY);
+                inElement.Geometry = envUnitLabelBox;
+            }
+
+        }
+
+        /// <summary>
+        /// From a given element will calculate a new line geometry to fit anchor point so the element can
+        /// be set at the right place on the layout before being moved.
+        /// NOTE Anchor Point type doesnt' change a thing on the placement of the element.
+        /// </summary>
+        /// <param name="inElement"></param>
+        /// <param name="inAnchor">Without embedded y spacing</param>
+        /// <returns></returns>
+        public void SetLineFromAnchorType(IElement inElement, Tuple<double, double> inAnchor, double length)
+        {
+
+            //Get line
+            IPolyline inPolyline = inElement.Geometry as IPolyline;
+
+            //Get height
+            double height = inPolyline.Envelope.Height;
+
+            if (height == 0)
+            {
+                //Set new polyline
+                IPolyline polylineElement = new PolylineClass();
+
+                //Set new starting point to be center
+                IPoint fromPoint = new PointClass();
+                fromPoint.X = inAnchor.Item1;
+                fromPoint.Y = inAnchor.Item2;
+
+                IPoint toPoint = new PointClass();
+                toPoint.X = inAnchor.Item1 + length;
+                toPoint.Y = inAnchor.Item2;
+
+                polylineElement.FromPoint = fromPoint;
+                polylineElement.ToPoint = toPoint;
+                inElement.Geometry = polylineElement;
+            }
+            else
+            {
+                //NOTE: This situation is for lines that has heights. In that case, it's easier to
+                //Move the whole element then trying to reset anchor point, else we need to move
+                // all curves start/end points inside the polycurve object and that is a pain.
+
+                IPolycurve polycurveElement = inElement.Geometry as IPolycurve;
+
+                //Get anchor type
+                IElementProperties3 inElementProperties = inElement as IElementProperties3;
+
+                if (inElementProperties.AnchorPoint == esriAnchorPointEnum.esriCenterPoint)
+                {
+
+                    //Calculate distance between current location and new anchor point
+                    double oriCenterX = polycurveElement.Envelope.XMin + polycurveElement.Envelope.Width / 2.0;
+                    double oriCenterY = polycurveElement.Envelope.YMin + polycurveElement.Envelope.Height; //It behaves like bottom left anchor...weird
+                    double dX = (oriCenterX) - inAnchor.Item1 - polycurveElement.Envelope.Width / 2.0;
+                    double dY = (oriCenterY) - inAnchor.Item2 - polycurveElement.Envelope.Height / 2.0;
+
+                    //Move
+                    ITransform2D transElement = inElement as ITransform2D;
+
+                    if (oriCenterX < inAnchor.Item1 && oriCenterY < inAnchor.Item2)
+                    {
+                        transElement.Move(dX, dY); //Move accordingly to anchor point which is center center
+                    }
+                    else if (oriCenterX > inAnchor.Item1 && oriCenterY < inAnchor.Item2)
+                    {
+                        transElement.Move(-dX, dY);
+                    }
+                    else if (oriCenterX > inAnchor.Item1 && oriCenterY > inAnchor.Item2)
+                    {
+                        transElement.Move(-dX, -dY);
+                    }
+                    else if (oriCenterX < inAnchor.Item1 && oriCenterY > inAnchor.Item2)
+                    {
+                        transElement.Move(dX, -dY);
+                    }
+
+                }
+            }
+
+
+
+        }
+
+        /// <summary>
+        /// From a given element will calculate a new point geometry to fit anchor point so the element can
+        /// be set at the right place on the layout before being moved.
+        /// NOTE Anchor Point type doesnt' change a thing on the placement of the element.
+        /// </summary>
+        /// <param name="inElement"></param>
+        /// <param name="inAnchor">Without embedded y spacing</param>
+        /// <returns></returns>
+        public void SetPointFromAnchorType(IElement inElement, Tuple<double, double> inAnchor)
+        {
+            //Get anchor type
+            IElementProperties3 elemProp3 = inElement as IElementProperties3;
+            esriAnchorPointEnum currentAnchorPointType = elemProp3.AnchorPoint;
+
+            if (currentAnchorPointType == esriAnchorPointEnum.esriCenterPoint)
+            {
+                IPoint newPoint = new PointClass();
+                newPoint.X = inAnchor.Item1 + Constants.XSpacings.columElementWidth / 2.0;
+                newPoint.Y = inAnchor.Item2;
+                inElement.Geometry = newPoint;
+            }
+
+
+
+
+        }
+
+        #endregion
+    }
+}

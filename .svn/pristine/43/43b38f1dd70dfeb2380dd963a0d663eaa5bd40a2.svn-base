@@ -1,0 +1,170 @@
+﻿
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace GSC_Legend_Renderer.Dictionaries
+{
+    public class Constants
+    {
+        public static class ESRI
+        {
+            //http://resources.arcgis.com/en/help/arcobjects-net/conceptualhelp/index.html#//00010000029s000000
+
+            public const string UIDLayoutViewCommand = "esriArcMapUI.LayoutViewCommand";
+            public const string UIDLayoutAlignVerticalCenterCommand = "esriArcMapUI.AlignMiddleCommand";
+            public const string defaultArcGISFolderName = "ArcGIS";
+        }
+
+        public static class Extensions
+        {
+            //Extensions
+            public const string shpExt = ".shp";
+            public const string gdbExt = ".gdb";
+            public const string mdbExt = ".mdb";
+            public const string xlExt = ".xls";
+            public const string txtExt = ".txt";
+            public const string csvExt = ".csv";
+            public const string dbfExt = ".dbf";
+        }
+
+        public static class LegendTable
+        {
+            public const string legendOrderField = "ELEMENT_ORDER";
+            public const string legendColumnField = "ELEMENT_COLUMN";
+            public const string legendElementField = "ELEMENT";
+            public const string legendStyle1Field = "STYLE1";
+            public const string legendStyle2Field = "STYLE2";
+            public const string legendLabel1Field = "LABEL1";
+            public const string legendLabel1StyleField = "LABEL1STYLE";
+            public const string legendLabel2Field = "LABEL2";
+            public const string legendLabel2StyleField = "LABEL2STYLE";
+            public const string legendHeadingField = "HEADING";
+            public const string legendDescriptionField = "DESCRIPTION";
+        }
+
+        public static class Graphics
+        {
+            public const string unitBox = "UNIT_BOX";
+
+            public const string unitSplit = "UNIT_SPLIT";
+            public const string subUnitSplit1 = "UNIT_SPLIT1";
+            public const string subUnitSplit2 = "UNIT_SPLIT2";
+
+            public const string unitLine = "UNIT_LINE";
+            public const string subUnitLine = "LINEUNIT_LINE";
+
+            public const string unitParent = "UNIT_PARENT";
+            public const string subUnitParentChild = "UNIT_CHILD";
+
+            public const string lineDouble = "TWOSIDE";
+            public const string subLineDoubleTop = "TWOSIDE_TOP";
+            public const string subLineDoubleBottom = "TWOSIDE_BOTTOM";
+
+            public const string lineDoubleFLow = "TWOSIDE_FLOW";
+            public const string subLineDoubleFLowTop = "TWOSIDE_FLOW_TOP";
+            public const string subLineDoubleFLowMiddle = "TWOSIDE_FLOW_MIDDLE";
+            public const string subLineDoubleFLowBottom= "TWOSIDE_FLOW_BOTTOM";
+
+            public const string bracketLeftLower = "L_BRACKET_L";
+            public const string bracketLeftCenter = "L_BRACKET_C";
+            public const string bracketLeftUpper = "L_BRACKET_U";
+            public const string bracketRightLower = "R_BRACKET_L";
+            public const string bracketRightCenter = "R_BRACKET_C";
+            public const string bracketRightUpper = "R_BRACKET_U";
+            public const string bracketSpine = "BRACKET_SPINE";
+
+            public const string overlay = "OVERLAY";
+            public const string breakLine = "BREAK";
+            public const string point = "POINT_CC";
+            public const string pointAngle = "POINT_CC_45";
+            public const string pointAngleLine = "POINT_LC_45";
+            public const string wave = "WAVE";
+            public const string line = "LINE";
+            public const string blob = "BLOB";
+            public const string landslide = "LANDSLIDE";
+            public const string beach = "BEACH";
+            public const string dunes = "DUNES";
+            public const string moraines = "MORAINES";
+            public const string annotationBreak = "ANNO_BREAK";
+            public const string legendBoxDEM = "LegendBoxDEM";
+
+            public const string unitLabel = "UNIT_LABEL"; //Added by GHV
+            public const string heading1 = "HEADING1"; //Added by GHV
+            public const string heading2 = "HEADING2"; //Added by GHV
+            public const string heading3 = "HEADING3"; //Added by GHV
+            public const string heading4 = "HEADING4"; //Added by GHV
+            public const string heading5 = "HEADING5"; //Added by GHV
+            public const string annoBracket = "ANNO_BRACKET"; //Added by GHV
+            public const string description = "DESCRIPTION"; //Added by GHV
+
+
+            public const string anchorCenterCenter = "CC";
+            public const string anchorUupperLeft = "UL";
+            public const string anchorCenterLeft = "CL";
+            public const string anchorLowerCenter = "LC";
+            public const string anchorUpperCenter = "UC";
+            public const string anchorLowerLeft = "LL";
+            public const string anchorCenterRight = "CR";
+            public const string anchorLowerRight = "LR";
+            public const string anchorUpperRight = "UR";
+
+            public const string defaultStartEmplacement = "";
+
+        }
+
+        public static class Assets
+        {
+            public const string AssetFolder = "Assets";
+            public const string mxdEmbeddedFile = "LegendRendererTemplate.mxd";
+            public const string jsonYSpacingEmbeddedFile = "YSpacing.json";
+            public const string jsonXSpacingEmbeddedFile = "XSpacing.json";
+        }
+
+        public static class Namespaces
+        {
+            public const string mainNamespace = "GSC_Legend_Renderer";
+        }
+
+        public static class Styles
+        {
+            public const string styleName = "GSC_SymbolStandard";
+            public const string styleExtension = ".style";
+            public const string styleFillClass = "Fill Symbols";
+            public const string styleMarkerClass = "Marker Symbols";
+            public const string styleLineClass = "Line Symbols";
+        }
+
+        public static class XSpacings
+        {
+            public const double columnWidth = 120.0;
+            public const double columElementWidth = 18.0;
+            public const double columnGapWidth = 5.0;
+            public const double columnDescriptionWidth = 97.0;
+
+            public const string spacingKey = "X-Spacing";
+        }
+
+        public static class YSpacings
+        {
+            public const double smallDescriptionHeightLimit = 10.0;
+        }
+
+        public static class TextConfiguration
+        {
+            public const int charactersPerLine = 76;
+            public const double lineHeight = 3.3; //mm
+
+            //HTML related tags
+            public const string tagBold = "<bol>";
+            public const string endTagBold = "</bol>";
+            public const string tagAllCaps = "<ACP>";
+            public const string endTagAllCaps = "</ACP>";
+
+            //Missing terms
+            public const string missingText = "Missing";
+        }
+    }
+}
