@@ -4,7 +4,7 @@ This tool was develop to assist any user creating a standard Canadian Geoscience
 
 # Requirements
 
-The tools were developed on ArcGIS Desktop version 10.5 and was not tested in version 10.6.
+The tools were developed on ArcGIS Desktop version 10.5 and were not tested in version 10.6.
 
 # User Guide
 
@@ -18,3 +18,6 @@ Original user guide is available on GCDoc for:
 # ESRI Addin
 
 The addin itself can be retrieved here  > bin\Debug\GSC_Legend_Renderer.esriaddin
+
+# Current version
+0.1 (Still in development)
