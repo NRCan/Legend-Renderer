@@ -4,17 +4,20 @@ This tool was develop to assist any user creating a standard Canadian Geoscience
 
 # Requirements
 
-The tools were developed on ArcGIS Desktop version 10.5 and was not tested in version 10.6.
+The tools were developed on ArcGIS Desktop version 10.5 and were not tested in version 10.6.
 
 # User Guide
 
 Original user guide is available on GCDoc for:
 
 
-*  Edition: gcdocs.gc.ca/nrcan-rncan/llisapi.dll/open/31349011
-*  Download: gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=31349011&objAction=download
+*  Edition: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll/open/31349011
+*  Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=31349011&objAction=download
 
 
 # ESRI Addin
 
 The addin itself can be retrieved here  > bin\Debug\GSC_Legend_Renderer.esriaddin
+
+# Current version
+0.1 (Still in development)
