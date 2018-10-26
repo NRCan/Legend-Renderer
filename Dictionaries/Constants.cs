@@ -188,7 +188,7 @@ namespace GSC_Legend_Renderer.Dictionaries
         {
             public const int charactersPerLine = 76;
             public const double lineHeight = 3.3; //mm
-
+            public const double header3LineHeight = 3.66; //mlm
             //HTML related tags
             public const string tagBold = "<bol>";
             public const string endTagBold = "</bol>";

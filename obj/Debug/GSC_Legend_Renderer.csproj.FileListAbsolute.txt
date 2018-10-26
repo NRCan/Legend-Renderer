@@ -1,6 +1,7 @@
 Z:\GSC_Legend_Renderer\bin\Debug\GSC_Legend_Renderer.dll
 Z:\GSC_Legend_Renderer\bin\Debug\GSC_Legend_Renderer.pdb
 Z:\GSC_Legend_Renderer\bin\Debug\fr\GSC_Legend_Renderer.resources.dll
+Z:\GSC_Legend_Renderer\bin\Debug\ESRI.ArcGIS.AddIns.dll
 Z:\GSC_Legend_Renderer\bin\Debug\ESRI.ArcGIS.AxPublisherControls.dll
 Z:\GSC_Legend_Renderer\bin\Debug\ESRI.ArcGIS.Version.dll
 Z:\GSC_Legend_Renderer\bin\Debug\Newtonsoft.Json.dll
@@ -28,6 +29,7 @@ Z:\GSC_Legend_Renderer\bin\Debug\ESRI.ArcGIS.Server.dll
 Z:\GSC_Legend_Renderer\bin\Debug\ESRI.ArcGIS.System.dll
 Z:\GSC_Legend_Renderer\bin\Debug\ESRI.ArcGIS.SystemUI.dll
 Z:\GSC_Legend_Renderer\bin\Debug\Interop.esriSearch.dll
+Z:\GSC_Legend_Renderer\obj\Debug\GSC_Legend_Renderer.csprojResolveAssemblyReference.cache
 Z:\GSC_Legend_Renderer\obj\Debug\Interop.esriSearch.dll
 Z:\GSC_Legend_Renderer\obj\Debug\GSC_Legend_Renderer.csproj.ResolveComReference.cache
 Z:\GSC_Legend_Renderer\obj\Debug\GSC_Legend_Renderer.Form_Legend_Renderer.resources
@@ -38,5 +40,4 @@ Z:\GSC_Legend_Renderer\obj\Debug\GSC_Legend_Renderer.csproj.GenerateResource.Cac
 Z:\GSC_Legend_Renderer\obj\Debug\fr\GSC_Legend_Renderer.resources.dll
 Z:\GSC_Legend_Renderer\obj\Debug\GSC_Legend_Renderer.dll
 Z:\GSC_Legend_Renderer\obj\Debug\GSC_Legend_Renderer.pdb
-Z:\GSC_Legend_Renderer\obj\Debug\GSC_Legend_Renderer.csprojResolveAssemblyReference.cache
 Z:\GSC_Legend_Renderer\bin\Debug\GSC_Legend_Renderer.esriAddIn

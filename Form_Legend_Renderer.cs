@@ -566,7 +566,26 @@ namespace GSC_Legend_Renderer
 
                                 //Set new anchor
                                 anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - ySpacing);
-                                SetRectangularPolygonFromAnchorType(headElement, anchorPoint);
+                                
+
+                                //Set height for heading3 
+                                if (currentElement.Contains(Constants.Graphics.heading3))
+                                {
+                                    //Recalculate height
+                                    double heading3Height = GetTextHeight(currentHeading, Constants.TextConfiguration.header3LineHeight);
+
+                                    //Set new envelope
+                                    SetRectnagularPolygonFromAnchorTypeAndHeight(headElement, anchorPoint, heading3Height);
+
+                                    //Reset anchor point since the header has shrunk a bit.
+                                    anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 + heading3Height);
+
+                                }
+                                else
+                                {
+                                    //Set new envelope
+                                    SetRectangularPolygonFromAnchorType(headElement, anchorPoint);
+                                }
 
                                 //Move
                                 ITransform2D transElement = headElement as ITransform2D;
@@ -606,13 +625,6 @@ namespace GSC_Legend_Renderer
                                 }
 
                                 tElement.Text = currentHeading;
-
-                                //Set height for heading3 
-                                if (currentElement.Contains(Constants.Graphics.heading3))
-                                {
-                                    double heading3Height = GetTextHeight(currentHeading);
-                                    headElement.Geometry.Envelope.Height = heading3Height;
-                                }
 
                                 //Add base element
                                 currentDoc.ActiveView.GraphicsContainer.AddElement(headElement, 0);
@@ -715,18 +727,6 @@ namespace GSC_Legend_Renderer
 
                             }
 
-                            
-                            
-
-                            ////Build group
-                            //IGroupElement3 unitGroup = GetGroupLegendElement(unitBoxElProp.Name);
-                            //if (demUnitBoxElement != null)
-                            //{
-                            //    currentDoc.ActiveView.GraphicsContainer.MoveElementToGroup(demUnitBoxElement, unitGroup as IGroupElement);
-                            //}
-                            //currentDoc.ActiveView.GraphicsContainer.MoveElementToGroup(unitBoxElement, unitGroup as IGroupElement);
-                            //currentDoc.ActiveView.GraphicsContainer.MoveElementToGroup(unitBoxLabelElement, unitGroup as IGroupElement);
-
                             //Keep name
                             lastElement = unitBoxElement;
                             lastElementType = originalElementName;
@@ -812,7 +812,7 @@ namespace GSC_Legend_Renderer
                             //Add label if needed
                             if (currentLabel1 != null && currentLabel1 != string.Empty && currentLabel1 != " ")
                             {
-                                IElement thinUnitLabel = AddLabelInUnitBox(currentLabel1, thinUnitElement, currentDoc, anchorPoint, Constants.Graphics.UnitBoxType.line);
+                                IElement thinUnitLabel = AddLabelInUnitBox(currentLabel1, thinUnitElement, currentDoc, anchorPoint, Constants.Graphics.UnitBoxType.line, currentLabel1Style);
                                 currentDoc.ActiveView.GraphicsContainer.MoveElementToGroup(thinUnitLabel, thinUnitGroup as IGroupElement);
                             }
 
@@ -917,7 +917,7 @@ namespace GSC_Legend_Renderer
                                 SetThinUnitSymbol(parentChildElement, currentStyle1, currentStyle2);
                                 if (currentLabel1 != null && currentLabel1 != string.Empty && currentLabel1 != " ")
                                 {
-                                    labelParentChild = AddLabelInUnitBox(currentLabel1, parentChildElement, currentDoc, anchorPoint, Constants.Graphics.UnitBoxType.child_line);
+                                    labelParentChild = AddLabelInUnitBox(currentLabel1, parentChildElement, currentDoc, anchorPoint, Constants.Graphics.UnitBoxType.child_line, currentLabel1Style);
                                     //Move label
                                     ITransform2D transLabelElement = labelParentChild as ITransform2D;
                                     transLabelElement.Move(xSpacing, 0); //Move accordingly to x spacing if any is found (child unit case)
@@ -933,7 +933,7 @@ namespace GSC_Legend_Renderer
                                 {
                                     currentLabel1 = Constants.TextConfiguration.missingText;
                                 }
-                                labelParentChild = AddLabelInUnitBox(currentLabel1, parentChildElement, currentDoc, anchorPoint, Constants.Graphics.UnitBoxType.normal);
+                                labelParentChild = AddLabelInUnitBox(currentLabel1, parentChildElement, currentDoc, anchorPoint, Constants.Graphics.UnitBoxType.normal, currentLabel1Style);
 
                                 //Move label
                                 ITransform2D transLabelElement = labelParentChild as ITransform2D;
@@ -1258,17 +1258,20 @@ namespace GSC_Legend_Renderer
                                     SetPointFromAnchorType(symAreaPointElement, overlayPointAnchor, offset);
                                 }
 
+                                if (symAreaPointElement != null)
+                                {
 
+                                    //Add base element
+                                    currentDoc.ActiveView.GraphicsContainer.AddElement(symAreaPointElement, 0);
+                                    currentDoc.ActiveView.GraphicsContainer.BringToFront(currentGrapSelection.SelectedElements);
 
-                                //Add base element
-                                currentDoc.ActiveView.GraphicsContainer.AddElement(symAreaPointElement, 0);
-                                currentDoc.ActiveView.GraphicsContainer.BringToFront(currentGrapSelection.SelectedElements);
+                                    //Unselect
+                                    currentGrapSelection.UnselectElement(symAreaPointElement);
 
-                                //Unselect
-                                currentGrapSelection.UnselectElement(symAreaPointElement);
+                                    //Add to legend list
+                                    legendElementList.Add(symAreaPointElement);
+                                }
 
-                                //Add to legend list
-                                legendElementList.Add(symAreaPointElement);
                             }
 
 
@@ -2417,6 +2420,7 @@ namespace GSC_Legend_Renderer
                 ISimpleTextSymbol inStyleSymbol = textSymbolDico[inStyle] as ISimpleTextSymbol;
                 ISimpleTextSymbol currentStyleSymbol = tElement.Symbol as ISimpleTextSymbol;
                 currentStyleSymbol.Font = inStyleSymbol.Font;
+                currentStyleSymbol.Color = inStyleSymbol.Color;
                 currentStyleSymbol.Size = Constants.TextConfiguration.defaultUnitBoxLabelFontSize; //Force size else incoming style might be too big.
                 currentStyleSymbol.VerticalAlignment = esriTextVerticalAlignment.esriTVACenter; //Force vertical center for text else incoming style might be set to else where.
                 tElement.Symbol = Services.ObjectManagement.CopyInputObject(currentStyleSymbol) as ISimpleTextSymbol;
@@ -2934,8 +2938,9 @@ namespace GSC_Legend_Renderer
         /// Will calculate a text element height based on wanted text inside it, if width and font size is fixed.
         /// </summary>
         /// <param name="inText"></param>
+        /// <param name="minHeight">A minimal height in case text is a bit bolder or bigger, used for heading for example</param>
         /// <returns></returns>
-        public double GetTextHeight(string inText)
+        public double GetTextHeight(string inText, double minHeight=0.0)
         {
             //Count character
             double charCount = Convert.ToDouble(inText.Count());
@@ -2944,7 +2949,16 @@ namespace GSC_Legend_Renderer
             double numberLines = charCount / Constants.TextConfiguration.charactersPerLine;
             numberLines = Math.Ceiling(numberLines); //Round to upper boundary
 
-            return numberLines * (Constants.TextConfiguration.lineHeight);
+            //Height
+            double tHeight = numberLines * (Constants.TextConfiguration.lineHeight);
+
+            //Validation
+            if (Constants.TextConfiguration.lineHeight < minHeight)
+            {
+                tHeight = numberLines * (minHeight);
+            }
+
+            return tHeight;
 
         }
 
