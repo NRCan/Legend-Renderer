@@ -413,6 +413,7 @@ namespace GSC_Legend_Renderer
                     int howManyRightBrackets = 0; //Will be used to recalculate x spacing in case more columns are asked by user and that some right brackets are also found
                     Tuple<IElement, IElement, IElement, IElement> bracketMapUnit = new Tuple<IElement, IElement, IElement, IElement>(null, null, null, null); //Will be used to keep unit box for bracket and replace it at the right anchor when bracket is done drawing.
                     Tuple<double, double> anchorPoint = GetAnchorPointStart(); //TODO Find if mxd is a CGM one or not.
+                    originalYSpacing = anchorPoint.Item2; //Synchronise with initial calculate anchor.
                     Tuple<double, double> anchorPointParent = new Tuple<double, double>(0, 0);
                     heading5Text = string.Empty; //Init
                     int currentIteration = 0; //Will be used if user has forgot to enter an order.
@@ -512,8 +513,22 @@ namespace GSC_Legend_Renderer
                                 }
 
                                 //Move to right and reset Y.
-                                ySpacing = originalYSpacing;
-                                anchorPoint = new Tuple<double, double>(anchorPoint.Item1 + columnWidth + columnColumnGapWidth + rightBracketSpacing, ySpacing);
+                                ySpacing = 0; //Reset y spacing so it appears at the top of the page 
+                                anchorPoint = new Tuple<double, double>(anchorPoint.Item1 + columnWidth + columnColumnGapWidth + rightBracketSpacing, originalYSpacing);
+
+                                //Adjust  anchorpoint in case current element as an inner centered y anchor (CC, CL and CR)
+                                if (templateGraphicDico.ContainsKey(currentElement))
+                                {
+                                    IElement newColumnFirstElement = Services.ObjectManagement.CopyInputObject(templateGraphicDico[currentElement]) as IElement;
+                                    //Get anchor type
+                                    IElementProperties3 newColumnProp = newColumnFirstElement as IElementProperties3;
+                                    esriAnchorPointEnum currentAnchorPointType = newColumnProp.AnchorPoint;
+
+                                    if (currentAnchorPointType == esriAnchorPointEnum.esriCenterPoint || currentAnchorPointType == esriAnchorPointEnum.esriLeftMidPoint || currentAnchorPointType == esriAnchorPointEnum.esriRightMidPoint)
+                                    {
+                                        ySpacing = (newColumnFirstElement.Geometry.Envelope.Height / 2.0);
+                                    }
+                                }
                                 lastColumn = currentColumn;
 
                                 //Reset right bracket number
