@@ -1959,8 +1959,17 @@ namespace GSC_Legend_Renderer
                                 }
                                 else
                                 {
+                                    
+                                    //Add header if needed
+                                    if (currentHeading != null && currentHeading != string.Empty && currentHeading != " ")
+                                    {
+                                        currentDescription = Constants.TextConfiguration.tagBold + currentHeading + Constants.TextConfiguration.endTagBold + " " + currentDescription;
+                                    }
+
                                     tElement.Text = currentDescription;
                                 }
+
+
 
                                 //Set width and height
                                 double wantedTextHeight = GetTextHeight(currentDescription);
@@ -1988,12 +1997,6 @@ namespace GSC_Legend_Renderer
 
                                 //Rename
                                 noteElProp.Name = noteElProp.Name + currentOrder.ToString();
-
-                                ////Reset anchor if note is too long
-                                //if (ySpacing < wantedTextHeight)
-                                //{
-                                //    anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - wantedTextHeight);
-                                //}
 
                                 //Add base element
                                 currentDoc.ActiveView.GraphicsContainer.AddElement(noteElement, 0);
