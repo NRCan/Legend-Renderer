@@ -1040,7 +1040,7 @@ namespace GSC_Legend_Renderer
                                 //Add second label if any
                                 if (currentLabel2 != null && currentLabel2 != string.Empty && currentLabel2 != " ")
                                 {
-                                    AddLabelToMarker(currentLabel2, markerLabel1, currentDoc, anchorPoint, Constants.Styles.MarkerLabelPositioning.RightAboveCenter);
+                                    AddLabelToMarker(currentLabel2, markerLabel1, currentDoc, anchorPoint, Constants.Styles.MarkerLabelPositioning.RightAboveCenter, placement);
                                 }
                             }
 
@@ -2642,7 +2642,12 @@ namespace GSC_Legend_Renderer
             {
                 legendElementList.Add(descriptionElement);
             }
-            
+
+            //Add base element
+            IPageLayout l = inDocument.ActiveView as IPageLayout;
+            IGraphicsContainerSelect gcs = l as IGraphicsContainerSelect;
+            gcs.UnselectElement(descriptionElement);
+
 
             return descriptionElement;
         }
@@ -2656,7 +2661,7 @@ namespace GSC_Legend_Renderer
         /// <param name="inAnchor">The anchor of the parent</param>
         /// <param name="parentElemType">The parent original name (type) to parse where to put the label (POINT_CC_45 vs POINT_LC_45)</param>
         /// <returns></returns>
-        private IElement AddLabelToMarker(string inLabelText, IElement parentElement, IMxDocument inDocument, Tuple<double, double> inAnchor, Constants.Styles.MarkerLabelPositioning wantedPosition)
+        private IElement AddLabelToMarker(string inLabelText, IElement parentElement, IMxDocument inDocument, Tuple<double, double> inAnchor, Constants.Styles.MarkerLabelPositioning wantedPosition, Constants.Styles.MarkerLabelPositioning parentPosition = Constants.Styles.MarkerLabelPositioning.FromCenterToUpperLeft)
         {
             //Variables
             string inElementType = string.Empty;
@@ -2710,9 +2715,6 @@ namespace GSC_Legend_Renderer
                     }
 
                     //Value were found from manually placing the label at wanted place and calculating the ratio for the best move. 
-                    //xLabelAnchor = doubleMin - (markerWidth * 0.7541573);  //TODO move hardcoded value somewhere else
-                    //yLabelAnchor = parentElement.Geometry.Envelope.YMin + (markerHeight * 0.6315338); //TODO move hardcoded value somewhere else
-
                     xLabelAnchor = doubleMin - (markerWidth * 0.5541573);  //TODO move hardcoded value somewhere else
                     yLabelAnchor = parentElement.Geometry.Envelope.YMin + (markerHeight * 0.5315338); //TODO move hardcoded value somewhere else
 
@@ -2721,7 +2723,7 @@ namespace GSC_Legend_Renderer
                 case Constants.Styles.MarkerLabelPositioning.FromCenterToUpperRight:
                     //Value were found from manually placing the label at wanted place and calculating the ratio for the best move. 
                     xLabelAnchor = parentElement.Geometry.Envelope.XMin + (markerWidth / 2.0) * 2.18849;  //TODO move hardcoded value somewhere else
-                    yLabelAnchor = parentElement.Geometry.Envelope.YMin + (markerHeight) * 0.89823; //TODO move hardcoded value somewhere else
+                    yLabelAnchor = parentElement.Geometry.Envelope.YMin + (markerHeight) * 0.59923; //TODO move hardcoded value somewhere else
                     break;
 
                 //This case is meant for when two labels must be added around a marker point
@@ -2729,7 +2731,15 @@ namespace GSC_Legend_Renderer
 
                     //Force y move on parent for a better fit of the two labels
                     ITransform2D transformParentElement = parentElement as ITransform2D;
-                    transformParentElement.Move(0, -parentHeight * 0.5);
+                    if (parentPosition == Constants.Styles.MarkerLabelPositioning.FromCenterToUpperLeft)
+                    {
+                        transformParentElement.Move(-0.47, -parentHeight * 0.5);
+                    }
+                    else
+                    {
+                        transformParentElement.Move(0, -parentHeight * 0.5);
+                    }
+                    
 
                     //Value were found from manually placing the label at wanted place and calculating the ratio for the best move. 
                     xLabelAnchor = parentElement.Geometry.Envelope.XMin + parentWidth / 2.0;
