@@ -21,3 +21,9 @@ The addin itself can be retrieved here  > https://gccode.ssc-spc.gc.ca/GSC-GDF/G
 
 # Current version
 0.5 (Testing phase)
+
+# Current set of results
+
+On GCDoc:
+
+*  Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=33213794&objAction=download
