@@ -2710,8 +2710,11 @@ namespace GSC_Legend_Renderer
                     }
 
                     //Value were found from manually placing the label at wanted place and calculating the ratio for the best move. 
-                    xLabelAnchor = doubleMin - (markerWidth * 0.7541573);  //TODO move hardcoded value somewhere else
-                    yLabelAnchor = parentElement.Geometry.Envelope.YMin + (markerHeight * 0.6315338); //TODO move hardcoded value somewhere else
+                    //xLabelAnchor = doubleMin - (markerWidth * 0.7541573);  //TODO move hardcoded value somewhere else
+                    //yLabelAnchor = parentElement.Geometry.Envelope.YMin + (markerHeight * 0.6315338); //TODO move hardcoded value somewhere else
+
+                    xLabelAnchor = doubleMin - (markerWidth * 0.5541573);  //TODO move hardcoded value somewhere else
+                    yLabelAnchor = parentElement.Geometry.Envelope.YMin + (markerHeight * 0.5315338); //TODO move hardcoded value somewhere else
 
                     break;
 
