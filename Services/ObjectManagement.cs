@@ -17,7 +17,7 @@ namespace GSC_Legend_Renderer.Services
         public static object CopyInputObject(object inputOb)
         {
             //Get IObjectCopy interface
-            IObjectCopy objectCopy = new ObjectCopyClass();
+            IObjectCopy objectCopy = new ObjectCopy();
 
             //Get IUnknown interface (copied map)
             object copiedObj = objectCopy.Copy(inputOb);

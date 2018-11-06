@@ -131,7 +131,7 @@ namespace GSC_Legend_Renderer.Services
             string validName = inputName;
 
             //Validate
-            IFieldChecker validChecker = new FieldCheckerClass();
+            IFieldChecker validChecker = new FieldChecker() as IFieldChecker;
             validChecker.InputWorkspace = inputWorkspace;
             validChecker.ValidateTableName(inputName, out validName);
 
@@ -174,7 +174,7 @@ namespace GSC_Legend_Renderer.Services
                 {
                     //Get workspace path and file name from input
                     inputPath = System.IO.Path.GetDirectoryName(inputPath); //Rest path to directory, for shapefiles only.
-                    workFactory = new ShapefileWorkspaceFactoryClass();
+                    workFactory = new ShapefileWorkspaceFactory();
 
                 }
                 workspc = workFactory.OpenFromFile(inputPath, 0);
@@ -298,7 +298,7 @@ namespace GSC_Legend_Renderer.Services
                 {
                     //Get workspace path and file name from input
                     inputPath = System.IO.Path.GetDirectoryName(inputPath); //Rest path to directory, for shapefiles only.
-                    workFactory = new ShapefileWorkspaceFactoryClass();
+                    workFactory = new ShapefileWorkspaceFactory();
 
                 }
 
@@ -326,7 +326,7 @@ namespace GSC_Legend_Renderer.Services
         {
 
             //Create an in-memory workspace factory
-            IWorkspaceFactory workFact = new InMemoryWorkspaceFactoryClass();
+            IWorkspaceFactory workFact = new InMemoryWorkspaceFactory();
 
             //Create a new workspace name to init a new workspace
             IWorkspaceName workName = workFact.Create(null, "inMemory", null, 0);
@@ -374,7 +374,7 @@ namespace GSC_Legend_Renderer.Services
         public static IWorkspace CreateInMemoryWorkspace()
         {
             //Create a factory 
-            IWorkspaceFactory imWork = new InMemoryWorkspaceFactoryClass();
+            IWorkspaceFactory imWork = new InMemoryWorkspaceFactory();
 
             //Create a work name
             IWorkspaceName workName = imWork.Create(null, "IMeMineWorkspace", null, 0);
@@ -406,7 +406,7 @@ namespace GSC_Legend_Renderer.Services
             }
 
             //Create a factory 
-            IWorkspaceFactory shapeWorkspaceFactory = new ShapefileWorkspaceFactoryClass();
+            IWorkspaceFactory shapeWorkspaceFactory = new ShapefileWorkspaceFactory();
 
             //Build the workspace
             IWorkspace shapeWorkspace = shapeWorkspaceFactory.OpenFromFile(folderForShapefile, 0);

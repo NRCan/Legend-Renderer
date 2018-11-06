@@ -74,7 +74,7 @@ namespace GSC_Legend_Renderer.Services
         {
             //Variables
             List<string> TableValueList = new List<string>();
-            IQueryFilter queryFilter = new QueryFilterClass();
+            IQueryFilter queryFilter = new QueryFilter();
 
             //Get table object
             ITable wantedTable = OpenTableFromWorkspace(inputWorkspace, tableName);
@@ -117,7 +117,7 @@ namespace GSC_Legend_Renderer.Services
         {
             //Variables
             Dictionary<string, List<string>> uniqueValues = new Dictionary<string, List<string>>();
-            IQueryFilter uQueryFilter = new QueryFilterClass();
+            IQueryFilter uQueryFilter = new QueryFilter();
             string mainList = "Main";
             string tagList = "Tag";
 
@@ -188,7 +188,7 @@ namespace GSC_Legend_Renderer.Services
         {
             //Variables
             SortedDictionary<string, List<string>> uniqueValues = new SortedDictionary<string, List<string>>();
-            IQueryFilter uQueryFilter = new QueryFilterClass();
+            IQueryFilter uQueryFilter = new QueryFilter();
 
             //Get table object
             ITable uWantedTable = OpenTableFromWorkspace(inputWorkspace, uTableName);
@@ -254,7 +254,7 @@ namespace GSC_Legend_Renderer.Services
         {
             //Variables
             List<Tuple<string, string>> uniqueValues = new List<Tuple<string, string>>();
-            IQueryFilter uQueryFilter = new QueryFilterClass();
+            IQueryFilter uQueryFilter = new QueryFilter();
 
             try
             {
@@ -317,7 +317,7 @@ namespace GSC_Legend_Renderer.Services
         {
             //Variables
             List<Tuple<string, string, string>> uniqueValues = new List<Tuple<string, string, string>>();
-            IQueryFilter uQueryFilter = new QueryFilterClass();
+            IQueryFilter uQueryFilter = new QueryFilter();
 
             try
             {
@@ -381,7 +381,7 @@ namespace GSC_Legend_Renderer.Services
         {
             //Variables
             Dictionary<string, Tuple<string, string>> uniqueValues = new Dictionary<string, Tuple<string, string>>();
-            IQueryFilter uQueryFilter = new QueryFilterClass();
+            IQueryFilter uQueryFilter = new QueryFilter();
 
             try
             {
@@ -446,7 +446,7 @@ namespace GSC_Legend_Renderer.Services
         {
             //Variables
             Dictionary<string, string> uniqueValues = new Dictionary<string, string>();
-            IQueryFilter uQueryFilter = new QueryFilterClass();
+            IQueryFilter uQueryFilter = new QueryFilter();
 
             //Get table object
             ITable uWantedTable = OpenTableFromWorkspace(inputWorkspace, uTableName);
@@ -500,7 +500,7 @@ namespace GSC_Legend_Renderer.Services
             ITable getTable = OpenTableFromWorkspace(inputWorkspace, tableName);
 
             //Build a query filter for update cursor
-            IQueryFilter queryFilter = new QueryFilterClass();
+            IQueryFilter queryFilter = new QueryFilter();
 
             //Update filter with where clause
             if (query != null)
@@ -627,7 +627,7 @@ namespace GSC_Legend_Renderer.Services
         public static ITable OpenTableFromString(string inputTablePath)
         {
             //Call the GPUtilities function to retrieve feature class (treats shapefiles and features)
-            IGPUtilities gpUtil = new GPUtilitiesClass();
+            IGPUtilities gpUtil = new GPUtilities();
             ITable getInTable = gpUtil.OpenTableFromString(inputTablePath);
 
             return getInTable;
@@ -776,7 +776,7 @@ namespace GSC_Legend_Renderer.Services
             try
             {
                 //Create the field object
-                IField newField = new FieldClass();
+                IField newField = new Field();
                 IFieldEdit2 newFieldEdit = (IFieldEdit2)newField;
 
                 newFieldEdit.Name_2 = fieldParam.Item1;
@@ -817,7 +817,7 @@ namespace GSC_Legend_Renderer.Services
             try
             {
                 //Variables
-                IQueryFilter queryFilterUpdate = new QueryFilterClass();
+                IQueryFilter queryFilterUpdate = new QueryFilter();
 
                 //Get table object
                 ITable upWantedTable = OpenTableFromWorkspace(inputWorkspace, upTableName);
@@ -908,7 +908,7 @@ namespace GSC_Legend_Renderer.Services
             try
             {
                 //Variables
-                IQueryFilter queryFilterUpdate = new QueryFilterClass();
+                IQueryFilter queryFilterUpdate = new QueryFilter();
 
                 //Get table object
                 ITable delWantedTable = OpenTableFromWorkspace(inputWorkspace, delTableName);
@@ -972,7 +972,7 @@ namespace GSC_Legend_Renderer.Services
             try
             {
                 //Variables
-                IQueryFilter queryFilterUpdate = new QueryFilterClass();
+                IQueryFilter queryFilterUpdate = new QueryFilter();
 
                 //Get table object and delete
                 ITable delWantedTable = OpenTableFromWorkspace(inputWorkspace, delTableName);
@@ -1001,13 +1001,13 @@ namespace GSC_Legend_Renderer.Services
             IDatasetName inDatasetName = inDataset.FullName as IDatasetName;
 
             //Init a new table name and set the new one
-            ITableName outTableName = new TableNameClass();
+            ITableName outTableName = new TableName() as ITableName;
             IDatasetName outDatasetName = outTableName as IDatasetName;
             outDatasetName.Name = outName;
 
             //Set workspace of output table
             IDataset outDataset = outWorkspace as IDataset;
-            IWorkspaceName outWorkspaceName = new WorkspaceNameClass();
+            IWorkspaceName outWorkspaceName = new WorkspaceName() as IWorkspaceName;
             outWorkspaceName = outDataset.FullName as IWorkspaceName;
             outDatasetName.WorkspaceName = outWorkspaceName;
 

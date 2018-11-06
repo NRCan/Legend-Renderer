@@ -687,7 +687,7 @@ namespace GSC_Legend_Renderer
                             unitBoxElProp.Name = unitBoxElProp.Name + currentOrder.ToString();
 
                             //Symbolize
-                            IElement unitBoxLabelElement = new MarkerElementClass();
+                            IElement unitBoxLabelElement = new MarkerElement();
                             IGroupElement inGroupElement = unitBoxElement as IGroupElement;
 
                             //Unselect
@@ -1543,15 +1543,15 @@ namespace GSC_Legend_Renderer
                                 #region Move to right anchor
 
                                 //Set new anchor
-                                IPoint startPointLine = new PointClass();
+                                IPoint startPointLine = new ESRI.ArcGIS.Geometry.Point();
                                 startPointLine.X = upLeftBracket.Geometry.Envelope.XMin;
                                 startPointLine.Y = upLeftBracket.Geometry.Envelope.YMin;
 
-                                IPoint endPointLine = new PointClass();
+                                IPoint endPointLine = new ESRI.ArcGIS.Geometry.Point();
                                 endPointLine.X = middleBracketElement.Geometry.Envelope.XMax;
                                 endPointLine.Y = middleBracketElement.Geometry.Envelope.YMax;
 
-                                IPolyline spineLine = new PolylineClass();
+                                IPolyline spineLine = new ESRI.ArcGIS.Geometry.Polyline() as IPolyline;
                                 spineLine.ToPoint = endPointLine;
                                 spineLine.FromPoint = startPointLine;
 
@@ -1583,15 +1583,15 @@ namespace GSC_Legend_Renderer
                                 #region Move to right anchor
 
                                 //Set new anchor
-                                IPoint startPointLine2 = new PointClass();
+                                IPoint startPointLine2 = new ESRI.ArcGIS.Geometry.Point();
                                 startPointLine2.X = middleBracketElement.Geometry.Envelope.XMax;
                                 startPointLine2.Y = middleBracketElement.Geometry.Envelope.YMin;
 
-                                IPoint endPointLine2 = new PointClass();
+                                IPoint endPointLine2 = new ESRI.ArcGIS.Geometry.Point();
                                 endPointLine2.X = leftEndBracketElement.Geometry.Envelope.XMin;
                                 endPointLine2.Y = leftEndBracketElement.Geometry.Envelope.YMax;
 
-                                IPolyline spineLine2 = new PolylineClass();
+                                IPolyline spineLine2 = new Polyline() as IPolyline;
                                 spineLine2.ToPoint = endPointLine2;
                                 spineLine2.FromPoint = startPointLine2;
 
@@ -1830,15 +1830,15 @@ namespace GSC_Legend_Renderer
                                 #region Move to right anchor
 
                                 //Set new anchor
-                                IPoint rightStartPointLine = new PointClass();
+                                IPoint rightStartPointLine = new ESRI.ArcGIS.Geometry.Point();
                                 rightStartPointLine.X = upRightBracket.Geometry.Envelope.XMax;
                                 rightStartPointLine.Y = upRightBracket.Geometry.Envelope.YMin;
 
-                                IPoint rightEndPointLine = new PointClass();
+                                IPoint rightEndPointLine = new ESRI.ArcGIS.Geometry.Point();
                                 rightEndPointLine.X = rightMiddleBracketElement.Geometry.Envelope.XMin;
                                 rightEndPointLine.Y = rightMiddleBracketElement.Geometry.Envelope.YMax;
 
-                                IPolyline rightSpineLine = new PolylineClass();
+                                IPolyline rightSpineLine = new ESRI.ArcGIS.Geometry.Polyline() as IPolyline;
                                 rightSpineLine.ToPoint = rightEndPointLine;
                                 rightSpineLine.FromPoint = rightStartPointLine;
 
@@ -1869,15 +1869,15 @@ namespace GSC_Legend_Renderer
                                 #region Move to right anchor
 
                                 //Set new anchor
-                                IPoint rightStartPointLine2 = new PointClass();
+                                IPoint rightStartPointLine2 = new ESRI.ArcGIS.Geometry.Point();
                                 rightStartPointLine2.X = rightMiddleBracketElement.Geometry.Envelope.XMin;
                                 rightStartPointLine2.Y = rightMiddleBracketElement.Geometry.Envelope.YMin;
 
-                                IPoint rightEndPointLine2 = new PointClass();
+                                IPoint rightEndPointLine2 = new ESRI.ArcGIS.Geometry.Point();
                                 rightEndPointLine2.X = rightEndBracketElement.Geometry.Envelope.XMax;
                                 rightEndPointLine2.Y = rightEndBracketElement.Geometry.Envelope.YMax;
 
-                                IPolyline rightspineLine2 = new PolylineClass();
+                                IPolyline rightspineLine2 = new ESRI.ArcGIS.Geometry.Polyline() as IPolyline;
                                 rightspineLine2.ToPoint = rightEndPointLine2;
                                 rightspineLine2.FromPoint = rightStartPointLine2;
 
@@ -1977,7 +1977,7 @@ namespace GSC_Legend_Renderer
                                 env.Width = noteElement.Geometry.Envelope.Width; //Set width
                                 env.Height = wantedTextHeight;
 
-                                IPolygon pol = new PolygonClass(); //Create new polygon from wanted envelope
+                                IPolygon pol = new Polygon() as IPolygon; //Create new polygon from wanted envelope
                                 ISegmentCollection polSegment = pol as ISegmentCollection;
                                 polSegment.SetRectangle(env);
 
@@ -2105,7 +2105,7 @@ namespace GSC_Legend_Renderer
             string templateMXDPath = ValidateTemplateMXDExistance();
 
             //Open template mxd to retrieve graphics out of it
-            IMapDocument mapDoc = new MapDocumentClass();
+            IMapDocument mapDoc = new MapDocument();
             mapDoc.Open(templateMXDPath);
 
             //Get to layout view
@@ -2394,7 +2394,7 @@ namespace GSC_Legend_Renderer
         private IGroupElement3 GetGroupLegendElement(string elementName = Constants.Graphics.cgmLegendElement)
         {
             //Variables
-            IGroupElement3 groupedLegend = new GroupElementClass();
+            IGroupElement3 groupedLegend = new GroupElement() as IGroupElement3;
 
             //Set name
             IElementProperties elementGL = groupedLegend as IElementProperties;
@@ -2596,7 +2596,7 @@ namespace GSC_Legend_Renderer
             }
 
             env.Height = wantedTextHeight;
-            IPolygon pol = new PolygonClass(); //Create new polygon from wanted envelope
+            IPolygon pol = new Polygon() as IPolygon; //Create new polygon from wanted envelope
             ISegmentCollection polSegment = pol as ISegmentCollection;
             polSegment.SetRectangle(env);
 
@@ -3026,7 +3026,7 @@ namespace GSC_Legend_Renderer
             if (currentAnchorPointType == esriAnchorPointEnum.esriTopLeftCorner)
             {
                 //Set new envelope
-                IEnvelope envUnitBox = new EnvelopeClass();
+                IEnvelope envUnitBox = new Envelope() as IEnvelope;
                 double minX = inAnchor.Item1;
                 double minY = inAnchor.Item2 - inHeight;
                 double maxX = inAnchor.Item1 + inElementWidth;
@@ -3039,7 +3039,7 @@ namespace GSC_Legend_Renderer
             {
 
                 //Set new envelope
-                IEnvelope envUnitLabelBox = new EnvelopeClass();
+                IEnvelope envUnitLabelBox = new Envelope() as IEnvelope;
                 double minX = inAnchor.Item1 - inElementWidth / 2.0;
                 double minY = inAnchor.Item2 - inHeight / 2.0;
                 double maxX = inAnchor.Item1 + inElementWidth / 2.0;
@@ -3065,7 +3065,7 @@ namespace GSC_Legend_Renderer
             {
 
                 //Set new envelope
-                IEnvelope envUnitLabelBox = new EnvelopeClass();
+                IEnvelope envUnitLabelBox = new Envelope() as IEnvelope;
                 double minX = inAnchor.Item1 - inElementWidth / 2.0;
                 double minY = inAnchor.Item2 - inHeight;
                 double maxX = inAnchor.Item1 + inElementWidth / 2.0;
@@ -3078,7 +3078,7 @@ namespace GSC_Legend_Renderer
             {
 
                 //Set new envelope
-                IEnvelope envUnitLabelBox = new EnvelopeClass();
+                IEnvelope envUnitLabelBox = new Envelope() as IEnvelope;
                 double minX = inAnchor.Item1;
                 double minY = inAnchor.Item2 - inHeight / 2.0;
                 double maxX = inAnchor.Item1 + inElementWidth;
@@ -3090,7 +3090,7 @@ namespace GSC_Legend_Renderer
             if (currentAnchorPointType == esriAnchorPointEnum.esriBottomRightCorner)
             {
                 //Set new envelope
-                IEnvelope envUnitLabelBox = new EnvelopeClass();
+                IEnvelope envUnitLabelBox = new Envelope() as IEnvelope;
                 double minX = inAnchor.Item1 - inElementWidth;
                 double minY = inAnchor.Item2;
                 double maxX = inAnchor.Item1;
@@ -3102,7 +3102,7 @@ namespace GSC_Legend_Renderer
             if (currentAnchorPointType == esriAnchorPointEnum.esriBottomLeftCorner)
             {
                 //Set new envelope
-                IEnvelope envUnitLabelBox = new EnvelopeClass();
+                IEnvelope envUnitLabelBox = new Envelope() as IEnvelope;
                 double minX = inAnchor.Item1;
                 double minY = inAnchor.Item2;
                 double maxX = inAnchor.Item1 + inElementWidth;
@@ -3135,7 +3135,7 @@ namespace GSC_Legend_Renderer
 
 
             //Create a point from anchor point coordaintes
-            IPoint aPoint = new PointClass();
+            IPoint aPoint = new ESRI.ArcGIS.Geometry.Point();
             aPoint.SpatialReference = inPolygon.SpatialReference;
 
             //Apply conversion factor
@@ -3158,7 +3158,7 @@ namespace GSC_Legend_Renderer
 
 
                 //Create a vector that will be used to move original polygon
-                ILine movingLine = new LineClass();
+                ILine movingLine = new Line();
                 movingLine.PutCoords(inPolygon.FromPoint, aPoint);
 
                 //Move
@@ -3180,7 +3180,7 @@ namespace GSC_Legend_Renderer
 
 
                 //Create a vector that will be used to move original polygon
-                ILine movingLine = new LineClass();
+                ILine movingLine = new Line();
                 movingLine.PutCoords(inPolygon.FromPoint, aPoint);
 
                 //Move
@@ -3224,14 +3224,14 @@ namespace GSC_Legend_Renderer
             if (height == 0)
             {
                 //Set new polyline
-                IPolyline polylineElement = new PolylineClass();
+                IPolyline polylineElement = new ESRI.ArcGIS.Geometry.Polyline() as IPolyline;
 
                 //Set new starting point to be center
-                IPoint fromPoint = new PointClass();
+                IPoint fromPoint = new ESRI.ArcGIS.Geometry.Point();
                 fromPoint.X = inAnchor.Item1;
                 fromPoint.Y = inAnchor.Item2;
 
-                IPoint toPoint = new PointClass();
+                IPoint toPoint = new ESRI.ArcGIS.Geometry.Point();
                 toPoint.X = inAnchor.Item1 + length;
                 toPoint.Y = inAnchor.Item2;
 
@@ -3357,7 +3357,7 @@ namespace GSC_Legend_Renderer
             //Get anchor type
             IElementProperties3 elemProp3 = inElement as IElementProperties3;
             esriAnchorPointEnum currentAnchorPointType = elemProp3.AnchorPoint;
-            IPoint newPoint = new PointClass();
+            IPoint newPoint = new ESRI.ArcGIS.Geometry.Point();
 
             //Apply conversion factor
             double inElementHeight = inElement.Geometry.Envelope.Height;
@@ -3475,7 +3475,7 @@ namespace GSC_Legend_Renderer
         public void MoveItemToAnchorPoint(IElement inElement, Tuple<double, double> inAnchor)
         {
             //Create new vector line
-            ILine moveVector = new LineClass();
+            ILine moveVector = new Line();
 
             //Apply conversion factor
             double inElementWidth = inElement.Geometry.Envelope.Width;
@@ -3487,7 +3487,7 @@ namespace GSC_Legend_Renderer
             if (inElementProperties.AnchorPoint == esriAnchorPointEnum.esriBottomRightCorner || inElementProperties.AnchorPoint == esriAnchorPointEnum.esriTopRightCorner)
             {
                 //Create new start point
-                IPoint startPoint = new PointClass();
+                IPoint startPoint = new ESRI.ArcGIS.Geometry.Point();
                 startPoint.X = inElement.Geometry.Envelope.XMax;
                 startPoint.Y = inElement.Geometry.Envelope.YMax;
                 moveVector.FromPoint = startPoint;
@@ -3496,7 +3496,7 @@ namespace GSC_Legend_Renderer
             if (inElementProperties.AnchorPoint == esriAnchorPointEnum.esriRightMidPoint)
             {
                 //Create new start point
-                IPoint startPoint = new PointClass();
+                IPoint startPoint = new ESRI.ArcGIS.Geometry.Point();
                 startPoint.X = inElement.Geometry.Envelope.XMax;
                 startPoint.Y = inElement.Geometry.Envelope.YMax - inElementHeight / 2.0;
                 moveVector.FromPoint = startPoint;
@@ -3504,7 +3504,7 @@ namespace GSC_Legend_Renderer
             if (inElementProperties.AnchorPoint == esriAnchorPointEnum.esriBottomLeftCorner)
             {
                 //Create new start point
-                IPoint startPoint = new PointClass();
+                IPoint startPoint = new ESRI.ArcGIS.Geometry.Point();
                 startPoint.X = inElement.Geometry.Envelope.XMin;
                 startPoint.Y = inElement.Geometry.Envelope.YMin;
                 moveVector.FromPoint = startPoint;
@@ -3512,7 +3512,7 @@ namespace GSC_Legend_Renderer
             if (inElementProperties.AnchorPoint == esriAnchorPointEnum.esriTopLeftCorner)
             {
                 //Create new start point
-                IPoint startPoint = new PointClass();
+                IPoint startPoint = new ESRI.ArcGIS.Geometry.Point();
                 startPoint.X = inElement.Geometry.Envelope.XMin;
                 startPoint.Y = inElement.Geometry.Envelope.YMax;
                 moveVector.FromPoint = startPoint;
@@ -3520,7 +3520,7 @@ namespace GSC_Legend_Renderer
             if (inElementProperties.AnchorPoint == esriAnchorPointEnum.esriLeftMidPoint)
             {
                 //Create new start point
-                IPoint startPoint = new PointClass();
+                IPoint startPoint = new ESRI.ArcGIS.Geometry.Point();
                 startPoint.X = inElement.Geometry.Envelope.XMin;
                 startPoint.Y = inElement.Geometry.Envelope.YMax - inElementHeight / 2.0;
                 moveVector.FromPoint = startPoint;
@@ -3528,14 +3528,14 @@ namespace GSC_Legend_Renderer
             if (inElementProperties.AnchorPoint == esriAnchorPointEnum.esriCenterPoint)
             {
                 //Create new start point
-                IPoint startPoint = new PointClass();
+                IPoint startPoint = new ESRI.ArcGIS.Geometry.Point();
                 startPoint.X = inElement.Geometry.Envelope.XMin + inElementWidth / 2.0;
                 startPoint.Y = inElement.Geometry.Envelope.YMax - inElementHeight / 2.0;
                 moveVector.FromPoint = startPoint;
             }
 
             //Create new end point
-            IPoint endPoint = new PointClass();
+            IPoint endPoint = new ESRI.ArcGIS.Geometry.Point();
             endPoint.X = inAnchor.Item1;
             endPoint.Y = inAnchor.Item2;
             moveVector.ToPoint = endPoint;
@@ -3588,7 +3588,7 @@ namespace GSC_Legend_Renderer
                     IElement demElement = SetPolygonDEM(inElement, fillColors, inAnchor);
 
                     //Create new symbol and apply, else it won't update...
-                    ISimpleFillSymbol newSimpleFill = new SimpleFillSymbolClass();
+                    ISimpleFillSymbol newSimpleFill = new SimpleFillSymbol();
                     newSimpleFill.Style = esriSimpleFillStyle.esriSFSHollow;
                     newSimpleFill.Outline = inOutline;
 
@@ -3599,7 +3599,7 @@ namespace GSC_Legend_Renderer
                 else
                 {
                     //Create new symbol and apply, else it won't update...
-                    ISimpleFillSymbol newSimpleFill = new SimpleFillSymbolClass();
+                    ISimpleFillSymbol newSimpleFill = new SimpleFillSymbol();
                     newSimpleFill.Color = symbolColor;
                     newSimpleFill.Style = esriSimpleFillStyle.esriSFSSolid;
                     newSimpleFill.Outline = inOutline;

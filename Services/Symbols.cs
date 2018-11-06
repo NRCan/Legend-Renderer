@@ -412,7 +412,7 @@ namespace GSC_Legend_Renderer.Services
         public static ISimpleFillSymbol GetMissingPolygonSymbol()
         {
             //Create empty poly symbol for default symbol
-            ISimpleFillSymbol polySym = new SimpleFillSymbolClass();
+            ISimpleFillSymbol polySym = new SimpleFillSymbol();
             polySym.Style = esriSimpleFillStyle.esriSFSSolid;
 
             //Create an RGB object for the outline
@@ -433,7 +433,7 @@ namespace GSC_Legend_Renderer.Services
         public static ISimpleLineSymbol GetMissingLineSymbol()
         {
             //Create empty poly symbol for default symbol
-            ISimpleLineSymbol lineSym = new SimpleLineSymbolClass();
+            ISimpleLineSymbol lineSym = new SimpleLineSymbol();
             lineSym.Style = esriSimpleLineStyle.esriSLSSolid;
 
             //Create an RGB object for the outline
@@ -455,7 +455,7 @@ namespace GSC_Legend_Renderer.Services
         public static ISimpleFillSymbol GetWhiteBackgrounFillSymbol(ILineSymbol existingOutline)
         {
             //Create empty poly symbol for default symbol
-            ISimpleFillSymbol polySym = new SimpleFillSymbolClass();
+            ISimpleFillSymbol polySym = new SimpleFillSymbol();
             polySym.Style = esriSimpleFillStyle.esriSFSSolid;
 
             //Set outline
@@ -466,7 +466,7 @@ namespace GSC_Legend_Renderer.Services
             else
             {
                 //Create empty poly symbol for default symbol
-                ISimpleLineSymbol outlineSym = new SimpleLineSymbolClass();
+                ISimpleLineSymbol outlineSym = new SimpleLineSymbol();
                 outlineSym.Style = esriSimpleLineStyle.esriSLSSolid;
 
                 //Create an RGB object for the outline
@@ -499,7 +499,7 @@ namespace GSC_Legend_Renderer.Services
         public static ITextSymbol GetMissingTextSymbol(ITextSymbol parentSymbol)
         {
             //Create empty symbol
-            ITextSymbol textSymbol = new TextSymbolClass();
+            ITextSymbol textSymbol = new TextSymbol();
 
             if (parentSymbol != null)
             {
@@ -532,7 +532,7 @@ namespace GSC_Legend_Renderer.Services
         public static ICharacterMarkerSymbol GetMissingPointSymbol()
         {
             //Create line symbol for default symbol
-            ICharacterMarkerSymbol charSym = new CharacterMarkerSymbolClass();
+            ICharacterMarkerSymbol charSym = new CharacterMarkerSymbol();
             charSym.CharacterIndex = 103;
             charSym.Size = 10;
             charSym.Angle = 180;
