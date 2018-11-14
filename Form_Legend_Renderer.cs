@@ -641,6 +641,20 @@ namespace GSC_Legend_Renderer
 
                                 tElement.Text = currentHeading;
 
+                                //Manage style if needed
+                                if (currentStyle1 != "")
+                                {
+                                    ISimpleTextSymbol inStyleSymbol = textSymbolDico[currentStyle1] as ISimpleTextSymbol;
+                                    ISimpleTextSymbol currentStyleSymbol = tElement.Symbol as ISimpleTextSymbol;
+                                    currentStyleSymbol.Font = inStyleSymbol.Font;
+                                    currentStyleSymbol.Color = inStyleSymbol.Color;
+                                    currentStyleSymbol.Size = currentStyleSymbol.Size; //Force size else incoming style might be too big.
+                                    currentStyleSymbol.VerticalAlignment = currentStyleSymbol.VerticalAlignment; //Force vertical center for text else incoming style might be set to else where.
+                                    tElement.Symbol = Services.ObjectManagement.CopyInputObject(currentStyleSymbol) as ISimpleTextSymbol;
+
+                                }
+
+
                                 //Add base element
                                 currentDoc.ActiveView.GraphicsContainer.AddElement(headElement, 0);
                                 currentDoc.ActiveView.GraphicsContainer.BringToFront(currentGrapSelection.SelectedElements);
@@ -3215,8 +3229,6 @@ namespace GSC_Legend_Renderer
             double height = inPolyline.Envelope.Height;
 
             //Apply conversion factor
-            height = height;
-            length = length;
             IPolycurve polycurveElement = inElement.Geometry as IPolycurve;
             double polycurveWidth = polycurveElement.Envelope.Width;
             double polycurveHeight = polycurveElement.Envelope.Height;
