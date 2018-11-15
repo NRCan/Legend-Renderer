@@ -593,6 +593,11 @@ namespace GSC_Legend_Renderer
                                     SetRectnagularPolygonFromAnchorTypeAndHeight(headElement, anchorPoint, heading3Height);
 
                                     //Reset anchor point since the header has shrunk a bit.
+
+                                    if (heading3Height >= Constants.TextConfiguration.header3LineHeight)
+                                    {
+                                        heading3Height = heading3Height - Constants.TextConfiguration.header3LineHeight;
+                                    }
                                     anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 + heading3Height);
 
                                 }
