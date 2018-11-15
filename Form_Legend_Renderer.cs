@@ -1730,7 +1730,7 @@ namespace GSC_Legend_Renderer
                                 #region Move to right anchor
 
                                 //Set new anchor
-                                Tuple<double, double> rightBracketAnchor = new Tuple<double, double>(anchorPoint.Item1, lastElement.Geometry.Envelope.YMin);
+                                Tuple<double, double> rightBracketAnchor = new Tuple<double, double>(anchorPoint.Item1, lastElement.Geometry.Envelope.YMax);
                                 MoveItemToAnchorPoint(rightBracketElement, rightBracketAnchor);
 
                                 #endregion

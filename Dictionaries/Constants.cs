@@ -116,7 +116,7 @@ namespace GSC_Legend_Renderer.Dictionaries
             public const string columnColumnGapWidth = "COLUMN_COLUMN_GAP_WIDTH"; //Added by GHV
             public const string bracketLeftGap = "L_BRACKET_GAP"; //Added by GHV
             public const string bracketRightGap = "R_BRACKET_GAP"; //Added by GHV
-            public const string unitBoxBracket = "UNIT_BOX_BRACKET"; //Added by GHV
+            public const string unitBoxBracket = "UNIT_BOX_R_BRACKET_GAP"; //Added by GHV
             public const string measurementLabel = "MEASUREMENT_LABEL"; //Added by GHV
             public const string generationLabel = "GENERATION_LABEL"; //Added by GHV
             public const string bracketLeftColumnGap = "L_BRACKET_COLUMN_GAP"; //Added by GHV
