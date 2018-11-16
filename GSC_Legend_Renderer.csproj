@@ -179,6 +179,7 @@
     <Compile Include="Services\Exceptions.cs" />
     <Compile Include="Services\FolderAndFiles.cs" />
     <Compile Include="Services\ImageProcessing.cs" />
+    <Compile Include="Services\Layers.cs" />
     <Compile Include="Services\MXD.cs" />
     <Compile Include="Services\ObjectManagement.cs" />
     <Compile Include="Services\Symbols.cs" />

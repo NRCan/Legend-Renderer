@@ -7,6 +7,7 @@ using ESRI.ArcGIS.Geodatabase;
 using ESRI.ArcGIS.Geoprocessing;
 using ESRI.ArcGIS.GeoDatabaseUI;
 using GSC_Legend_Renderer;
+using ESRI.ArcGIS.Carto;
 
 namespace GSC_Legend_Renderer.Services
 {
@@ -573,7 +574,7 @@ namespace GSC_Legend_Renderer.Services
         /// <param name="inputFC">The table that contains the fields</param>
         /// <param name="alias">Speficify true if field name has to be alias instead of real name</param>
         /// <returns></returns>
-        public static List<string> GetFieldList(ITable inputTable, bool alias)
+        public static List<string> GetFieldList(ITable inputTable, bool alias, IStandaloneTable inSTL = null)
         {
             //Variables
             List<string> fieldList = new List<string>();
@@ -595,6 +596,29 @@ namespace GSC_Legend_Renderer.Services
                 }
 
                 fieldCount++;
+            }
+
+            //Add fields from any joined tables
+            if (inSTL !=null)
+            {
+                ITableFields tFields = inSTL as ITableFields;
+                for (int f = 0; f < tFields.FieldCount; f++)
+                {
+                    string tFieldName = string.Empty;
+                    if (alias)
+                    {
+                        tFieldName = tFields.Field[f].AliasName;
+                    }
+                    else
+                    {
+                        tFieldName = tFields.Field[f].Name;
+                    }
+
+                    if (!fieldList.Contains(tFieldName))
+                    {
+                        fieldList.Add(tFieldName);
+                    }
+                }
             }
 
             return fieldList;

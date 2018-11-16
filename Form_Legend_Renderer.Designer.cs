@@ -30,7 +30,6 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form_Legend_Renderer));
             this.label_selectTable = new System.Windows.Forms.Label();
-            this.textBox_selectTable = new System.Windows.Forms.TextBox();
             this.button_selectTable = new System.Windows.Forms.Button();
             this.button_Start = new System.Windows.Forms.Button();
             this.button_Cancel = new System.Windows.Forms.Button();
@@ -58,6 +57,7 @@
             this.label_orderField = new System.Windows.Forms.Label();
             this.comboBox_orderField = new System.Windows.Forms.ComboBox();
             this.checkBox_DEMBoxes = new System.Windows.Forms.CheckBox();
+            this.comboBox_SelectTable = new System.Windows.Forms.ComboBox();
             this.groupBox_FieldList.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -65,11 +65,6 @@
             // 
             resources.ApplyResources(this.label_selectTable, "label_selectTable");
             this.label_selectTable.Name = "label_selectTable";
-            // 
-            // textBox_selectTable
-            // 
-            resources.ApplyResources(this.textBox_selectTable, "textBox_selectTable");
-            this.textBox_selectTable.Name = "textBox_selectTable";
             // 
             // button_selectTable
             // 
@@ -269,16 +264,23 @@
             this.checkBox_DEMBoxes.Name = "checkBox_DEMBoxes";
             this.checkBox_DEMBoxes.UseVisualStyleBackColor = true;
             // 
+            // comboBox_SelectTable
+            // 
+            this.comboBox_SelectTable.FormattingEnabled = true;
+            resources.ApplyResources(this.comboBox_SelectTable, "comboBox_SelectTable");
+            this.comboBox_SelectTable.Name = "comboBox_SelectTable";
+            this.comboBox_SelectTable.SelectedIndexChanged += new System.EventHandler(this.comboBox_SelectTable_SelectedIndexChanged);
+            // 
             // Form_Legend_Renderer
             // 
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.comboBox_SelectTable);
             this.Controls.Add(this.checkBox_DEMBoxes);
             this.Controls.Add(this.groupBox_FieldList);
             this.Controls.Add(this.button_Cancel);
             this.Controls.Add(this.button_Start);
             this.Controls.Add(this.button_selectTable);
-            this.Controls.Add(this.textBox_selectTable);
             this.Controls.Add(this.label_selectTable);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "Form_Legend_Renderer";
@@ -293,7 +295,6 @@
         #endregion
 
         private System.Windows.Forms.Label label_selectTable;
-        private System.Windows.Forms.TextBox textBox_selectTable;
         private System.Windows.Forms.Button button_selectTable;
         private System.Windows.Forms.Button button_Start;
         private System.Windows.Forms.Button button_Cancel;
@@ -321,5 +322,6 @@
         private System.Windows.Forms.Label label_orderField;
         private System.Windows.Forms.ComboBox comboBox_orderField;
         private System.Windows.Forms.CheckBox checkBox_DEMBoxes;
+        private System.Windows.Forms.ComboBox comboBox_SelectTable;
     }
 }

@@ -59,7 +59,8 @@ namespace GSC_Legend_Renderer
         public const string fieldHeading = Dictionaries.Constants.LegendTable.legendHeadingField;
         public const string fieldDescription = Dictionaries.Constants.LegendTable.legendDescriptionField;
 
-
+        //UI
+        public List<CboxTables> _cboxlayers = new List<CboxTables>();
         #endregion
 
         #region PROPERTIES
@@ -108,13 +109,21 @@ namespace GSC_Legend_Renderer
         public string heading5Text { get; set; } //Will be used to detect heading 5 elements, which will see their description made italic and indented of 10 points
 
         public bool isCGMTemplateMXD { get; set; } //Will be used to prevent legend grouping in a CGM template to prevent weird behavior.
+
+        /// UI
+        public class CboxTables
+        {
+            public string cboxDataName { get; set; }
+            public IStandaloneTable cboxSTLTable { get; set; } //This field can hold a layer object or will be set to null if a string path is availabel inside layer name
+        }
         #endregion
 
         #region INIT
         public Form_Legend_Renderer()
         {
             InitializeComponent();
-            this.textBox_selectTable.TextChanged += TextBox_selectTable_TextChanged;
+            fillTableViewCombobox();
+            this.comboBox_SelectTable.SelectedIndexChanged += comboBox_SelectTable_SelectedIndexChanged;
 
             templateGraphicDico = new Dictionary<string, IElement>();
             ySpacings = new Dictionary<string, Dictionary<string, string>>();
@@ -130,94 +139,117 @@ namespace GSC_Legend_Renderer
         /// </summary>
         private void InitFieldList()
         {
-            if (dataPath.Contains(gdbExt) || dataPath.Contains(mdbExt))
+
+            if (this.comboBox_SelectTable.SelectedIndex != -1)
             {
-                //Open as table
-                inputDataTable = Services.Tables.OpenTableFromStringFaster(dataPath);
+                CboxTables selectedlTables = this.comboBox_SelectTable.SelectedItem as CboxTables;
 
-
-                //Fill the field list with field names
-                dataFieldList = Services.Tables.GetFieldList(inputDataTable, true);
-
-            }
-            else if (dataPath.Contains(dbfExt))
-            {
-                //Get the table name and extension only
-                string fileNameOnly = System.IO.Path.GetFileName(dataPath);
-
-                //Get the excel workspace factory
-                IWorkspace dbfWorkspace = Services.Workspace.AccessWorkspace(dataPath);
-                inputDataTable = Services.Tables.OpenTableFromWorkspace(dbfWorkspace, fileNameOnly);
-
-                //Fill the field list with field names
-                dataFieldList = Services.Tables.GetFieldList(inputDataTable, true);
-
-            }
-            else if (dataPath.Contains(txtExt) || dataPath.Contains(csvExt))
-            {
-                //Get the sheet name only
-                string fileNameOnly = System.IO.Path.GetFileName(dataPath);
-
-                //Get the excel workspace factory
-                IWorkspace txtFileWorkspace = Services.Workspace.AccessTextfileWorkspace(dataPath);
-                inputDataTable = Services.Tables.OpenTableFromWorkspace(txtFileWorkspace, fileNameOnly);
-
-                //Fill the field list with field names
-                dataFieldList = Services.Tables.GetFieldList(inputDataTable, true);
-
-            }
-            else if (dataPath.Contains(xlExt))
-            {
-                //Get the sheet name
-                string[] splitedPath = dataPath.Split('\\');
-
-                //Build path to the file itself without the sheet
-                string dataPathFileOnly = string.Empty;
-
-                foreach (string parts in splitedPath)
+                if (selectedlTables.cboxSTLTable != null)
                 {
-                    if (parts != splitedPath[splitedPath.Length - 1])
+                    #region for table views
+
+                    IStandaloneTable selectedSTL = selectedlTables.cboxSTLTable;
+
+                    //Fill the field list with field names
+                    dataFieldList = Services.Tables.GetFieldList(selectedSTL.Table, true, selectedSTL);
+                    #endregion
+                }
+                else if (selectedlTables.cboxDataName != null )
+                {
+                    #region FOR EXTERNAL DATA
+                    if (dataPath.Contains(gdbExt) || dataPath.Contains(mdbExt))
                     {
-                        if (dataPathFileOnly != string.Empty)
-                        {
-                            dataPathFileOnly = dataPathFileOnly + "\\" + parts;
-                        }
-                        else
-                        {
-                            dataPathFileOnly = parts;
-                        }
+                        //Open as table
+                        inputDataTable = Services.Tables.OpenTableFromStringFaster(dataPath);
+
+
+                        //Fill the field list with field names
+                        dataFieldList = Services.Tables.GetFieldList(inputDataTable, true);
 
                     }
+                    else if (dataPath.Contains(dbfExt))
+                    {
+                        //Get the table name and extension only
+                        string fileNameOnly = System.IO.Path.GetFileName(dataPath);
 
+                        //Get the excel workspace factory
+                        IWorkspace dbfWorkspace = Services.Workspace.AccessWorkspace(dataPath);
+                        inputDataTable = Services.Tables.OpenTableFromWorkspace(dbfWorkspace, fileNameOnly);
+
+                        //Fill the field list with field names
+                        dataFieldList = Services.Tables.GetFieldList(inputDataTable, true);
+
+                    }
+                    else if (dataPath.Contains(txtExt) || dataPath.Contains(csvExt))
+                    {
+                        //Get the sheet name only
+                        string fileNameOnly = System.IO.Path.GetFileName(dataPath);
+
+                        //Get the excel workspace factory
+                        IWorkspace txtFileWorkspace = Services.Workspace.AccessTextfileWorkspace(dataPath);
+                        inputDataTable = Services.Tables.OpenTableFromWorkspace(txtFileWorkspace, fileNameOnly);
+
+                        //Fill the field list with field names
+                        dataFieldList = Services.Tables.GetFieldList(inputDataTable, true);
+
+                    }
+                    else if (dataPath.Contains(xlExt))
+                    {
+                        //Get the sheet name
+                        string[] splitedPath = dataPath.Split('\\');
+
+                        //Build path to the file itself without the sheet
+                        string dataPathFileOnly = string.Empty;
+
+                        foreach (string parts in splitedPath)
+                        {
+                            if (parts != splitedPath[splitedPath.Length - 1])
+                            {
+                                if (dataPathFileOnly != string.Empty)
+                                {
+                                    dataPathFileOnly = dataPathFileOnly + "\\" + parts;
+                                }
+                                else
+                                {
+                                    dataPathFileOnly = parts;
+                                }
+
+                            }
+
+                        }
+
+                        //Get the sheet name only
+                        string fileSheetName = splitedPath[splitedPath.Length - 1];
+
+                        //Get the excel workspace factory
+                        IWorkspace excelWorkspace = Services.Workspace.AccessExcelWorkspace(dataPathFileOnly);
+                        inputDataTable = Services.Tables.OpenTableFromWorkspace(excelWorkspace, fileSheetName);
+
+                        //Fill the field list with field names
+                        dataFieldList = Services.Tables.GetFieldList(inputDataTable, true);
+
+                        dataFieldList.Add(string.Empty);
+                    }
+
+                    #endregion
                 }
-
-                //Get the sheet name only
-                string fileSheetName = splitedPath[splitedPath.Length - 1];
-
-                //Get the excel workspace factory
-                IWorkspace excelWorkspace = Services.Workspace.AccessExcelWorkspace(dataPathFileOnly);
-                inputDataTable = Services.Tables.OpenTableFromWorkspace(excelWorkspace, fileSheetName);
-
-                //Fill the field list with field names
-                dataFieldList = Services.Tables.GetFieldList(inputDataTable, true);
-
-                dataFieldList.Add(string.Empty);
             }
-
+                
         }
 
         #endregion
 
         #region EVENTS
+
         /// <summary>
-        /// Will be triggered when user adds a new table path
+        /// Will be triggered when user selects a new table path or layer
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void TextBox_selectTable_TextChanged(object sender, EventArgs e)
+        private void comboBox_SelectTable_SelectedIndexChanged(object sender, EventArgs e)
         {
-            TextBox senderBox = sender as TextBox;
-            if (senderBox.Text != string.Empty && senderBox.Text.Contains('.'))
+            ComboBox senderBox = sender as ComboBox;
+            if (senderBox.SelectedIndex != -1)
             {
                 //Init field list
                 InitFieldList();
@@ -259,7 +291,16 @@ namespace GSC_Legend_Renderer
         {
             //Open dialog
             dataPath = Services.Dialog.GetDataPrompt(this.Handle.ToInt32(), Properties.GSC_LegendRenderer_Resources.Dialog_SelectTableTitle);
-            this.textBox_selectTable.Text = dataPath;
+
+            //Unset list before change
+            this.comboBox_SelectTable.DataSource = null;
+
+            //Update
+            _cboxlayers.Add(new CboxTables { cboxDataName = dataPath, cboxSTLTable = null });
+            this.comboBox_SelectTable.DataSource = _cboxlayers;
+            this.comboBox_SelectTable.DisplayMember = "cboxDataName";
+            this.comboBox_SelectTable.ValueMember = "cboxSTLTable";
+            this.comboBox_SelectTable.SelectedIndex = _cboxlayers.Count - 1;
 
         }
 
@@ -380,7 +421,7 @@ namespace GSC_Legend_Renderer
         public void CreateLegend()
         {
             //Continu if table is valid
-            if (this.textBox_selectTable.Text != null && this.textBox_selectTable.Text != string.Empty)
+            if (this.comboBox_SelectTable.Text != null && this.comboBox_SelectTable.Text != string.Empty)
             {
                 //Validate if needed style has been loaded
                 if (ValidateStyleFile())
@@ -426,7 +467,17 @@ namespace GSC_Legend_Renderer
                     GetTemplateGraphicList();
 
                     //Get legend table
-                    ITable legendTable = Services.Tables.OpenTableFromString(this.textBox_selectTable.Text);
+                    ITable legendTable;
+                    CboxTables selectedTable = this.comboBox_SelectTable.SelectedItem as CboxTables;
+                    if (selectedTable.cboxSTLTable == null)
+                    {
+                        legendTable = Services.Tables.OpenTableFromString(selectedTable.cboxDataName);
+                    }
+                    else
+                    {
+                        legendTable = selectedTable.cboxSTLTable as ITable;
+                    }
+                    
 
                     //Iterate through table and add elements
                     IQueryFilter ascendingOrderQuery = new QueryFilter();
@@ -2165,24 +2216,41 @@ namespace GSC_Legend_Renderer
                 InitFieldList();
             }
 
-            //Fill boxes
-            foreach (string fieldNames in dataFieldList)
+            if (dataFieldList != null)
             {
-                this.comboBox_ColumnField.Items.Add(fieldNames);
-                this.comboBox_DescriptionField.Items.Add(fieldNames);
-                this.comboBox_ElementField.Items.Add(fieldNames);
-                this.comboBox_HeadingField.Items.Add(fieldNames);
-                this.comboBox_Label1Field.Items.Add(fieldNames);
-                this.comboBox_Label1StyleField.Items.Add(fieldNames);
-                this.comboBox_Label2Field.Items.Add(fieldNames);
-                this.comboBox_Label2StyleField.Items.Add(fieldNames);
-                this.comboBox_orderField.Items.Add(fieldNames);
-                this.comboBox_Style1Field.Items.Add(fieldNames);
-                this.comboBox_Style2Field.Items.Add(fieldNames);
+                //Clean up 
+                this.comboBox_ColumnField.Items.Clear();
+                this.comboBox_DescriptionField.Items.Clear();
+                this.comboBox_ElementField.Items.Clear();
+                this.comboBox_HeadingField.Items.Clear();
+                this.comboBox_Label1Field.Items.Clear();
+                this.comboBox_Label1StyleField.Items.Clear();
+                this.comboBox_Label2Field.Items.Clear();
+                this.comboBox_Label2StyleField.Items.Clear();
+                this.comboBox_orderField.Items.Clear();
+                this.comboBox_Style1Field.Items.Clear();
+                this.comboBox_Style2Field.Items.Clear();
+
+                //Fill boxes
+                foreach (string fieldNames in dataFieldList)
+                {
+                    this.comboBox_ColumnField.Items.Add(fieldNames);
+                    this.comboBox_DescriptionField.Items.Add(fieldNames);
+                    this.comboBox_ElementField.Items.Add(fieldNames);
+                    this.comboBox_HeadingField.Items.Add(fieldNames);
+                    this.comboBox_Label1Field.Items.Add(fieldNames);
+                    this.comboBox_Label1StyleField.Items.Add(fieldNames);
+                    this.comboBox_Label2Field.Items.Add(fieldNames);
+                    this.comboBox_Label2StyleField.Items.Add(fieldNames);
+                    this.comboBox_orderField.Items.Add(fieldNames);
+                    this.comboBox_Style1Field.Items.Add(fieldNames);
+                    this.comboBox_Style2Field.Items.Add(fieldNames);
+                }
+
+                //Select proper field if in list
+                SelectFields();
             }
 
-            //Select proper field if in list
-            SelectFields();
         }
 
         /// <summary>
@@ -2429,6 +2497,37 @@ namespace GSC_Legend_Renderer
 
 
             return groupedLegend;
+        }
+
+
+        /// <summary>
+        ///     Will fill the combobox control with all layers from table of content
+        /// </summary>
+        private void fillTableViewCombobox()
+        {
+            //Unset list before change
+            this.comboBox_SelectTable.DataSource = null;
+
+            //Get a list of all point layers inside table of content
+            Services.Layers layerService = new Services.Layers();
+            UID layerUID = new UIDClass();
+            layerUID.Value = "{34C20002-4D3C-11D0-92D8-00805F7C28B0}";
+            List<IStandaloneTable> tocTables = layerService.GetListOfStandaloneTables((IMxDocument)ArcMap.Application.Document);
+
+            //Init datasource of combobox
+            _cboxlayers = new List<CboxTables>();
+
+            //Fill in the control
+            foreach (IStandaloneTable l in tocTables)
+            {
+                _cboxlayers.Add(new CboxTables { cboxDataName = l.Name, cboxSTLTable = l});
+            }
+
+            //Init defaults
+            this.comboBox_SelectTable.SelectedIndex = -1;
+            this.comboBox_SelectTable.DataSource = _cboxlayers;
+            this.comboBox_SelectTable.DisplayMember = "cboxDataName";
+            this.comboBox_SelectTable.ValueMember = "cboxSTLTable";
         }
 
         #endregion
@@ -3785,6 +3884,7 @@ namespace GSC_Legend_Renderer
             return inThinUnitElement;
         }
         #endregion
+
 
     }
 }
