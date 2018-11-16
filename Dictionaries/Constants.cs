@@ -136,11 +136,13 @@ namespace GSC_Legend_Renderer.Dictionaries
             public const string defaultStartEmplacement = "";
 
             public const string keywordBracket = "BRACKET";
+            public const string keywordEnd = "END"; //Will be used for column auto-calculate
 
             public enum UnitBoxType { normal, split1, split2, parent, child, line, child_line}; //Will be used to correctly place label inside unit boxes
 
             //CGM template elements
             public const string cgmLegendElement = "Legend";
+            public const string cgmCitation = "Citation";
 
         }
 
@@ -182,6 +184,7 @@ namespace GSC_Legend_Renderer.Dictionaries
         public static class YSpacings
         {
             public const double smallDescriptionHeightLimit = 10.0;
+            public const double legendEnd_Citation = 5.0;
         }
 
         public static class TextConfiguration

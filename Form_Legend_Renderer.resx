@@ -118,33 +118,346 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="label_Label1StyleField.TabIndex" type="System.Int32, mscorlib">
+    <value>12</value>
+  </data>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="checkBox_DEMBoxes.Size" type="System.Drawing.Size, System.Drawing">
+    <value>147, 17</value>
+  </data>
+  <data name="&gt;&gt;comboBox_orderField.Parent" xml:space="preserve">
+    <value>groupBox_FieldList</value>
+  </data>
+  <data name="&gt;&gt;comboBox_DescriptionField.Name" xml:space="preserve">
+    <value>comboBox_DescriptionField</value>
+  </data>
+  <data name="&gt;&gt;comboBox_Label2StyleField.Parent" xml:space="preserve">
+    <value>groupBox_FieldList</value>
+  </data>
+  <data name="&gt;&gt;label_DescriptionField.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="label_Label2Field.Text" xml:space="preserve">
+    <value>Label 2</value>
+  </data>
+  <data name="comboBox_ColumnField.Size" type="System.Drawing.Size, System.Drawing">
+    <value>326, 21</value>
+  </data>
+  <data name="button_selectTable.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="label_Style2Field.Location" type="System.Drawing.Point, System.Drawing">
+    <value>7, 199</value>
+  </data>
+  <data name="&gt;&gt;button_selectTable.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="comboBox_ElementField.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 125</value>
+  </data>
+  <data name="&gt;&gt;comboBox_SelectTable.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="label_selectTable.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt</value>
+  </data>
+  <data name="&gt;&gt;comboBox_orderField.ZOrder" xml:space="preserve">
+    <value>21</value>
+  </data>
+  <data name="comboBox_Style1Field.TabIndex" type="System.Int32, mscorlib">
+    <value>7</value>
+  </data>
+  <data name="&gt;&gt;comboBox_ColumnField.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label_selectTable.ZOrder" xml:space="preserve">
+    <value>7</value>
+  </data>
+  <data name="checkBox_autoCalculateColumns.TabIndex" type="System.Int32, mscorlib">
+    <value>8</value>
+  </data>
+  <data name="label_Label1Field.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="&gt;&gt;comboBox_ElementField.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label_Style1Field.Name" xml:space="preserve">
+    <value>label_Style1Field</value>
+  </data>
+  <data name="comboBox_ElementField.Size" type="System.Drawing.Size, System.Drawing">
+    <value>326, 21</value>
+  </data>
+  <data name="&gt;&gt;label_Style1Field.Parent" xml:space="preserve">
+    <value>groupBox_FieldList</value>
+  </data>
+  <data name="&gt;&gt;label_ColumnField.Name" xml:space="preserve">
+    <value>label_ColumnField</value>
+  </data>
+  <data name="label_Style2Field.TabIndex" type="System.Int32, mscorlib">
+    <value>8</value>
+  </data>
+  <data name="&gt;&gt;comboBox_Label1StyleField.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="button_Start.Size" type="System.Drawing.Size, System.Drawing">
+    <value>75, 23</value>
+  </data>
+  <data name="label_DescriptionField.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="&gt;&gt;label_Label1StyleField.Name" xml:space="preserve">
+    <value>label_Label1StyleField</value>
+  </data>
+  <data name="comboBox_HeadingField.TabIndex" type="System.Int32, mscorlib">
+    <value>19</value>
+  </data>
+  <data name="&gt;&gt;label_Style2Field.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="label_ColumnField.Size" type="System.Drawing.Size, System.Drawing">
+    <value>42, 13</value>
+  </data>
+  <data name="&gt;&gt;comboBox_Style2Field.Parent" xml:space="preserve">
+    <value>groupBox_FieldList</value>
+  </data>
+  <data name="label_Label2Field.Size" type="System.Drawing.Size, System.Drawing">
+    <value>42, 13</value>
+  </data>
+  <data name="label_Label2StyleField.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="&gt;&gt;groupBox_FieldList.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="label_selectTable.Text" xml:space="preserve">
+    <value>Select Legend Table *</value>
+  </data>
+  <data name="&gt;&gt;button_selectTable.Name" xml:space="preserve">
+    <value>button_selectTable</value>
+  </data>
+  <data name="comboBox_DescriptionField.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 493</value>
+  </data>
+  <data name="button_Start.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="label_ElementField.Location" type="System.Drawing.Point, System.Drawing">
+    <value>7, 109</value>
+  </data>
+  <data name="&gt;&gt;checkBox_DEMBoxes.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;label_DescriptionField.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="label_ColumnField.Location" type="System.Drawing.Point, System.Drawing">
+    <value>7, 64</value>
+  </data>
+  <data name="$this.Text" xml:space="preserve">
+    <value>Legend Renderer</value>
+  </data>
+  <data name="&gt;&gt;comboBox_Label1Field.ZOrder" xml:space="preserve">
+    <value>10</value>
+  </data>
+  <data name="groupBox_FieldList.Size" type="System.Drawing.Size, System.Drawing">
+    <value>339, 532</value>
+  </data>
+  <data name="&gt;&gt;comboBox_HeadingField.Parent" xml:space="preserve">
+    <value>groupBox_FieldList</value>
+  </data>
+  <data name="comboBox_DescriptionField.Size" type="System.Drawing.Size, System.Drawing">
+    <value>326, 21</value>
+  </data>
+  <data name="&gt;&gt;comboBox_Label2StyleField.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="comboBox_Label2Field.Size" type="System.Drawing.Size, System.Drawing">
+    <value>326, 21</value>
+  </data>
+  <data name="comboBox_DescriptionField.TabIndex" type="System.Int32, mscorlib">
+    <value>21</value>
+  </data>
+  <data name="&gt;&gt;comboBox_ColumnField.Name" xml:space="preserve">
+    <value>comboBox_ColumnField</value>
+  </data>
+  <data name="label_Label2StyleField.TabIndex" type="System.Int32, mscorlib">
+    <value>16</value>
+  </data>
+  <data name="label_Label1Field.Location" type="System.Drawing.Point, System.Drawing">
+    <value>7, 243</value>
+  </data>
+  <data name="label_Label1StyleField.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="&gt;&gt;checkBox_autoCalculateColumns.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="&gt;&gt;button_Start.Name" xml:space="preserve">
+    <value>button_Start</value>
+  </data>
+  <data name="comboBox_ColumnField.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 80</value>
+  </data>
+  <data name="&gt;&gt;comboBox_ColumnField.ZOrder" xml:space="preserve">
+    <value>18</value>
+  </data>
+  <data name="&gt;&gt;checkBox_autoCalculateColumns.Type" xml:space="preserve">
+    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="label_Label2Field.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="&gt;&gt;button_Cancel.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="checkBox_autoCalculateColumns.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="&gt;&gt;label_Label2StyleField.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="label_Label1Field.Size" type="System.Drawing.Size, System.Drawing">
+    <value>42, 13</value>
+  </data>
+  <data name="&gt;&gt;label_Style2Field.Name" xml:space="preserve">
+    <value>label_Style2Field</value>
+  </data>
+  <data name="checkBox_DEMBoxes.TabIndex" type="System.Int32, mscorlib">
+    <value>6</value>
+  </data>
+  <data name="checkBox_autoCalculateColumns.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="checkBox_autoCalculateColumns.Size" type="System.Drawing.Size, System.Drawing">
+    <value>241, 17</value>
+  </data>
+  <data name="&gt;&gt;comboBox_HeadingField.Name" xml:space="preserve">
+    <value>comboBox_HeadingField</value>
+  </data>
+  <data name="label_ElementField.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="&gt;&gt;label_Label1Field.Name" xml:space="preserve">
+    <value>label_Label1Field</value>
+  </data>
+  <data name="&gt;&gt;comboBox_Style1Field.ZOrder" xml:space="preserve">
+    <value>14</value>
+  </data>
+  <data name="comboBox_SelectTable.Size" type="System.Drawing.Size, System.Drawing">
+    <value>340, 21</value>
+  </data>
+  <data name="&gt;&gt;checkBox_DEMBoxes.Type" xml:space="preserve">
+    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="label_DescriptionField.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="&gt;&gt;label_Style2Field.ZOrder" xml:space="preserve">
+    <value>13</value>
+  </data>
+  <data name="label_DescriptionField.TabIndex" type="System.Int32, mscorlib">
+    <value>20</value>
+  </data>
+  <data name="label_Style1Field.Text" xml:space="preserve">
+    <value>Style 1</value>
+  </data>
+  <data name="checkBox_DEMBoxes.Text" xml:space="preserve">
+    <value>DEM Image in unit boxes.</value>
+  </data>
+  <data name="&gt;&gt;button_Cancel.Name" xml:space="preserve">
+    <value>button_Cancel</value>
+  </data>
+  <data name="groupBox_FieldList.Text" xml:space="preserve">
+    <value>Fields *</value>
+  </data>
+  <data name="label_orderField.Location" type="System.Drawing.Point, System.Drawing">
+    <value>7, 19</value>
+  </data>
+  <data name="comboBox_Label2Field.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 353</value>
+  </data>
+  <data name="button_Cancel.Size" type="System.Drawing.Size, System.Drawing">
+    <value>75, 23</value>
+  </data>
+  <data name="comboBox_Style2Field.TabIndex" type="System.Int32, mscorlib">
+    <value>9</value>
+  </data>
+  <data name="&gt;&gt;label_HeadingField.Parent" xml:space="preserve">
+    <value>groupBox_FieldList</value>
+  </data>
+  <data name="&gt;&gt;label_ElementField.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label_DescriptionField.Name" xml:space="preserve">
+    <value>label_DescriptionField</value>
+  </data>
+  <data name="&gt;&gt;label_orderField.Parent" xml:space="preserve">
+    <value>groupBox_FieldList</value>
+  </data>
+  <data name="label_Style2Field.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="&gt;&gt;label_Style2Field.Parent" xml:space="preserve">
+    <value>groupBox_FieldList</value>
+  </data>
+  <data name="label_HeadingField.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="&gt;&gt;label_ElementField.Name" xml:space="preserve">
+    <value>label_ElementField</value>
+  </data>
+  <data name="label_Label2Field.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="&gt;&gt;label_Label2Field.Parent" xml:space="preserve">
+    <value>groupBox_FieldList</value>
+  </data>
   <data name="label_selectTable.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="label_selectTable.Location" type="System.Drawing.Point, System.Drawing">
-    <value>13, 13</value>
+  <data name="&gt;&gt;button_Cancel.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="label_selectTable.Size" type="System.Drawing.Size, System.Drawing">
-    <value>106, 13</value>
+  <data name="&gt;&gt;comboBox_ElementField.Name" xml:space="preserve">
+    <value>comboBox_ElementField</value>
   </data>
-  <data name="label_selectTable.TabIndex" type="System.Int32, mscorlib">
-    <value>0</value>
+  <data name="&gt;&gt;$this.Name" xml:space="preserve">
+    <value>Form_Legend_Renderer</value>
   </data>
-  <data name="label_selectTable.Text" xml:space="preserve">
-    <value>Select Legend Table</value>
+  <data name="label_Label1Field.TabIndex" type="System.Int32, mscorlib">
+    <value>10</value>
   </data>
-  <data name="&gt;&gt;label_selectTable.Name" xml:space="preserve">
-    <value>label_selectTable</value>
+  <data name="&gt;&gt;label_ColumnField.Parent" xml:space="preserve">
+    <value>groupBox_FieldList</value>
+  </data>
+  <data name="&gt;&gt;comboBox_DescriptionField.Parent" xml:space="preserve">
+    <value>groupBox_FieldList</value>
+  </data>
+  <data name="comboBox_Label1StyleField.Size" type="System.Drawing.Size, System.Drawing">
+    <value>326, 21</value>
   </data>
   <data name="&gt;&gt;label_selectTable.Type" xml:space="preserve">
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;label_selectTable.Parent" xml:space="preserve">
-    <value>$this</value>
+  <data name="&gt;&gt;comboBox_SelectTable.ZOrder" xml:space="preserve">
+    <value>1</value>
   </data>
-  <data name="&gt;&gt;label_selectTable.ZOrder" xml:space="preserve">
-    <value>6</value>
+  <data name="comboBox_orderField.Location" type="System.Drawing.Point, System.Drawing">
+    <value>7, 36</value>
+  </data>
+  <data name="&gt;&gt;comboBox_HeadingField.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="button_Cancel.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="&gt;&gt;comboBox_ColumnField.Parent" xml:space="preserve">
+    <value>groupBox_FieldList</value>
+  </data>
+  <data name="checkBox_DEMBoxes.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
   </data>
   <data name="button_selectTable.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
@@ -161,972 +474,266 @@
         fgPAGjIx3QsiOQAAAABJRU5ErkJggg==
 </value>
   </data>
-  <data name="button_selectTable.Location" type="System.Drawing.Point, System.Drawing">
-    <value>363, 26</value>
-  </data>
-  <data name="button_selectTable.Size" type="System.Drawing.Size, System.Drawing">
-    <value>29, 29</value>
-  </data>
-  <data name="button_selectTable.TabIndex" type="System.Int32, mscorlib">
-    <value>2</value>
-  </data>
-  <data name="&gt;&gt;button_selectTable.Name" xml:space="preserve">
-    <value>button_selectTable</value>
-  </data>
-  <data name="&gt;&gt;button_selectTable.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;button_selectTable.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="&gt;&gt;button_selectTable.ZOrder" xml:space="preserve">
-    <value>5</value>
-  </data>
-  <data name="button_Start.Location" type="System.Drawing.Point, System.Drawing">
-    <value>17, 634</value>
-  </data>
-  <data name="button_Start.Size" type="System.Drawing.Size, System.Drawing">
-    <value>75, 23</value>
-  </data>
-  <data name="button_Start.TabIndex" type="System.Int32, mscorlib">
-    <value>3</value>
-  </data>
-  <data name="button_Start.Text" xml:space="preserve">
-    <value>Start</value>
-  </data>
-  <data name="&gt;&gt;button_Start.Name" xml:space="preserve">
-    <value>button_Start</value>
-  </data>
-  <data name="&gt;&gt;button_Start.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;button_Start.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="&gt;&gt;button_Start.ZOrder" xml:space="preserve">
-    <value>4</value>
-  </data>
-  <data name="button_Cancel.Location" type="System.Drawing.Point, System.Drawing">
-    <value>281, 634</value>
-  </data>
-  <data name="button_Cancel.Size" type="System.Drawing.Size, System.Drawing">
-    <value>75, 23</value>
-  </data>
-  <data name="button_Cancel.TabIndex" type="System.Int32, mscorlib">
-    <value>4</value>
-  </data>
-  <data name="button_Cancel.Text" xml:space="preserve">
-    <value>Cancel</value>
-  </data>
-  <data name="&gt;&gt;button_Cancel.Name" xml:space="preserve">
-    <value>button_Cancel</value>
-  </data>
-  <data name="&gt;&gt;button_Cancel.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;button_Cancel.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="&gt;&gt;button_Cancel.ZOrder" xml:space="preserve">
-    <value>3</value>
-  </data>
-  <data name="&gt;&gt;comboBox_DescriptionField.Name" xml:space="preserve">
-    <value>comboBox_DescriptionField</value>
-  </data>
-  <data name="&gt;&gt;comboBox_DescriptionField.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;comboBox_DescriptionField.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;comboBox_DescriptionField.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
-  <data name="&gt;&gt;label_DescriptionField.Name" xml:space="preserve">
-    <value>label_DescriptionField</value>
-  </data>
-  <data name="&gt;&gt;label_DescriptionField.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label_DescriptionField.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;label_DescriptionField.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
-  <data name="&gt;&gt;comboBox_HeadingField.Name" xml:space="preserve">
-    <value>comboBox_HeadingField</value>
-  </data>
-  <data name="&gt;&gt;comboBox_HeadingField.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;comboBox_HeadingField.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;comboBox_HeadingField.ZOrder" xml:space="preserve">
-    <value>2</value>
-  </data>
-  <data name="&gt;&gt;label_HeadingField.Name" xml:space="preserve">
-    <value>label_HeadingField</value>
-  </data>
-  <data name="&gt;&gt;label_HeadingField.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label_HeadingField.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;label_HeadingField.ZOrder" xml:space="preserve">
-    <value>3</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Label2StyleField.Name" xml:space="preserve">
-    <value>comboBox_Label2StyleField</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Label2StyleField.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Label2StyleField.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Label2StyleField.ZOrder" xml:space="preserve">
-    <value>4</value>
-  </data>
-  <data name="&gt;&gt;label_Label2StyleField.Name" xml:space="preserve">
-    <value>label_Label2StyleField</value>
-  </data>
-  <data name="&gt;&gt;label_Label2StyleField.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label_Label2StyleField.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;label_Label2StyleField.ZOrder" xml:space="preserve">
-    <value>5</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Label2Field.Name" xml:space="preserve">
-    <value>comboBox_Label2Field</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Label2Field.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Label2Field.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Label2Field.ZOrder" xml:space="preserve">
-    <value>6</value>
-  </data>
-  <data name="&gt;&gt;label_Label2Field.Name" xml:space="preserve">
-    <value>label_Label2Field</value>
-  </data>
-  <data name="&gt;&gt;label_Label2Field.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label_Label2Field.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;label_Label2Field.ZOrder" xml:space="preserve">
-    <value>7</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Label1StyleField.Name" xml:space="preserve">
-    <value>comboBox_Label1StyleField</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Label1StyleField.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Label1StyleField.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Label1StyleField.ZOrder" xml:space="preserve">
-    <value>8</value>
-  </data>
-  <data name="&gt;&gt;label_Label1StyleField.Name" xml:space="preserve">
-    <value>label_Label1StyleField</value>
-  </data>
-  <data name="&gt;&gt;label_Label1StyleField.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label_Label1StyleField.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;label_Label1StyleField.ZOrder" xml:space="preserve">
-    <value>9</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Label1Field.Name" xml:space="preserve">
-    <value>comboBox_Label1Field</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Label1Field.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Label1Field.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Label1Field.ZOrder" xml:space="preserve">
-    <value>10</value>
-  </data>
-  <data name="&gt;&gt;label_Label1Field.Name" xml:space="preserve">
-    <value>label_Label1Field</value>
-  </data>
-  <data name="&gt;&gt;label_Label1Field.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label_Label1Field.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;label_Label1Field.ZOrder" xml:space="preserve">
-    <value>11</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Style2Field.Name" xml:space="preserve">
-    <value>comboBox_Style2Field</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Style2Field.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Style2Field.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Style2Field.ZOrder" xml:space="preserve">
-    <value>12</value>
-  </data>
-  <data name="&gt;&gt;label_Style2Field.Name" xml:space="preserve">
-    <value>label_Style2Field</value>
-  </data>
-  <data name="&gt;&gt;label_Style2Field.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label_Style2Field.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;label_Style2Field.ZOrder" xml:space="preserve">
-    <value>13</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Style1Field.Name" xml:space="preserve">
-    <value>comboBox_Style1Field</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Style1Field.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Style1Field.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Style1Field.ZOrder" xml:space="preserve">
-    <value>14</value>
-  </data>
-  <data name="&gt;&gt;label_Style1Field.Name" xml:space="preserve">
-    <value>label_Style1Field</value>
-  </data>
-  <data name="&gt;&gt;label_Style1Field.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label_Style1Field.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;label_Style1Field.ZOrder" xml:space="preserve">
-    <value>15</value>
-  </data>
-  <data name="&gt;&gt;comboBox_ElementField.Name" xml:space="preserve">
-    <value>comboBox_ElementField</value>
-  </data>
-  <data name="&gt;&gt;comboBox_ElementField.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;comboBox_ElementField.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;comboBox_ElementField.ZOrder" xml:space="preserve">
-    <value>16</value>
-  </data>
-  <data name="&gt;&gt;label_ElementField.Name" xml:space="preserve">
-    <value>label_ElementField</value>
-  </data>
-  <data name="&gt;&gt;label_ElementField.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label_ElementField.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;label_ElementField.ZOrder" xml:space="preserve">
-    <value>17</value>
-  </data>
-  <data name="&gt;&gt;comboBox_ColumnField.Name" xml:space="preserve">
-    <value>comboBox_ColumnField</value>
-  </data>
-  <data name="&gt;&gt;comboBox_ColumnField.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;comboBox_ColumnField.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;comboBox_ColumnField.ZOrder" xml:space="preserve">
-    <value>18</value>
-  </data>
-  <data name="&gt;&gt;label_ColumnField.Name" xml:space="preserve">
-    <value>label_ColumnField</value>
-  </data>
-  <data name="&gt;&gt;label_ColumnField.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label_ColumnField.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;label_ColumnField.ZOrder" xml:space="preserve">
-    <value>19</value>
-  </data>
-  <data name="&gt;&gt;label_orderField.Name" xml:space="preserve">
-    <value>label_orderField</value>
-  </data>
-  <data name="&gt;&gt;label_orderField.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label_orderField.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;label_orderField.ZOrder" xml:space="preserve">
-    <value>20</value>
-  </data>
-  <data name="&gt;&gt;comboBox_orderField.Name" xml:space="preserve">
-    <value>comboBox_orderField</value>
-  </data>
-  <data name="&gt;&gt;comboBox_orderField.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;comboBox_orderField.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;comboBox_orderField.ZOrder" xml:space="preserve">
-    <value>21</value>
-  </data>
-  <data name="groupBox_FieldList.Location" type="System.Drawing.Point, System.Drawing">
-    <value>17, 57</value>
-  </data>
-  <data name="groupBox_FieldList.Size" type="System.Drawing.Size, System.Drawing">
-    <value>339, 532</value>
-  </data>
-  <data name="groupBox_FieldList.TabIndex" type="System.Int32, mscorlib">
-    <value>5</value>
-  </data>
-  <data name="groupBox_FieldList.Text" xml:space="preserve">
-    <value>Fields</value>
-  </data>
-  <data name="&gt;&gt;groupBox_FieldList.Name" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;groupBox_FieldList.Type" xml:space="preserve">
-    <value>System.Windows.Forms.GroupBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;groupBox_FieldList.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="&gt;&gt;groupBox_FieldList.ZOrder" xml:space="preserve">
-    <value>2</value>
-  </data>
-  <data name="comboBox_DescriptionField.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 493</value>
-  </data>
-  <data name="comboBox_DescriptionField.Size" type="System.Drawing.Size, System.Drawing">
-    <value>326, 21</value>
-  </data>
-  <data name="comboBox_DescriptionField.TabIndex" type="System.Int32, mscorlib">
-    <value>21</value>
-  </data>
-  <data name="&gt;&gt;comboBox_DescriptionField.Name" xml:space="preserve">
-    <value>comboBox_DescriptionField</value>
-  </data>
-  <data name="&gt;&gt;comboBox_DescriptionField.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;comboBox_DescriptionField.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;comboBox_DescriptionField.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
-  <data name="label_DescriptionField.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="label_DescriptionField.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="label_DescriptionField.Location" type="System.Drawing.Point, System.Drawing">
-    <value>7, 477</value>
-  </data>
-  <data name="label_DescriptionField.Size" type="System.Drawing.Size, System.Drawing">
-    <value>60, 13</value>
-  </data>
-  <data name="label_DescriptionField.TabIndex" type="System.Int32, mscorlib">
-    <value>20</value>
-  </data>
-  <data name="label_DescriptionField.Text" xml:space="preserve">
-    <value>Description</value>
-  </data>
-  <data name="&gt;&gt;label_DescriptionField.Name" xml:space="preserve">
-    <value>label_DescriptionField</value>
-  </data>
-  <data name="&gt;&gt;label_DescriptionField.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label_DescriptionField.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;label_DescriptionField.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
-  <data name="comboBox_HeadingField.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 446</value>
-  </data>
-  <data name="comboBox_HeadingField.Size" type="System.Drawing.Size, System.Drawing">
-    <value>326, 21</value>
-  </data>
-  <data name="comboBox_HeadingField.TabIndex" type="System.Int32, mscorlib">
-    <value>19</value>
-  </data>
-  <data name="&gt;&gt;comboBox_HeadingField.Name" xml:space="preserve">
-    <value>comboBox_HeadingField</value>
-  </data>
-  <data name="&gt;&gt;comboBox_HeadingField.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;comboBox_HeadingField.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;comboBox_HeadingField.ZOrder" xml:space="preserve">
-    <value>2</value>
-  </data>
-  <data name="label_HeadingField.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
-  <data name="label_HeadingField.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="label_HeadingField.Location" type="System.Drawing.Point, System.Drawing">
-    <value>7, 430</value>
-  </data>
-  <data name="label_HeadingField.Size" type="System.Drawing.Size, System.Drawing">
-    <value>47, 13</value>
-  </data>
-  <data name="label_HeadingField.TabIndex" type="System.Int32, mscorlib">
-    <value>18</value>
-  </data>
-  <data name="label_HeadingField.Text" xml:space="preserve">
-    <value>Heading</value>
-  </data>
-  <data name="&gt;&gt;label_HeadingField.Name" xml:space="preserve">
-    <value>label_HeadingField</value>
-  </data>
-  <data name="&gt;&gt;label_HeadingField.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label_HeadingField.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;label_HeadingField.ZOrder" xml:space="preserve">
-    <value>3</value>
-  </data>
-  <data name="comboBox_Label2StyleField.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 400</value>
-  </data>
-  <data name="comboBox_Label2StyleField.Size" type="System.Drawing.Size, System.Drawing">
-    <value>326, 21</value>
-  </data>
-  <data name="comboBox_Label2StyleField.TabIndex" type="System.Int32, mscorlib">
-    <value>17</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Label2StyleField.Name" xml:space="preserve">
-    <value>comboBox_Label2StyleField</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Label2StyleField.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Label2StyleField.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Label2StyleField.ZOrder" xml:space="preserve">
-    <value>4</value>
-  </data>
-  <data name="label_Label2StyleField.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
-  <data name="label_Label2StyleField.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="label_Label2StyleField.Location" type="System.Drawing.Point, System.Drawing">
-    <value>7, 384</value>
-  </data>
-  <data name="label_Label2StyleField.Size" type="System.Drawing.Size, System.Drawing">
-    <value>68, 13</value>
-  </data>
-  <data name="label_Label2StyleField.TabIndex" type="System.Int32, mscorlib">
-    <value>16</value>
-  </data>
-  <data name="label_Label2StyleField.Text" xml:space="preserve">
-    <value>Label 2 Style</value>
-  </data>
-  <data name="&gt;&gt;label_Label2StyleField.Name" xml:space="preserve">
-    <value>label_Label2StyleField</value>
-  </data>
-  <data name="&gt;&gt;label_Label2StyleField.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label_Label2StyleField.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;label_Label2StyleField.ZOrder" xml:space="preserve">
-    <value>5</value>
-  </data>
-  <data name="comboBox_Label2Field.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 353</value>
-  </data>
-  <data name="comboBox_Label2Field.Size" type="System.Drawing.Size, System.Drawing">
-    <value>326, 21</value>
-  </data>
-  <data name="comboBox_Label2Field.TabIndex" type="System.Int32, mscorlib">
-    <value>15</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Label2Field.Name" xml:space="preserve">
-    <value>comboBox_Label2Field</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Label2Field.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Label2Field.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Label2Field.ZOrder" xml:space="preserve">
-    <value>6</value>
-  </data>
-  <data name="label_Label2Field.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
-  <data name="label_Label2Field.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="label_Label2Field.Location" type="System.Drawing.Point, System.Drawing">
-    <value>7, 337</value>
-  </data>
-  <data name="label_Label2Field.Size" type="System.Drawing.Size, System.Drawing">
-    <value>42, 13</value>
-  </data>
-  <data name="label_Label2Field.TabIndex" type="System.Int32, mscorlib">
-    <value>14</value>
-  </data>
-  <data name="label_Label2Field.Text" xml:space="preserve">
-    <value>Label 2</value>
-  </data>
-  <data name="&gt;&gt;label_Label2Field.Name" xml:space="preserve">
-    <value>label_Label2Field</value>
-  </data>
-  <data name="&gt;&gt;label_Label2Field.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label_Label2Field.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;label_Label2Field.ZOrder" xml:space="preserve">
-    <value>7</value>
-  </data>
-  <data name="comboBox_Label1StyleField.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 306</value>
-  </data>
-  <data name="comboBox_Label1StyleField.Size" type="System.Drawing.Size, System.Drawing">
-    <value>326, 21</value>
-  </data>
-  <data name="comboBox_Label1StyleField.TabIndex" type="System.Int32, mscorlib">
-    <value>13</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Label1StyleField.Name" xml:space="preserve">
-    <value>comboBox_Label1StyleField</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Label1StyleField.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Label1StyleField.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Label1StyleField.ZOrder" xml:space="preserve">
-    <value>8</value>
-  </data>
-  <data name="label_Label1StyleField.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
-  <data name="label_Label1StyleField.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="label_Label1StyleField.Location" type="System.Drawing.Point, System.Drawing">
-    <value>7, 290</value>
-  </data>
-  <data name="label_Label1StyleField.Size" type="System.Drawing.Size, System.Drawing">
-    <value>68, 13</value>
-  </data>
-  <data name="label_Label1StyleField.TabIndex" type="System.Int32, mscorlib">
-    <value>12</value>
-  </data>
-  <data name="label_Label1StyleField.Text" xml:space="preserve">
-    <value>Label 1 Style</value>
-  </data>
-  <data name="&gt;&gt;label_Label1StyleField.Name" xml:space="preserve">
-    <value>label_Label1StyleField</value>
-  </data>
-  <data name="&gt;&gt;label_Label1StyleField.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label_Label1StyleField.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;label_Label1StyleField.ZOrder" xml:space="preserve">
-    <value>9</value>
-  </data>
-  <data name="comboBox_Label1Field.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 259</value>
-  </data>
-  <data name="comboBox_Label1Field.Size" type="System.Drawing.Size, System.Drawing">
-    <value>326, 21</value>
-  </data>
-  <data name="comboBox_Label1Field.TabIndex" type="System.Int32, mscorlib">
-    <value>11</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Label1Field.Name" xml:space="preserve">
-    <value>comboBox_Label1Field</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Label1Field.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Label1Field.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Label1Field.ZOrder" xml:space="preserve">
-    <value>10</value>
-  </data>
-  <data name="label_Label1Field.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
-  <data name="label_Label1Field.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="label_Label1Field.Location" type="System.Drawing.Point, System.Drawing">
-    <value>7, 243</value>
-  </data>
-  <data name="label_Label1Field.Size" type="System.Drawing.Size, System.Drawing">
-    <value>42, 13</value>
-  </data>
-  <data name="label_Label1Field.TabIndex" type="System.Int32, mscorlib">
-    <value>10</value>
-  </data>
-  <data name="label_Label1Field.Text" xml:space="preserve">
-    <value>Label 1</value>
-  </data>
-  <data name="&gt;&gt;label_Label1Field.Name" xml:space="preserve">
-    <value>label_Label1Field</value>
-  </data>
-  <data name="&gt;&gt;label_Label1Field.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label_Label1Field.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;label_Label1Field.ZOrder" xml:space="preserve">
-    <value>11</value>
-  </data>
-  <data name="comboBox_Style2Field.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 215</value>
-  </data>
-  <data name="comboBox_Style2Field.Size" type="System.Drawing.Size, System.Drawing">
-    <value>326, 21</value>
-  </data>
-  <data name="comboBox_Style2Field.TabIndex" type="System.Int32, mscorlib">
-    <value>9</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Style2Field.Name" xml:space="preserve">
-    <value>comboBox_Style2Field</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Style2Field.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Style2Field.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Style2Field.ZOrder" xml:space="preserve">
-    <value>12</value>
-  </data>
-  <data name="label_Style2Field.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
-  <data name="label_Style2Field.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="label_Style2Field.Location" type="System.Drawing.Point, System.Drawing">
-    <value>7, 199</value>
-  </data>
-  <data name="label_Style2Field.Size" type="System.Drawing.Size, System.Drawing">
-    <value>39, 13</value>
-  </data>
-  <data name="label_Style2Field.TabIndex" type="System.Int32, mscorlib">
-    <value>8</value>
-  </data>
-  <data name="label_Style2Field.Text" xml:space="preserve">
-    <value>Style 2</value>
-  </data>
-  <data name="&gt;&gt;label_Style2Field.Name" xml:space="preserve">
-    <value>label_Style2Field</value>
-  </data>
-  <data name="&gt;&gt;label_Style2Field.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label_Style2Field.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;label_Style2Field.ZOrder" xml:space="preserve">
-    <value>13</value>
-  </data>
-  <data name="comboBox_Style1Field.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 171</value>
-  </data>
   <data name="comboBox_Style1Field.Size" type="System.Drawing.Size, System.Drawing">
     <value>326, 21</value>
-  </data>
-  <data name="comboBox_Style1Field.TabIndex" type="System.Int32, mscorlib">
-    <value>7</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Style1Field.Name" xml:space="preserve">
-    <value>comboBox_Style1Field</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Style1Field.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Style1Field.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;comboBox_Style1Field.ZOrder" xml:space="preserve">
-    <value>14</value>
-  </data>
-  <data name="label_Style1Field.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
-  <data name="label_Style1Field.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="label_Style1Field.Location" type="System.Drawing.Point, System.Drawing">
-    <value>7, 155</value>
   </data>
   <data name="label_Style1Field.Size" type="System.Drawing.Size, System.Drawing">
     <value>39, 13</value>
   </data>
-  <data name="label_Style1Field.TabIndex" type="System.Int32, mscorlib">
-    <value>6</value>
+  <data name="comboBox_Label1StyleField.TabIndex" type="System.Int32, mscorlib">
+    <value>13</value>
   </data>
-  <data name="label_Style1Field.Text" xml:space="preserve">
-    <value>Style 1</value>
+  <data name="$this.StartPosition" type="System.Windows.Forms.FormStartPosition, System.Windows.Forms">
+    <value>CenterParent</value>
   </data>
-  <data name="&gt;&gt;label_Style1Field.Name" xml:space="preserve">
-    <value>label_Style1Field</value>
-  </data>
-  <data name="&gt;&gt;label_Style1Field.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label_Style1Field.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;label_Style1Field.ZOrder" xml:space="preserve">
-    <value>15</value>
-  </data>
-  <data name="comboBox_ElementField.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 125</value>
-  </data>
-  <data name="comboBox_ElementField.Size" type="System.Drawing.Size, System.Drawing">
-    <value>326, 21</value>
-  </data>
-  <data name="comboBox_ElementField.TabIndex" type="System.Int32, mscorlib">
-    <value>5</value>
-  </data>
-  <data name="&gt;&gt;comboBox_ElementField.Name" xml:space="preserve">
-    <value>comboBox_ElementField</value>
-  </data>
-  <data name="&gt;&gt;comboBox_ElementField.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;comboBox_ElementField.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;comboBox_ElementField.ZOrder" xml:space="preserve">
-    <value>16</value>
-  </data>
-  <data name="label_ElementField.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
-  <data name="label_ElementField.Location" type="System.Drawing.Point, System.Drawing">
-    <value>7, 109</value>
-  </data>
-  <data name="label_ElementField.Size" type="System.Drawing.Size, System.Drawing">
-    <value>45, 13</value>
-  </data>
-  <data name="label_ElementField.TabIndex" type="System.Int32, mscorlib">
-    <value>4</value>
-  </data>
-  <data name="label_ElementField.Text" xml:space="preserve">
-    <value>Element</value>
-  </data>
-  <data name="&gt;&gt;label_ElementField.Name" xml:space="preserve">
-    <value>label_ElementField</value>
-  </data>
-  <data name="&gt;&gt;label_ElementField.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label_ElementField.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;label_ElementField.ZOrder" xml:space="preserve">
+  <data name="comboBox_Label2StyleField.TabIndex" type="System.Int32, mscorlib">
     <value>17</value>
   </data>
-  <data name="comboBox_ColumnField.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 80</value>
-  </data>
-  <data name="comboBox_ColumnField.Size" type="System.Drawing.Size, System.Drawing">
-    <value>326, 21</value>
-  </data>
-  <data name="comboBox_ColumnField.TabIndex" type="System.Int32, mscorlib">
-    <value>3</value>
-  </data>
-  <data name="&gt;&gt;comboBox_ColumnField.Name" xml:space="preserve">
-    <value>comboBox_ColumnField</value>
-  </data>
-  <data name="&gt;&gt;comboBox_ColumnField.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;comboBox_ColumnField.Parent" xml:space="preserve">
+  <data name="&gt;&gt;label_DescriptionField.Parent" xml:space="preserve">
     <value>groupBox_FieldList</value>
   </data>
-  <data name="&gt;&gt;comboBox_ColumnField.ZOrder" xml:space="preserve">
-    <value>18</value>
-  </data>
-  <data name="label_ColumnField.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
-  <data name="label_ColumnField.Location" type="System.Drawing.Point, System.Drawing">
-    <value>7, 64</value>
-  </data>
-  <data name="label_ColumnField.Size" type="System.Drawing.Size, System.Drawing">
-    <value>42, 13</value>
+  <data name="label_Label1StyleField.Text" xml:space="preserve">
+    <value>Label 1 Style</value>
   </data>
   <data name="label_ColumnField.TabIndex" type="System.Int32, mscorlib">
     <value>2</value>
   </data>
-  <data name="label_ColumnField.Text" xml:space="preserve">
-    <value>Column</value>
-  </data>
-  <data name="&gt;&gt;label_ColumnField.Name" xml:space="preserve">
-    <value>label_ColumnField</value>
-  </data>
-  <data name="&gt;&gt;label_ColumnField.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label_ColumnField.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;label_ColumnField.ZOrder" xml:space="preserve">
-    <value>19</value>
-  </data>
-  <data name="label_orderField.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
-  <data name="label_orderField.Location" type="System.Drawing.Point, System.Drawing">
-    <value>7, 19</value>
-  </data>
-  <data name="label_orderField.Size" type="System.Drawing.Size, System.Drawing">
-    <value>33, 13</value>
-  </data>
-  <data name="label_orderField.TabIndex" type="System.Int32, mscorlib">
-    <value>1</value>
+  <data name="comboBox_Label2StyleField.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 400</value>
   </data>
   <data name="label_orderField.Text" xml:space="preserve">
     <value>Order</value>
   </data>
-  <data name="&gt;&gt;label_orderField.Name" xml:space="preserve">
-    <value>label_orderField</value>
-  </data>
   <data name="&gt;&gt;label_orderField.Type" xml:space="preserve">
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;label_orderField.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
+  <data name="&gt;&gt;label_Style1Field.ZOrder" xml:space="preserve">
+    <value>15</value>
   </data>
-  <data name="&gt;&gt;label_orderField.ZOrder" xml:space="preserve">
-    <value>20</value>
+  <data name="label_orderField.Size" type="System.Drawing.Size, System.Drawing">
+    <value>33, 13</value>
   </data>
-  <data name="comboBox_orderField.Location" type="System.Drawing.Point, System.Drawing">
-    <value>7, 36</value>
+  <data name="&gt;&gt;label_Label2StyleField.Name" xml:space="preserve">
+    <value>label_Label2StyleField</value>
   </data>
-  <data name="comboBox_orderField.Size" type="System.Drawing.Size, System.Drawing">
-    <value>326, 21</value>
-  </data>
-  <data name="comboBox_orderField.TabIndex" type="System.Int32, mscorlib">
-    <value>0</value>
-  </data>
-  <data name="&gt;&gt;comboBox_orderField.Name" xml:space="preserve">
-    <value>comboBox_orderField</value>
-  </data>
-  <data name="&gt;&gt;comboBox_orderField.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;comboBox_orderField.Parent" xml:space="preserve">
-    <value>groupBox_FieldList</value>
-  </data>
-  <data name="&gt;&gt;comboBox_orderField.ZOrder" xml:space="preserve">
-    <value>21</value>
-  </data>
-  <data name="checkBox_DEMBoxes.AutoSize" type="System.Boolean, mscorlib">
+  <data name="label_orderField.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
-  <data name="checkBox_DEMBoxes.Location" type="System.Drawing.Point, System.Drawing">
-    <value>17, 599</value>
+  <data name="&gt;&gt;checkBox_autoCalculateColumns.Name" xml:space="preserve">
+    <value>checkBox_autoCalculateColumns</value>
   </data>
-  <data name="checkBox_DEMBoxes.Size" type="System.Drawing.Size, System.Drawing">
-    <value>147, 17</value>
+  <data name="label_HeadingField.Location" type="System.Drawing.Point, System.Drawing">
+    <value>7, 430</value>
   </data>
-  <data name="checkBox_DEMBoxes.TabIndex" type="System.Int32, mscorlib">
+  <data name="&gt;&gt;button_selectTable.ZOrder" xml:space="preserve">
     <value>6</value>
   </data>
-  <data name="checkBox_DEMBoxes.Text" xml:space="preserve">
-    <value>DEM Image in unit boxes.</value>
-  </data>
-  <data name="&gt;&gt;checkBox_DEMBoxes.Name" xml:space="preserve">
-    <value>checkBox_DEMBoxes</value>
-  </data>
-  <data name="&gt;&gt;checkBox_DEMBoxes.Type" xml:space="preserve">
-    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;checkBox_DEMBoxes.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="&gt;&gt;checkBox_DEMBoxes.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
-  <data name="comboBox_SelectTable.Location" type="System.Drawing.Point, System.Drawing">
-    <value>16, 30</value>
-  </data>
-  <data name="comboBox_SelectTable.Size" type="System.Drawing.Size, System.Drawing">
-    <value>340, 21</value>
-  </data>
-  <data name="comboBox_SelectTable.TabIndex" type="System.Int32, mscorlib">
-    <value>7</value>
+  <data name="label_HeadingField.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
   </data>
   <data name="&gt;&gt;comboBox_SelectTable.Name" xml:space="preserve">
     <value>comboBox_SelectTable</value>
   </data>
+  <data name="label_ElementField.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="&gt;&gt;comboBox_Label2StyleField.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="&gt;&gt;comboBox_HeadingField.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="label_Style2Field.Text" xml:space="preserve">
+    <value>Style 2</value>
+  </data>
+  <data name="comboBox_Label1Field.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 259</value>
+  </data>
+  <data name="&gt;&gt;label_selectTable.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;comboBox_Label2Field.Parent" xml:space="preserve">
+    <value>groupBox_FieldList</value>
+  </data>
+  <data name="&gt;&gt;label_Label2Field.Name" xml:space="preserve">
+    <value>label_Label2Field</value>
+  </data>
+  <data name="&gt;&gt;comboBox_Label1Field.Name" xml:space="preserve">
+    <value>comboBox_Label1Field</value>
+  </data>
+  <data name="label_Style2Field.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="label_Label1StyleField.Size" type="System.Drawing.Size, System.Drawing">
+    <value>68, 13</value>
+  </data>
+  <data name="&gt;&gt;button_Cancel.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="label_Style1Field.TabIndex" type="System.Int32, mscorlib">
+    <value>6</value>
+  </data>
+  <data name="&gt;&gt;comboBox_Label2Field.Name" xml:space="preserve">
+    <value>comboBox_Label2Field</value>
+  </data>
+  <data name="&gt;&gt;label_ElementField.ZOrder" xml:space="preserve">
+    <value>17</value>
+  </data>
+  <data name="button_Cancel.Location" type="System.Drawing.Point, System.Drawing">
+    <value>281, 666</value>
+  </data>
+  <data name="checkBox_autoCalculateColumns.Location" type="System.Drawing.Point, System.Drawing">
+    <value>17, 622</value>
+  </data>
+  <data name="button_Start.Location" type="System.Drawing.Point, System.Drawing">
+    <value>17, 666</value>
+  </data>
+  <data name="comboBox_ColumnField.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="&gt;&gt;label_orderField.ZOrder" xml:space="preserve">
+    <value>20</value>
+  </data>
+  <data name="&gt;&gt;button_selectTable.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label_Label1Field.ZOrder" xml:space="preserve">
+    <value>11</value>
+  </data>
+  <data name="&gt;&gt;label_Label2Field.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="label_HeadingField.Size" type="System.Drawing.Size, System.Drawing">
+    <value>47, 13</value>
+  </data>
+  <data name="&gt;&gt;label_ColumnField.ZOrder" xml:space="preserve">
+    <value>19</value>
+  </data>
+  <data name="label_Label1Field.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="&gt;&gt;button_Start.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;comboBox_Label2StyleField.Name" xml:space="preserve">
+    <value>comboBox_Label2StyleField</value>
+  </data>
   <data name="&gt;&gt;comboBox_SelectTable.Type" xml:space="preserve">
     <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;comboBox_SelectTable.Parent" xml:space="preserve">
-    <value>$this</value>
+  <data name="comboBox_SelectTable.TabIndex" type="System.Int32, mscorlib">
+    <value>7</value>
   </data>
-  <data name="&gt;&gt;comboBox_SelectTable.ZOrder" xml:space="preserve">
+  <data name="&gt;&gt;comboBox_ElementField.ZOrder" xml:space="preserve">
+    <value>16</value>
+  </data>
+  <data name="&gt;&gt;comboBox_Label1StyleField.Parent" xml:space="preserve">
+    <value>groupBox_FieldList</value>
+  </data>
+  <data name="&gt;&gt;comboBox_Label1StyleField.Name" xml:space="preserve">
+    <value>comboBox_Label1StyleField</value>
+  </data>
+  <data name="label_DescriptionField.Text" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="&gt;&gt;comboBox_Style2Field.ZOrder" xml:space="preserve">
+    <value>12</value>
+  </data>
+  <data name="label_selectTable.Size" type="System.Drawing.Size, System.Drawing">
+    <value>113, 13</value>
+  </data>
+  <data name="label_DescriptionField.Location" type="System.Drawing.Point, System.Drawing">
+    <value>7, 477</value>
+  </data>
+  <data name="&gt;&gt;comboBox_ElementField.Parent" xml:space="preserve">
+    <value>groupBox_FieldList</value>
+  </data>
+  <data name="&gt;&gt;label_Label1Field.Parent" xml:space="preserve">
+    <value>groupBox_FieldList</value>
+  </data>
+  <data name="label_selectTable.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
   </data>
-  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
-    <value>6, 13</value>
+  <data name="comboBox_Label2Field.TabIndex" type="System.Int32, mscorlib">
+    <value>15</value>
   </data>
-  <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
-    <value>411, 674</value>
+  <data name="label_orderField.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="button_Cancel.Text" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="label_Label1Field.Text" xml:space="preserve">
+    <value>Label 1</value>
+  </data>
+  <data name="groupBox_FieldList.Location" type="System.Drawing.Point, System.Drawing">
+    <value>17, 57</value>
+  </data>
+  <data name="label_HeadingField.TabIndex" type="System.Int32, mscorlib">
+    <value>18</value>
+  </data>
+  <data name="label_Style2Field.Size" type="System.Drawing.Size, System.Drawing">
+    <value>39, 13</value>
+  </data>
+  <data name="&gt;&gt;label_HeadingField.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="label_Style1Field.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="&gt;&gt;$this.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Form, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;checkBox_DEMBoxes.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="&gt;&gt;comboBox_orderField.Name" xml:space="preserve">
+    <value>comboBox_orderField</value>
+  </data>
+  <data name="label_DescriptionField.Size" type="System.Drawing.Size, System.Drawing">
+    <value>60, 13</value>
+  </data>
+  <data name="label_Style1Field.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="&gt;&gt;label_Label2StyleField.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="&gt;&gt;label_Label1Field.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;comboBox_Label1Field.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;comboBox_orderField.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="comboBox_Label1Field.Size" type="System.Drawing.Size, System.Drawing">
+    <value>326, 21</value>
+  </data>
+  <data name="label_ColumnField.Text" xml:space="preserve">
+    <value>Column</value>
+  </data>
+  <data name="comboBox_ElementField.TabIndex" type="System.Int32, mscorlib">
+    <value>5</value>
+  </data>
+  <data name="label_Style1Field.Location" type="System.Drawing.Point, System.Drawing">
+    <value>7, 155</value>
+  </data>
+  <data name="comboBox_HeadingField.Size" type="System.Drawing.Size, System.Drawing">
+    <value>326, 21</value>
+  </data>
+  <data name="checkBox_DEMBoxes.Location" type="System.Drawing.Point, System.Drawing">
+    <value>17, 599</value>
+  </data>
+  <data name="label_Label2Field.TabIndex" type="System.Int32, mscorlib">
+    <value>14</value>
+  </data>
+  <data name="comboBox_orderField.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="label_Label1StyleField.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
   </data>
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
@@ -2814,16 +2421,178 @@
         AAD//wAAx/8AAMQDAADH/wAA
 </value>
   </data>
-  <data name="$this.StartPosition" type="System.Windows.Forms.FormStartPosition, System.Windows.Forms">
-    <value>CenterParent</value>
+  <data name="&gt;&gt;label_Label1StyleField.Parent" xml:space="preserve">
+    <value>groupBox_FieldList</value>
   </data>
-  <data name="$this.Text" xml:space="preserve">
-    <value>Legend Renderer</value>
+  <data name="&gt;&gt;comboBox_Label2Field.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;$this.Name" xml:space="preserve">
-    <value>Form_Legend_Renderer</value>
+  <data name="comboBox_Label1Field.TabIndex" type="System.Int32, mscorlib">
+    <value>11</value>
   </data>
-  <data name="&gt;&gt;$this.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Form, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
+    <value>6, 13</value>
   </data>
+  <data name="comboBox_SelectTable.Location" type="System.Drawing.Point, System.Drawing">
+    <value>16, 30</value>
+  </data>
+  <data name="comboBox_orderField.Size" type="System.Drawing.Size, System.Drawing">
+    <value>326, 21</value>
+  </data>
+  <data name="&gt;&gt;button_Start.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;label_Label2StyleField.Parent" xml:space="preserve">
+    <value>groupBox_FieldList</value>
+  </data>
+  <data name="&gt;&gt;comboBox_Label1StyleField.ZOrder" xml:space="preserve">
+    <value>8</value>
+  </data>
+  <data name="&gt;&gt;groupBox_FieldList.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="&gt;&gt;checkBox_DEMBoxes.Name" xml:space="preserve">
+    <value>checkBox_DEMBoxes</value>
+  </data>
+  <data name="&gt;&gt;comboBox_Label1Field.Parent" xml:space="preserve">
+    <value>groupBox_FieldList</value>
+  </data>
+  <data name="&gt;&gt;label_Label1StyleField.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="label_Label2StyleField.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="&gt;&gt;label_HeadingField.Name" xml:space="preserve">
+    <value>label_HeadingField</value>
+  </data>
+  <data name="&gt;&gt;comboBox_Style2Field.Name" xml:space="preserve">
+    <value>comboBox_Style2Field</value>
+  </data>
+  <data name="label_Label1StyleField.Location" type="System.Drawing.Point, System.Drawing">
+    <value>7, 290</value>
+  </data>
+  <data name="&gt;&gt;label_Label1StyleField.ZOrder" xml:space="preserve">
+    <value>9</value>
+  </data>
+  <data name="comboBox_Style1Field.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 171</value>
+  </data>
+  <data name="label_Label2StyleField.Location" type="System.Drawing.Point, System.Drawing">
+    <value>7, 384</value>
+  </data>
+  <data name="label_ElementField.Size" type="System.Drawing.Size, System.Drawing">
+    <value>45, 13</value>
+  </data>
+  <data name="&gt;&gt;groupBox_FieldList.Type" xml:space="preserve">
+    <value>System.Windows.Forms.GroupBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;comboBox_Style2Field.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="comboBox_Label2StyleField.Size" type="System.Drawing.Size, System.Drawing">
+    <value>326, 21</value>
+  </data>
+  <data name="comboBox_Style2Field.Size" type="System.Drawing.Size, System.Drawing">
+    <value>326, 21</value>
+  </data>
+  <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
+    <value>411, 709</value>
+  </data>
+  <data name="&gt;&gt;comboBox_Style1Field.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label_ColumnField.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;comboBox_Style1Field.Name" xml:space="preserve">
+    <value>comboBox_Style1Field</value>
+  </data>
+  <data name="comboBox_Label1StyleField.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 306</value>
+  </data>
+  <data name="&gt;&gt;button_Start.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="&gt;&gt;checkBox_autoCalculateColumns.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;groupBox_FieldList.Name" xml:space="preserve">
+    <value>groupBox_FieldList</value>
+  </data>
+  <data name="label_Label2StyleField.Text" xml:space="preserve">
+    <value>Label 2 Style</value>
+  </data>
+  <data name="comboBox_HeadingField.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 446</value>
+  </data>
+  <data name="button_Start.Text" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="&gt;&gt;label_ElementField.Parent" xml:space="preserve">
+    <value>groupBox_FieldList</value>
+  </data>
+  <data name="button_selectTable.Location" type="System.Drawing.Point, System.Drawing">
+    <value>363, 26</value>
+  </data>
+  <data name="&gt;&gt;label_Style1Field.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label_orderField.Name" xml:space="preserve">
+    <value>label_orderField</value>
+  </data>
+  <data name="comboBox_Style2Field.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 215</value>
+  </data>
+  <data name="label_Label2Field.Location" type="System.Drawing.Point, System.Drawing">
+    <value>7, 337</value>
+  </data>
+  <data name="label_HeadingField.Text" xml:space="preserve">
+    <value>Heading</value>
+  </data>
+  <data name="&gt;&gt;comboBox_Style1Field.Parent" xml:space="preserve">
+    <value>groupBox_FieldList</value>
+  </data>
+  <data name="button_selectTable.Size" type="System.Drawing.Size, System.Drawing">
+    <value>29, 29</value>
+  </data>
+  <data name="label_ElementField.Text" xml:space="preserve">
+    <value>Element</value>
+  </data>
+  <data name="label_selectTable.Location" type="System.Drawing.Point, System.Drawing">
+    <value>13, 13</value>
+  </data>
+  <data name="&gt;&gt;comboBox_Label2Field.ZOrder" xml:space="preserve">
+    <value>6</value>
+  </data>
+  <data name="groupBox_FieldList.TabIndex" type="System.Int32, mscorlib">
+    <value>5</value>
+  </data>
+  <data name="label_ColumnField.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="label_Label2StyleField.Size" type="System.Drawing.Size, System.Drawing">
+    <value>68, 13</value>
+  </data>
+  <data name="&gt;&gt;label_HeadingField.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;comboBox_DescriptionField.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="checkBox_autoCalculateColumns.Text" xml:space="preserve">
+    <value>Auto-calculate number of columns (CGM only)</value>
+  </data>
+  <data name="&gt;&gt;comboBox_DescriptionField.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label_Label2Field.ZOrder" xml:space="preserve">
+    <value>7</value>
+  </data>
+  <data name="&gt;&gt;label_selectTable.Name" xml:space="preserve">
+    <value>label_selectTable</value>
+  </data>
+  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
 </root>

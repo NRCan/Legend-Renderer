@@ -58,6 +58,7 @@
             this.comboBox_orderField = new System.Windows.Forms.ComboBox();
             this.checkBox_DEMBoxes = new System.Windows.Forms.CheckBox();
             this.comboBox_SelectTable = new System.Windows.Forms.ComboBox();
+            this.checkBox_autoCalculateColumns = new System.Windows.Forms.CheckBox();
             this.groupBox_FieldList.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -89,6 +90,7 @@
             // 
             // groupBox_FieldList
             // 
+            resources.ApplyResources(this.groupBox_FieldList, "groupBox_FieldList");
             this.groupBox_FieldList.Controls.Add(this.comboBox_DescriptionField);
             this.groupBox_FieldList.Controls.Add(this.label_DescriptionField);
             this.groupBox_FieldList.Controls.Add(this.comboBox_HeadingField);
@@ -111,15 +113,14 @@
             this.groupBox_FieldList.Controls.Add(this.label_ColumnField);
             this.groupBox_FieldList.Controls.Add(this.label_orderField);
             this.groupBox_FieldList.Controls.Add(this.comboBox_orderField);
-            resources.ApplyResources(this.groupBox_FieldList, "groupBox_FieldList");
             this.groupBox_FieldList.Name = "groupBox_FieldList";
             this.groupBox_FieldList.TabStop = false;
             // 
             // comboBox_DescriptionField
             // 
+            resources.ApplyResources(this.comboBox_DescriptionField, "comboBox_DescriptionField");
             this.comboBox_DescriptionField.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox_DescriptionField.FormattingEnabled = true;
-            resources.ApplyResources(this.comboBox_DescriptionField, "comboBox_DescriptionField");
             this.comboBox_DescriptionField.Name = "comboBox_DescriptionField";
             this.comboBox_DescriptionField.SelectedIndexChanged += new System.EventHandler(this.comboBox_DescriptionField_SelectedIndexChanged);
             // 
@@ -130,9 +131,9 @@
             // 
             // comboBox_HeadingField
             // 
+            resources.ApplyResources(this.comboBox_HeadingField, "comboBox_HeadingField");
             this.comboBox_HeadingField.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox_HeadingField.FormattingEnabled = true;
-            resources.ApplyResources(this.comboBox_HeadingField, "comboBox_HeadingField");
             this.comboBox_HeadingField.Name = "comboBox_HeadingField";
             this.comboBox_HeadingField.SelectedIndexChanged += new System.EventHandler(this.comboBox_HeadingField_SelectedIndexChanged);
             // 
@@ -143,9 +144,9 @@
             // 
             // comboBox_Label2StyleField
             // 
+            resources.ApplyResources(this.comboBox_Label2StyleField, "comboBox_Label2StyleField");
             this.comboBox_Label2StyleField.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox_Label2StyleField.FormattingEnabled = true;
-            resources.ApplyResources(this.comboBox_Label2StyleField, "comboBox_Label2StyleField");
             this.comboBox_Label2StyleField.Name = "comboBox_Label2StyleField";
             this.comboBox_Label2StyleField.SelectedIndexChanged += new System.EventHandler(this.comboBox_Label2StyleField_SelectedIndexChanged);
             // 
@@ -156,9 +157,9 @@
             // 
             // comboBox_Label2Field
             // 
+            resources.ApplyResources(this.comboBox_Label2Field, "comboBox_Label2Field");
             this.comboBox_Label2Field.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox_Label2Field.FormattingEnabled = true;
-            resources.ApplyResources(this.comboBox_Label2Field, "comboBox_Label2Field");
             this.comboBox_Label2Field.Name = "comboBox_Label2Field";
             this.comboBox_Label2Field.SelectedIndexChanged += new System.EventHandler(this.comboBox_Label2Field_SelectedIndexChanged);
             // 
@@ -169,9 +170,9 @@
             // 
             // comboBox_Label1StyleField
             // 
+            resources.ApplyResources(this.comboBox_Label1StyleField, "comboBox_Label1StyleField");
             this.comboBox_Label1StyleField.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox_Label1StyleField.FormattingEnabled = true;
-            resources.ApplyResources(this.comboBox_Label1StyleField, "comboBox_Label1StyleField");
             this.comboBox_Label1StyleField.Name = "comboBox_Label1StyleField";
             this.comboBox_Label1StyleField.SelectedIndexChanged += new System.EventHandler(this.comboBox_Label1StyleField_SelectedIndexChanged);
             // 
@@ -182,9 +183,9 @@
             // 
             // comboBox_Label1Field
             // 
+            resources.ApplyResources(this.comboBox_Label1Field, "comboBox_Label1Field");
             this.comboBox_Label1Field.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox_Label1Field.FormattingEnabled = true;
-            resources.ApplyResources(this.comboBox_Label1Field, "comboBox_Label1Field");
             this.comboBox_Label1Field.Name = "comboBox_Label1Field";
             this.comboBox_Label1Field.SelectedIndexChanged += new System.EventHandler(this.comboBox_Label1Field_SelectedIndexChanged);
             // 
@@ -195,9 +196,9 @@
             // 
             // comboBox_Style2Field
             // 
+            resources.ApplyResources(this.comboBox_Style2Field, "comboBox_Style2Field");
             this.comboBox_Style2Field.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox_Style2Field.FormattingEnabled = true;
-            resources.ApplyResources(this.comboBox_Style2Field, "comboBox_Style2Field");
             this.comboBox_Style2Field.Name = "comboBox_Style2Field";
             this.comboBox_Style2Field.SelectedIndexChanged += new System.EventHandler(this.comboBox_Style2Field_SelectedIndexChanged);
             // 
@@ -208,9 +209,9 @@
             // 
             // comboBox_Style1Field
             // 
+            resources.ApplyResources(this.comboBox_Style1Field, "comboBox_Style1Field");
             this.comboBox_Style1Field.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox_Style1Field.FormattingEnabled = true;
-            resources.ApplyResources(this.comboBox_Style1Field, "comboBox_Style1Field");
             this.comboBox_Style1Field.Name = "comboBox_Style1Field";
             this.comboBox_Style1Field.SelectedIndexChanged += new System.EventHandler(this.comboBox_Style1Field_SelectedIndexChanged);
             // 
@@ -221,9 +222,9 @@
             // 
             // comboBox_ElementField
             // 
+            resources.ApplyResources(this.comboBox_ElementField, "comboBox_ElementField");
             this.comboBox_ElementField.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox_ElementField.FormattingEnabled = true;
-            resources.ApplyResources(this.comboBox_ElementField, "comboBox_ElementField");
             this.comboBox_ElementField.Name = "comboBox_ElementField";
             this.comboBox_ElementField.SelectedIndexChanged += new System.EventHandler(this.comboBox_ElementField_SelectedIndexChanged);
             // 
@@ -234,9 +235,9 @@
             // 
             // comboBox_ColumnField
             // 
+            resources.ApplyResources(this.comboBox_ColumnField, "comboBox_ColumnField");
             this.comboBox_ColumnField.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox_ColumnField.FormattingEnabled = true;
-            resources.ApplyResources(this.comboBox_ColumnField, "comboBox_ColumnField");
             this.comboBox_ColumnField.Name = "comboBox_ColumnField";
             this.comboBox_ColumnField.SelectedIndexChanged += new System.EventHandler(this.comboBox_ColumnField_SelectedIndexChanged);
             // 
@@ -252,9 +253,9 @@
             // 
             // comboBox_orderField
             // 
+            resources.ApplyResources(this.comboBox_orderField, "comboBox_orderField");
             this.comboBox_orderField.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox_orderField.FormattingEnabled = true;
-            resources.ApplyResources(this.comboBox_orderField, "comboBox_orderField");
             this.comboBox_orderField.Name = "comboBox_orderField";
             this.comboBox_orderField.SelectedIndexChanged += new System.EventHandler(this.comboBox_orderField_SelectedIndexChanged);
             // 
@@ -266,15 +267,22 @@
             // 
             // comboBox_SelectTable
             // 
-            this.comboBox_SelectTable.FormattingEnabled = true;
             resources.ApplyResources(this.comboBox_SelectTable, "comboBox_SelectTable");
+            this.comboBox_SelectTable.FormattingEnabled = true;
             this.comboBox_SelectTable.Name = "comboBox_SelectTable";
             this.comboBox_SelectTable.SelectedIndexChanged += new System.EventHandler(this.comboBox_SelectTable_SelectedIndexChanged);
+            // 
+            // checkBox_autoCalculateColumns
+            // 
+            resources.ApplyResources(this.checkBox_autoCalculateColumns, "checkBox_autoCalculateColumns");
+            this.checkBox_autoCalculateColumns.Name = "checkBox_autoCalculateColumns";
+            this.checkBox_autoCalculateColumns.UseVisualStyleBackColor = true;
             // 
             // Form_Legend_Renderer
             // 
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.checkBox_autoCalculateColumns);
             this.Controls.Add(this.comboBox_SelectTable);
             this.Controls.Add(this.checkBox_DEMBoxes);
             this.Controls.Add(this.groupBox_FieldList);
@@ -323,5 +331,6 @@
         private System.Windows.Forms.ComboBox comboBox_orderField;
         private System.Windows.Forms.CheckBox checkBox_DEMBoxes;
         private System.Windows.Forms.ComboBox comboBox_SelectTable;
+        private System.Windows.Forms.CheckBox checkBox_autoCalculateColumns;
     }
 }

@@ -502,6 +502,10 @@ namespace GSC_Legend_Renderer
                     {
                         GetSymbols(Dictionaries.Constants.Styles.styleTextClass);
                     }
+
+                    //Get lower bound
+                    double legendYLowerBound = GetCGMLegendLowerBound(Constants.YSpacings.legendEnd_Citation, Constants.Graphics.cgmCitation);
+
                     #endregion
 
                     #region CURSOR inside Legend Table
@@ -532,14 +536,10 @@ namespace GSC_Legend_Renderer
                         string currentHeading = legendRow.Value[headingFieldIndex].ToString();
                         string currentElement = legendRow.Value[elementFieldIndex].ToString();
                         string currentLabel1Style = legendRow.Value[label1StyleFieldIndex].ToString();
-                        
+
+                        IElement currentElementObject = Services.ObjectManagement.CopyInputObject(templateGraphicDico[currentElement]) as IElement;
 
                         int currentColumn = 1; //Default
-                        if (int.TryParse(legendRow.Value[columnFieldIndex].ToString(), out currentColumn))
-                        {
-                            currentColumn = Convert.ToInt32(legendRow.Value[columnFieldIndex]);
-                        }
-
 
                         //Set heading5 trigger
                         if (heading5Text != string.Empty && currentHeading != heading5Text) //If currentheading and heading5 text is the same, keep trigger on to modify description
@@ -552,6 +552,27 @@ namespace GSC_Legend_Renderer
                         {
                             ySpacing = GetYSpacing(lastElement, lastElementType, currentElement, anchorPoint.Item2);
                             xSpacing = GetXSpacing(currentElement);
+
+                            if (!this.checkBox_autoCalculateColumns.Checked)
+                            {
+                                //Track column number change in table
+                                if (int.TryParse(legendRow.Value[columnFieldIndex].ToString(), out currentColumn))
+                                {
+                                    currentColumn = Convert.ToInt32(legendRow.Value[columnFieldIndex]);
+                                }
+                            }
+                            else
+                            {
+                                //Track column change with auto-calculate
+                                if (legendYLowerBound != 0.0)
+                                {
+                                    if ((anchorPoint.Item2 - ySpacing - currentElementObject.Geometry.Envelope.Height) < legendYLowerBound)
+                                    {
+                                        currentColumn++;
+                                    }
+                                }
+
+                            }
 
                             //Manage columns
                             if (currentColumn > 1 && lastColumn != currentColumn)
@@ -3581,6 +3602,48 @@ namespace GSC_Legend_Renderer
 
             return anchorCoord;
 
+        }
+
+        /// <summary>
+        /// From a given anchor, will calculate the legend maximum height, 
+        /// based on upper cgm citation graphic anchor. This will be used to
+        /// automatically calculate the number of columns
+        /// </summary>
+        /// <param name="in_ySpacingWithCitation">The wanted y spacing between end of legend and the reference graphic</param>
+        /// <returns></returns>
+        public double GetCGMLegendLowerBound(double in_ySpacingWithCitation, string in_referenceCGMGraphicName)
+        {
+            //Variables
+            IMxDocument currentDoc = (IMxDocument)ArcMap.Application.Document;
+            double outYBound = 0.0;
+
+            //Get if an element is named citation, if yes take starting point from it.
+            IGraphicsContainer graphics = currentDoc.ActiveView.GraphicsContainer;
+            IElement existingCitationElement = null;
+            graphics.Reset();
+            IElement nextElement = graphics.Next();
+            while (nextElement != null)
+            {
+                IElementProperties nextGProperties = nextElement as IElementProperties;
+                if (nextGProperties.Name == in_referenceCGMGraphicName)
+                {
+                    existingCitationElement = nextElement;
+
+                    break;
+                }
+
+                nextElement = graphics.Next();
+            }
+
+            if (existingCitationElement != null)
+            {
+
+                outYBound = existingCitationElement.Geometry.Envelope.YMax + in_ySpacingWithCitation;
+
+
+            }
+
+            return outYBound;
         }
 
         /// <summary>
