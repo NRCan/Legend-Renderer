@@ -555,7 +555,7 @@ namespace GSC_Legend_Renderer
                             //Track column change with auto-calculate
                             if (legendYLowerBound != 0.0)
                             {
-                                if ((anchorPoint.Item2 - ySpacing - currentElementObject.Geometry.Envelope.Height - 10) < legendYLowerBound)
+                                if ((anchorPoint.Item2 - ySpacing - currentElementObject.Geometry.Envelope.Height) < legendYLowerBound)
                                 {
                                     currentColumn++;
                                 }
@@ -2112,18 +2112,18 @@ namespace GSC_Legend_Renderer
 
                         #region AUTOMATIC COLUMNS
 
-                        if(this.checkBox_autoCalculateColumns.Checked)
-                        {
-                            //Track column change with auto-calculate
-                            if (legendYLowerBound != 0.0)
-                            {
-                                if ((anchorPoint.Item2 - ySpacing - currentElementObject.Geometry.Envelope.Height) < legendYLowerBound)
-                                {
-                                    currentColumn++;
-                                }
-                            }
+                        //if(this.checkBox_autoCalculateColumns.Checked)
+                        //{
+                        //    //Track column change with auto-calculate
+                        //    if (legendYLowerBound != 0.0)
+                        //    {
+                        //        if ((anchorPoint.Item2 - ySpacing - currentElementObject.Geometry.Envelope.Height) < legendYLowerBound)
+                        //        {
+                        //            currentColumn++;
+                        //        }
+                        //    }
 
-                        }
+                        //}
 
                         
 

@@ -184,7 +184,7 @@ namespace GSC_Legend_Renderer.Dictionaries
         public static class YSpacings
         {
             public const double smallDescriptionHeightLimit = 10.0;
-            public const double legendEnd_Citation = 5.0;
+            public const double legendEnd_Citation = 15.0; //This include a bufer of 10 for a better fit
         }
 
         public static class TextConfiguration
