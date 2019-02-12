@@ -657,7 +657,12 @@ namespace GSC_Legend_Renderer
                                 if (currentElement.Contains(Constants.Graphics.heading3))
                                 {
                                     //Recalculate height
-                                    double heading3Height = GetTextHeight(currentHeading, Constants.TextConfiguration.header3LineHeight);
+                                    string tempGroupHeadingDescription = currentHeading;
+                                    if (currentDescription != null)
+                                    {
+                                        tempGroupHeadingDescription = currentHeading + currentDescription;
+                                    }
+                                    double heading3Height = GetTextHeight(tempGroupHeadingDescription, Constants.TextConfiguration.header3LineHeight);
 
                                     //Set new envelope
                                     SetRectnagularPolygonFromAnchorTypeAndHeight(headElement, anchorPoint, heading3Height);
