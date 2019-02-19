@@ -19,6 +19,7 @@ using System.IO;
 using ESRI.ArcGIS.esriSystem;
 using ESRI.ArcGIS.Framework;
 using System.Drawing.Imaging;
+using System.Globalization;
 
 namespace GSC_Legend_Renderer
 {
@@ -2466,20 +2467,20 @@ namespace GSC_Legend_Renderer
                     {
                         try
                         {
-                            y = Convert.ToDouble(ySpacings[fromElementType][toElementName]);
+                            y = Convert.ToDouble(ySpacings[fromElementType][toElementName], CultureInfo.InvariantCulture);
                         }
                         catch (Exception)
                         {
                             if (ySpacings[fromElementType][toElementName].Contains(Constants.Graphics.anchorLowerLeft))
                             {
-                                y = (fromElement.Geometry.Envelope.YMin - lastYSpacing) + Convert.ToDouble(ySpacings[fromElementType][toElementName].Split(' ')[0]);
+                                y = (fromElement.Geometry.Envelope.YMin - lastYSpacing) + Convert.ToDouble(ySpacings[fromElementType][toElementName].Split(' ')[0], CultureInfo.InvariantCulture);
                             }
                         }
 
                         //Special case for heading3
                         if (fromElementType == Constants.Graphics.heading3 || fromElementType == Constants.Graphics.topNote)
                         {
-                            y = fromElement.Geometry.Envelope.Height + Convert.ToDouble(ySpacings[fromElementType][toElementName].Split(' ')[0]);
+                            y = fromElement.Geometry.Envelope.Height + Convert.ToDouble(ySpacings[fromElementType][toElementName].Split(' ')[0], CultureInfo.InvariantCulture);
                         }
 
                     }
@@ -2505,7 +2506,7 @@ namespace GSC_Legend_Renderer
                 {
                     try
                     {
-                        x = Convert.ToDouble(xSpacings[toElementName]);
+                        x = Convert.ToDouble(xSpacings[toElementName], CultureInfo.InvariantCulture);
                     }
                     catch (Exception)
                     {
@@ -3138,7 +3139,7 @@ namespace GSC_Legend_Renderer
         public double GetTextHeight(string inText, double minHeight=0.0)
         {
             //Count character
-            double charCount = Convert.ToDouble(inText.Count());
+            double charCount = Convert.ToDouble(inText.Count(), CultureInfo.InvariantCulture);
 
             //Calculate approx. number of lines
             double numberLines = charCount / Constants.TextConfiguration.charactersPerLine;
