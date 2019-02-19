@@ -39,6 +39,9 @@ namespace GSC_Legend_Renderer
         public IElement originalCGMLegend { get; set; } //Will be used to move legend  right if a left bracket is found for CGM maps only.
 
         public IMxDocument currentDoc { get; set; } //Wil be used to keep track of current document throughout methods
+
+        public Dictionary<int, double> arialCharactersWidth { get; set; } //Will be used to calculate text box height based on total lenght of characters
+
         //Extensions
         public const string gdbExt = Dictionaries.Constants.Extensions.gdbExt;
         public const string mdbExt = Dictionaries.Constants.Extensions.mdbExt;
@@ -421,6 +424,7 @@ namespace GSC_Legend_Renderer
         /// </summary>
         public void CreateLegend()
         {
+            
             //Continu if table is valid
             if (this.comboBox_SelectTable.Text != null && this.comboBox_SelectTable.Text != string.Empty)
             {
@@ -429,6 +433,9 @@ namespace GSC_Legend_Renderer
                 {
 
                     #region GET and BUILD information
+                    //Get arial character widths
+                    arialCharactersWidth = GetArialCharacterWidth();
+
                     //Get json config files - check properties for path
                     ValidateJsonSpacingExistance();
 
@@ -663,18 +670,18 @@ namespace GSC_Legend_Renderer
                                     {
                                         tempGroupHeadingDescription = currentHeading + currentDescription;
                                     }
-                                    double heading3Height = GetTextHeight(tempGroupHeadingDescription, Constants.TextConfiguration.header3LineHeight);
+                                    double heading3Height = GetTextHeight(tempGroupHeadingDescription, descriptionWidth, Constants.TextConfiguration.lineHeight);
 
                                     //Set new envelope
                                     SetRectnagularPolygonFromAnchorTypeAndHeight(headElement, anchorPoint, heading3Height);
 
-                                    //Reset anchor point since the header has shrunk a bit.
-
-                                    if (heading3Height >= Constants.TextConfiguration.header3LineHeight)
-                                    {
-                                        heading3Height = heading3Height - Constants.TextConfiguration.header3LineHeight;
-                                    }
-                                    anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 + heading3Height);
+                                    ////Reset anchor point since the header has shrunk a bit.
+                                    //if (heading3Height > Constants.TextConfiguration.header3LineHeight)
+                                    //{
+                                    //    heading3Height = ((heading3Height / Constants.TextConfiguration.header3LineHeight) * Constants.TextConfiguration.header3LineHeight) - Constants.TextConfiguration.header3LineHeight;
+                                    //    anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 + heading3Height);
+                                    //}
+                                    
 
                                 }
                                 else
@@ -2067,7 +2074,7 @@ namespace GSC_Legend_Renderer
 
 
                                 //Set width and height
-                                double wantedTextHeight = GetTextHeight(currentDescription);
+                                double wantedTextHeight = GetTextHeight(currentDescription, descriptionWidth);
                                 IEnvelope env = noteElement.Geometry.Envelope;
                                 env.Width = noteElement.Geometry.Envelope.Width; //Set width
                                 env.Height = wantedTextHeight;
@@ -2726,7 +2733,7 @@ namespace GSC_Legend_Renderer
             ITextElement dtElement = descriptionElement as ITextElement;
 
             //Variables
-            double wantedTextHeight = GetTextHeight(dtElement.Text);
+            double wantedTextHeight = GetTextHeight(dtElement.Text, descriptionWidth);
             IElementProperties3 parentProperties = parentElem as IElementProperties3;
 
 
@@ -3136,13 +3143,36 @@ namespace GSC_Legend_Renderer
         /// <param name="inText"></param>
         /// <param name="minHeight">A minimal height in case text is a bit bolder or bigger, used for heading for example</param>
         /// <returns></returns>
-        public double GetTextHeight(string inText, double minHeight=0.0)
+        public double GetTextHeight(string inText, double maxWidth, double minHeight = 0.0, double fontSize = 8.0)
         {
-            //Count character
-            double charCount = Convert.ToDouble(inText.Count(), CultureInfo.InvariantCulture);
+            //Count total width of text
+            double textWidth = 0.0;
+            int j;
+
+            if (arialCharactersWidth == null)
+            {
+                arialCharactersWidth = GetArialCharacterWidth();
+            }
+
+            //Strip text of tags that could make it look longer then it is
+            inText = inText.Replace(Constants.TextConfiguration.tagAllCaps, "");
+            inText = inText.Replace(Constants.TextConfiguration.tagBold, "");
+            inText = inText.Replace(Constants.TextConfiguration.tagItalic, "");
+            inText = inText.Replace(Constants.TextConfiguration.endTagAllCaps, "");
+            inText = inText.Replace(Constants.TextConfiguration.endTagBold, "");
+            inText = inText.Replace(Constants.TextConfiguration.endTagItalic, "");
+
+            for (int i = 0; i < inText.Length; i++)
+            {
+                j = Encoding.Default.GetBytes(inText.Substring(i, 1))[0];
+                if (j >= 32)
+                {
+                    textWidth = textWidth + (fontSize * arialCharactersWidth[j]);
+                }
+            }
 
             //Calculate approx. number of lines
-            double numberLines = charCount / Constants.TextConfiguration.charactersPerLine;
+            double numberLines = (textWidth * 0.352778) / maxWidth;
             numberLines = Math.Ceiling(numberLines); //Round to upper boundary
 
             //Height
@@ -3156,6 +3186,148 @@ namespace GSC_Legend_Renderer
 
             return tHeight;
 
+        }
+
+        /// <summary>
+        /// Will output a dictionnary containing width in points for all arial character
+        /// </summary>
+        /// <returns></returns>
+        public Dictionary<int, double> GetArialCharacterWidth()
+        {
+            Dictionary<int, double> arialCharacterWidth = new Dictionary<int, double>();
+
+            for (int i = 32; i <= 127; i++)
+            {
+                switch (i)
+                {
+                    case 39:
+                    case 106:
+                    case 108:
+                        arialCharacterWidth[i] = 0.1902;
+                        break;
+                    case 105:
+                    case 116:
+                        arialCharacterWidth[i] = 0.2526;
+                        break;
+                    case 32:
+                    case 33:
+                    case 44:
+                    case 46:
+                    case 47:
+                    case 58:
+                    case 59:
+                    case 73:
+                    case 91:
+                    case 92:
+                    case 93:
+                    case 102:
+                    case 124:
+                        arialCharacterWidth[i] = 0.3144;
+                        break;
+                    case 34:
+                    case 40:
+                    case 41:
+                    case 45:
+                    case 96:
+                    case 114:
+                    case 123:
+                    case 125:
+                        arialCharacterWidth[i] = 0.3768;
+                        break;
+                    case 42:
+                    case 94:
+                    case 118:
+                    case 120:
+                        arialCharacterWidth[i] = 0.4392;
+                        break;
+                    case 107:
+                    case 115:
+                    case 122:
+                        arialCharacterWidth[i] = 0.501;
+                        break;
+                    case 35:
+                    case 36:
+                    case 48:
+                    case 49:
+                    case 50:
+                    case 51:
+                    case 52:
+                    case 53:
+                    case 54:
+                    case 55:
+                    case 56:
+                    case 57:
+                    case 63:
+                    case 74:
+                    case 76:
+                    case 84:
+                    case 90:
+                    case 95:
+                    case 97:
+                    case 98:
+                    case 99:
+                    case 100:
+                    case 101:
+                    case 103:
+                    case 104:
+                    case 110:
+                    case 111:
+                    case 112:
+                    case 113:
+                    case 117:
+                    case 121:
+                        arialCharacterWidth[i] = 0.5634;
+                        break;
+                    case 43:
+                    case 60:
+                    case 61:
+                    case 62:
+                    case 70:
+                    case 126:
+                        arialCharacterWidth[i] = 0.6252;
+                        break;
+                    case 38:
+                    case 65:
+                    case 66:
+                    case 69:
+                    case 72:
+                    case 75:
+                    case 78:
+                    case 80:
+                    case 82:
+                    case 83:
+                    case 85:
+                    case 86:
+                    case 88:
+                    case 89:
+                    case 119:
+                        arialCharacterWidth[i] = 0.6876;
+                        break;
+                    case 67:
+                    case 68:
+                    case 71:
+                    case 79:
+                    case 81:
+                        arialCharacterWidth[i] = 0.7494;
+                        break;
+                    case 77:
+                    case 109:
+                    case 127:
+                        arialCharacterWidth[i] = 0.8118;
+                        break;
+                    case 37:
+                        arialCharacterWidth[i] = 0.936;
+                        break;
+                    case 64:
+                    case 87:
+                        arialCharacterWidth[i] = 1.0602;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return arialCharacterWidth;
         }
 
         /// <summary>

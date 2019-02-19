@@ -190,7 +190,7 @@ namespace GSC_Legend_Renderer.Dictionaries
         public static class TextConfiguration
         {
             public const int charactersPerLine = 76;
-            public const double lineHeight = 3.3; //mm
+            public const double lineHeight = 3.28; //mm
             public const double header3LineHeight = 3.66; //mlm
             //HTML related tags
             public const string tagBold = "<bol>";
