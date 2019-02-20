@@ -199,7 +199,7 @@ namespace GSC_Legend_Renderer.Dictionaries
             public const string endTagAllCaps = "</ACP>";
             public const string tagItalic = "<ITA>";
             public const string endTagItalic = "</ITA>";
-            public const string tagFont = "<FNT name=";
+            public const string tagFont = "<FNT name = ";
             public const string endTagFont = "</FNT>";
             //Missing terms
             public const string missingText = "Missing";

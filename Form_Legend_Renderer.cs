@@ -3184,7 +3184,15 @@ namespace GSC_Legend_Renderer
                 j = Encoding.Default.GetBytes(inText.Substring(i, 1))[0];
                 if (j >= 32)
                 {
-                    textWidth = textWidth + (fontSize * arialCharactersWidth[j]);
+                    if (arialCharactersWidth.ContainsKey(j))
+                    {
+                        textWidth = textWidth + (fontSize * arialCharactersWidth[j]);
+                    }
+                    else
+                    {
+                        textWidth = textWidth + (fontSize * 0.5);
+                    }
+                    
                 }
             }
 
