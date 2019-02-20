@@ -3173,9 +3173,11 @@ namespace GSC_Legend_Renderer
             inText = inText.Replace(Constants.TextConfiguration.tagAllCaps, "");
             inText = inText.Replace(Constants.TextConfiguration.tagBold, "");
             inText = inText.Replace(Constants.TextConfiguration.tagItalic, "");
+            inText = inText.Replace(Constants.TextConfiguration.tagFont + '"' + Constants.Fonts.geologyFontName + '"' + ">", "");
             inText = inText.Replace(Constants.TextConfiguration.endTagAllCaps, "");
             inText = inText.Replace(Constants.TextConfiguration.endTagBold, "");
             inText = inText.Replace(Constants.TextConfiguration.endTagItalic, "");
+            inText = inText.Replace(Constants.TextConfiguration.endTagFont, "");
 
             for (int i = 0; i < inText.Length; i++)
             {
