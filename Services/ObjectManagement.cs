@@ -34,7 +34,7 @@ namespace GSC_Legend_Renderer.Services
         {
             try
             {
-                System.Runtime.InteropServices.Marshal.ReleaseComObject(objectToRelease);
+                System.Runtime.InteropServices.Marshal.FinalReleaseComObject(objectToRelease);
                 objectToRelease = null;
             }
             catch (Exception ex)

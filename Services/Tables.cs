@@ -639,8 +639,11 @@ namespace GSC_Legend_Renderer.Services
             //Access workspace
             IFeatureWorkspace getWorkspace = (IFeatureWorkspace)inputWorkspace;
 
-            //Return object
-            return getWorkspace.OpenTable(inputTable);
+            ITable outTable = getWorkspace.OpenTable(inputTable);
+
+            Services.ObjectManagement.ReleaseObject(getWorkspace);
+            
+            return outTable;
         }
 
         /// <summary>
@@ -653,7 +656,7 @@ namespace GSC_Legend_Renderer.Services
             //Call the GPUtilities function to retrieve feature class (treats shapefiles and features)
             IGPUtilities gpUtil = new GPUtilities();
             ITable getInTable = gpUtil.OpenTableFromString(inputTablePath);
-
+            Services.ObjectManagement.ReleaseObject(gpUtil);
             return getInTable;
         }
 
@@ -706,6 +709,8 @@ namespace GSC_Legend_Renderer.Services
 
             //Access the table behind the dataset
             ITable inputDatasetTable = Services.Tables.OpenTableFromWorkspace(inputWorkspace, fileName);
+
+            Services.ObjectManagement.ReleaseObject(inputWorkspace);
 
             return inputDatasetTable;
         }

@@ -156,6 +156,8 @@ namespace GSC_Legend_Renderer
 
                     //Fill the field list with field names
                     dataFieldList = Services.Tables.GetFieldList(selectedSTL.Table, true, selectedSTL);
+
+                    
                     #endregion
                 }
                 else if (selectedlTables.cboxDataName != null )
@@ -183,6 +185,9 @@ namespace GSC_Legend_Renderer
                         //Fill the field list with field names
                         dataFieldList = Services.Tables.GetFieldList(inputDataTable, true);
 
+                        //Release workspace so user can keep on editing
+                        Services.ObjectManagement.ReleaseObject(dbfWorkspace);
+
                     }
                     else if (dataPath.Contains(txtExt) || dataPath.Contains(csvExt))
                     {
@@ -195,6 +200,9 @@ namespace GSC_Legend_Renderer
 
                         //Fill the field list with field names
                         dataFieldList = Services.Tables.GetFieldList(inputDataTable, true);
+
+                        //Release workspace so user can keep on editing
+                        Services.ObjectManagement.ReleaseObject(txtFileWorkspace);
 
                     }
                     else if (dataPath.Contains(xlExt))
@@ -233,6 +241,9 @@ namespace GSC_Legend_Renderer
                         dataFieldList = Services.Tables.GetFieldList(inputDataTable, true);
 
                         dataFieldList.Add(string.Empty);
+
+                        //Release workspace so user can keep on editing
+                        Services.ObjectManagement.ReleaseObject(excelWorkspace);
                     }
 
                     #endregion
@@ -491,7 +502,7 @@ namespace GSC_Legend_Renderer
                     IQueryFilter ascendingOrderQuery = new QueryFilter();
                     IQueryFilterDefinition ascendingOrderQueryPostfix = ascendingOrderQuery as IQueryFilterDefinition;
                     ascendingOrderQueryPostfix.PostfixClause = "ORDER BY " + orderFieldUser;
-                    ICursor legendCursor = legendTable.Search(ascendingOrderQuery, false);
+                    ICursor legendCursor = legendTable.Search(ascendingOrderQuery, true);
 
                     //Get symbols
                     if (lineSymbolDico == null)
@@ -674,15 +685,6 @@ namespace GSC_Legend_Renderer
 
                                     //Set new envelope
                                     SetRectnagularPolygonFromAnchorTypeAndHeight(headElement, anchorPoint, heading3Height);
-
-                                    ////Reset anchor point since the header has shrunk a bit.
-                                    //if (heading3Height > Constants.TextConfiguration.header3LineHeight)
-                                    //{
-                                    //    heading3Height = ((heading3Height / Constants.TextConfiguration.header3LineHeight) * Constants.TextConfiguration.header3LineHeight) - Constants.TextConfiguration.header3LineHeight;
-                                    //    anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 + heading3Height);
-                                    //}
-                                    
-
                                 }
                                 else
                                 {
@@ -2154,12 +2156,7 @@ namespace GSC_Legend_Renderer
                     }
 
                     #endregion
-
-
-
-                    //Release objects
-                    Services.ObjectManagement.ReleaseObject(legendCursor);
-
+                    
                     #region Group all items 
 
                     //TODO make group legend workable, for now inner items seems scathered on the map, worst inside CGM tempalte
@@ -2203,7 +2200,18 @@ namespace GSC_Legend_Renderer
 
                     currentDoc.ActiveView.Refresh();
 
+                    //Release all objects so user can keep on editing the original legend file
+                    Services.ObjectManagement.ReleaseObject(legendCursor);
+                    Services.ObjectManagement.ReleaseObject(legendTable);
+                    Services.ObjectManagement.ReleaseObject(inputDataTable);
+                    Services.ObjectManagement.ReleaseObject(currentDoc);
+                    comboBox_SelectTable.DataSource = null;
+                    comboBox_SelectTable.Items.Clear();
+
+
                     CloseForm();
+
+
                 }
                 else
                 {
@@ -2223,8 +2231,7 @@ namespace GSC_Legend_Renderer
         /// </summary>
         private void CloseForm()
         {
-
-            this.Close();
+            this.Dispose();
         }
 
         /// <summary>
@@ -2589,6 +2596,7 @@ namespace GSC_Legend_Renderer
             this.comboBox_SelectTable.DataSource = _cboxlayers;
             this.comboBox_SelectTable.DisplayMember = "cboxDataName";
             this.comboBox_SelectTable.ValueMember = "cboxSTLTable";
+
         }
 
         #endregion
@@ -2951,7 +2959,7 @@ namespace GSC_Legend_Renderer
         }
         #endregion
 
-        #region BUILD GRAPIC
+        #region BUILD GRAPHIC
         /// <summary>
         /// Will create a marker symbol from given type, order and style. Will also return an offset parameter for linear markers
         /// </summary>
