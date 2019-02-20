@@ -212,5 +212,10 @@ namespace GSC_Legend_Renderer.Dictionaries
             public const int demTransparency = 178;
             public const string monoColoredImageNamePrefix = "Mono_";
         }
+
+        public static class GraphicConfiguration
+        {
+            public const double outlineWidth = 0.43;
+        }
     }
 }

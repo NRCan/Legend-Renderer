@@ -1292,7 +1292,7 @@ namespace GSC_Legend_Renderer
 
                         #endregion
 
-                        #region SYMBOLIZED AREAS
+                        #region SYMBOLIZED AREAS / OVERLAYS
                         if (currentElement == Constants.Graphics.overlay || currentElement == Constants.Graphics.blob)
                         {
 
@@ -1373,6 +1373,13 @@ namespace GSC_Legend_Renderer
                                     //Set new anchor
                                     Tuple<double, double> overlayPointAnchor = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - symAreasElement.Geometry.Envelope.Height / 2.0);
                                     SetPointFromAnchorType(symAreaPointElement, overlayPointAnchor, offset);
+                                }
+
+                                //For a new color fill on the symbol
+                                if (fillSymbolDico != null && fillSymbolDico.Count > 0 && fillSymbolDico.ContainsKey(currentStyle2))
+                                {
+                                    //Symbolize
+                                    symAreaPointElement = SetOverlayFillColor(symAreasElement, currentStyle1, currentStyle2);
                                 }
 
                                 if (symAreaPointElement != null)
@@ -4143,6 +4150,49 @@ namespace GSC_Legend_Renderer
             }
 
             return inThinUnitElement;
+        }
+
+        /// <summary>
+        /// Will set the marker fill of overlay symbol with a predefined color
+        /// </summary>
+        /// <returns></returns>
+        public IElement SetOverlayFillColor(IElement inElement, string style, string style2)
+        {
+            //Symbolize if symbol can be found in style file
+            IFillShapeElement inShapeElement = inElement as IFillShapeElement;
+
+            if (fillSymbolDico.ContainsKey(style) && fillSymbolDico.ContainsKey(style2))
+            {
+                //Get symbol type and color
+                string symbolTypeName = string.Empty;
+                IColor symbolColor = Services.Symbols.GetPolygonSymbolColor(fillSymbolDico[style2] as ISymbol, out symbolTypeName);
+
+                //Get symbol itself
+                IMultiLayerFillSymbol inMarkerFill = fillSymbolDico[style] as IMultiLayerFillSymbol;
+
+                //Create new symbol and apply, else it won't update...
+                IMultiLayerFillSymbol newMarkerFill = new MultiLayerFillSymbol();
+
+                //Add as many layer there is needed to the symbol.
+                for (int i = 0; i < inMarkerFill.LayerCount; i++)
+                {
+                    newMarkerFill.AddLayer(inMarkerFill.Layer[i]);
+                }
+
+                //Set color at the end 
+                newMarkerFill.Color = symbolColor;
+
+                inShapeElement.Symbol = newMarkerFill;
+                return inElement;
+            }
+            else
+            {
+                //Apply missing style
+                IMarkerFillSymbol missingMarkerFillSymbol = Services.Symbols.GetMissingOverlaySymbol();
+
+                inShapeElement.Symbol = missingMarkerFillSymbol;
+                return inElement;
+            }
         }
         #endregion
 
