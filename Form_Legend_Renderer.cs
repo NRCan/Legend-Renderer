@@ -540,6 +540,7 @@ namespace GSC_Legend_Renderer
                     int columnFieldIndex = legendCursor.FindField(columnFieldUser);
                     int label2FieldIndex = legendCursor.FindField(label2FieldUser);
                     int label1StyleFieldIndex = legendCursor.FindField(label1StyleFieldUser);
+                    int label2StyleFieldIndex = legendCursor.FindField(label2StyleFieldUser);
 
                     int currentColumn = 1; //Default
 
@@ -558,6 +559,7 @@ namespace GSC_Legend_Renderer
                         string currentHeading = legendRow.Value[headingFieldIndex].ToString();
                         string currentElement = legendRow.Value[elementFieldIndex].ToString();
                         string currentLabel1Style = legendRow.Value[label1StyleFieldIndex].ToString();
+                        string currentLabel2Style = legendRow.Value[label2StyleFieldIndex].ToString();
 
                         IElement currentElementObject = Services.ObjectManagement.CopyInputObject(templateGraphicDico[currentElement]) as IElement;
 
@@ -650,8 +652,6 @@ namespace GSC_Legend_Renderer
 
                             firstIterationBreaker = false;
                         }
-
-
 
                         #region HEADINGS
                         if (currentElement.Contains(Constants.Graphics.heading1.Substring(0, 6)))
@@ -815,7 +815,7 @@ namespace GSC_Legend_Renderer
                                             currentLabel1 = Constants.TextConfiguration.missingText;
                                         }
 
-                                        unitBoxLabelElement = AddLabelInUnitBox(currentLabel1, innerElement, currentDoc, anchorPoint, Constants.Graphics.UnitBoxType.split1);
+                                        unitBoxLabelElement = AddLabelInUnitBox(currentLabel1, innerElement, currentDoc, anchorPoint, Constants.Graphics.UnitBoxType.split1, currentLabel1Style);
 
                                     }
                                     else if (el > 0)
@@ -827,7 +827,7 @@ namespace GSC_Legend_Renderer
                                         {
                                             currentLabel2 = Constants.TextConfiguration.missingText;
                                         }
-                                        unitBoxLabelElement = AddLabelInUnitBox(currentLabel2, innerElement, currentDoc, anchorPoint, Constants.Graphics.UnitBoxType.split2);
+                                        unitBoxLabelElement = AddLabelInUnitBox(currentLabel2, innerElement, currentDoc, anchorPoint, Constants.Graphics.UnitBoxType.split2, currentLabel2Style);
                                     }
 
                                 }
