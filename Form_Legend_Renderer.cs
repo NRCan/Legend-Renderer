@@ -243,6 +243,7 @@ namespace GSC_Legend_Renderer
                         dataFieldList.Add(string.Empty);
 
                         //Release workspace so user can keep on editing
+                        Services.ObjectManagement.ReleaseObject(inputDataTable);
                         Services.ObjectManagement.ReleaseObject(excelWorkspace);
                     }
 
@@ -496,7 +497,7 @@ namespace GSC_Legend_Renderer
                     {
                         legendTable = selectedTable.cboxSTLTable as ITable;
                     }
-                    
+
 
                     //Iterate through table and add elements
                     IQueryFilter ascendingOrderQuery = new QueryFilter();
@@ -542,8 +543,8 @@ namespace GSC_Legend_Renderer
 
                     int currentColumn = 1; //Default
 
-                    IRow legendRow = legendCursor.NextRow();
-                    while (legendRow != null)
+                    IRow legendRow;
+                    while ((legendRow = legendCursor.NextRow()) != null)
                     {
                         //Variables
                         currentIteration = currentIteration++;
@@ -670,7 +671,7 @@ namespace GSC_Legend_Renderer
 
                                 //Set new anchor
                                 anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - ySpacing);
-                                
+
 
                                 //Set height for heading3 
                                 if (currentElement.Contains(Constants.Graphics.heading3))
@@ -835,7 +836,7 @@ namespace GSC_Legend_Renderer
                             {
                                 demUnitBoxElement = SetPolygonFill(unitBoxElement, currentStyle1, true, true, anchorPoint);
                                 currentDoc.ActiveView.GraphicsContainer.AddElement(demUnitBoxElement as IElement, 0);
-                                
+
                                 //Add label
                                 if (currentLabel1 == null || currentLabel1 == string.Empty || currentLabel1 == " ")
                                 {
@@ -868,7 +869,7 @@ namespace GSC_Legend_Renderer
                                 if (currentColumn != 0)
                                 {
                                     anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - descriptionHeight); //New anchor point with proper move inside it
-                                                                                                                                        //Keep name
+                                                                                                                                       //Keep name
                                 }
 
                                 lastElement = newDescriptionElement;
@@ -892,7 +893,7 @@ namespace GSC_Legend_Renderer
                             }
                             legendElementList.Add(unitBoxLabelElement as IElement);
                             legendElementList.Add(unitBoxElement as IElement);
-                            
+
 
 
                         }
@@ -2070,7 +2071,7 @@ namespace GSC_Legend_Renderer
                                 }
                                 else
                                 {
-                                    
+
                                     //Add header if needed
                                     if (currentHeading != null && currentHeading != string.Empty && currentHeading != " ")
                                     {
@@ -2147,16 +2148,17 @@ namespace GSC_Legend_Renderer
 
                         //}
 
-                        
+
 
 
                         #endregion
 
-                        legendRow = legendCursor.NextRow();
+                        //Release each row, else a lock can occur.
+                        Services.ObjectManagement.ReleaseObject(legendRow);
                     }
 
                     #endregion
-                    
+
                     #region Group all items 
 
                     //TODO make group legend workable, for now inner items seems scathered on the map, worst inside CGM tempalte
@@ -2203,10 +2205,7 @@ namespace GSC_Legend_Renderer
                     //Release all objects so user can keep on editing the original legend file
                     Services.ObjectManagement.ReleaseObject(legendCursor);
                     Services.ObjectManagement.ReleaseObject(legendTable);
-                    Services.ObjectManagement.ReleaseObject(inputDataTable);
-                    Services.ObjectManagement.ReleaseObject(currentDoc);
-                    comboBox_SelectTable.DataSource = null;
-                    comboBox_SelectTable.Items.Clear();
+
 
 
                     CloseForm();
@@ -2231,7 +2230,7 @@ namespace GSC_Legend_Renderer
         /// </summary>
         private void CloseForm()
         {
-            this.Dispose();
+            this.Close();
         }
 
         /// <summary>
@@ -2578,7 +2577,7 @@ namespace GSC_Legend_Renderer
 
             //Get a list of all point layers inside table of content
             Services.Layers layerService = new Services.Layers();
-            UID layerUID = new UIDClass();
+            UID layerUID = new UID();
             layerUID.Value = "{34C20002-4D3C-11D0-92D8-00805F7C28B0}";
             List<IStandaloneTable> tocTables = layerService.GetListOfStandaloneTables((IMxDocument)ArcMap.Application.Document);
 
@@ -3190,7 +3189,7 @@ namespace GSC_Legend_Renderer
                     }
                     else
                     {
-                        textWidth = textWidth + (fontSize * 0.5);
+                        textWidth = textWidth + (fontSize * 1);
                     }
                     
                 }
