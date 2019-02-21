@@ -3161,7 +3161,14 @@ namespace GSC_Legend_Renderer
         {
             //Count total width of text
             double textWidth = 0.0;
+            double tHeight = 0.0;
             int j;
+
+            //Adjust with possible font GSCGeology2015. Need to have bigger box
+            if (inText.Contains(Constants.Fonts.geologyFontName))
+            {
+                tHeight = tHeight + Constants.Fonts.geologyFontHeightAjustement;
+            }
 
             if (arialCharactersWidth == null)
             {
@@ -3200,12 +3207,13 @@ namespace GSC_Legend_Renderer
             numberLines = Math.Ceiling(numberLines); //Round to upper boundary
 
             //Height
-            double tHeight = numberLines * (Constants.TextConfiguration.lineHeight);
-
-            //Validation
             if (Constants.TextConfiguration.lineHeight < minHeight)
             {
-                tHeight = numberLines * (minHeight);
+                tHeight = tHeight + (numberLines * (minHeight));
+            }
+            else
+            {
+                tHeight = tHeight + (numberLines * (Constants.TextConfiguration.lineHeight));
             }
 
             return tHeight;
