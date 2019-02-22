@@ -2636,7 +2636,12 @@ namespace GSC_Legend_Renderer
             {
                 ISimpleTextSymbol currentStyleSymbol = tElement.Symbol as ISimpleTextSymbol;
                 currentStyleSymbol.Size = Constants.TextConfiguration.tooLongLabelUnitBoxLabelFontSize; //Force size else incoming style might be too big.
-                currentStyleSymbol.VerticalAlignment = esriTextVerticalAlignment.esriTVABaseline; //shift down a bit
+
+                if (unitBoxType == Constants.Graphics.UnitBoxType.split1 || unitBoxType == Constants.Graphics.UnitBoxType.split2)
+                {
+                    currentStyleSymbol.VerticalAlignment = esriTextVerticalAlignment.esriTVABaseline; //shift down a bit
+                }
+                
                 tElement.Symbol = Services.ObjectManagement.CopyInputObject(currentStyleSymbol) as ISimpleTextSymbol;
             }
 
