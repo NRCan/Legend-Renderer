@@ -32,4 +32,6 @@ CGM 393 --> MS Excel (.xlsx) file with examples of OVERLAY
 
 CGM XXX (MaryRiver) --> File geodatabase (.gdb) with examples of UNIT_SPLIT.
 * Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=36396628&objAction=download
-* 
+
+User Guide Example with all possible symbols.
+* Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=36398434&objAction=download
