@@ -206,6 +206,7 @@ namespace GSC_Legend_Renderer.Dictionaries
             public const string NullLiteral = "<Null>";
             //Defaults
             public const double defaultUnitBoxLabelFontSize = 8.0; //Mainly used for labels that see their font size change when using a new style.
+            public const double tooLongLabelUnitBoxLabelFontSize = 7.5; //Mainly used for labels that see their font size change when using a new style.
         }
 
         public static class ImageConfiguration

@@ -2631,6 +2631,15 @@ namespace GSC_Legend_Renderer
                 
             }
 
+            //Mange too long text (mainly to fix when used in UNIT_SPLIT boxes).
+            if (inText.Length >= 6)
+            {
+                ISimpleTextSymbol currentStyleSymbol = tElement.Symbol as ISimpleTextSymbol;
+                currentStyleSymbol.Size = Constants.TextConfiguration.tooLongLabelUnitBoxLabelFontSize; //Force size else incoming style might be too big.
+                currentStyleSymbol.VerticalAlignment = esriTextVerticalAlignment.esriTVABaseline; //shift down a bit
+                tElement.Symbol = Services.ObjectManagement.CopyInputObject(currentStyleSymbol) as ISimpleTextSymbol;
+            }
+
             //Manage missing
             if (inText == null || inText == string.Empty || inText == " ")
             {
