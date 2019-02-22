@@ -203,7 +203,7 @@ namespace GSC_Legend_Renderer.Dictionaries
             public const string endTagFont = "</FNT>";
             //Missing terms
             public const string missingText = "Missing";
-
+            public const string NullLiteral = "<Null>";
             //Defaults
             public const double defaultUnitBoxLabelFontSize = 8.0; //Mainly used for labels that see their font size change when using a new style.
         }

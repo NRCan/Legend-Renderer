@@ -721,10 +721,10 @@ namespace GSC_Legend_Renderer
                                 }
 
                                 //Add Description to text - Only for heading 3 in theory
-                                if (currentDescription != null && currentDescription != string.Empty && currentDescription != " ")
+                                if (!IsTextEmpty(currentDescription))
                                 {
                                     //Add header if needed
-                                    if (currentHeading != null && currentHeading != string.Empty && currentHeading != " ")
+                                    if (!IsTextEmpty(currentHeading))
                                     {
                                         currentHeading = currentHeading + currentDescription;
                                     }
@@ -3146,6 +3146,22 @@ namespace GSC_Legend_Renderer
             }
 
             return allLines;
+        }
+
+        /// <summary>
+        /// Will validate if input text is different then string.empty, a space, null or string literal "<null>"
+        /// </summary>
+        /// <param name="inputText"></param>
+        /// <returns></returns>
+        public bool IsTextEmpty(string inputText)
+        {
+            bool isEmpty = false;
+            if (inputText == string.Empty || inputText == null || inputText == " " || inputText == Constants.TextConfiguration.NullLiteral)
+            {
+                isEmpty = true;
+            }
+
+            return isEmpty;
         }
         #endregion
 
