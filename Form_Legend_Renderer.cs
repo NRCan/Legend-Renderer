@@ -3243,6 +3243,14 @@ namespace GSC_Legend_Renderer
             double numberLines = (textWidth * 0.352778) / maxWidth;
             numberLines = Math.Ceiling(numberLines); //Round to upper boundary
 
+            //Extra validation
+            if (numberLines >= 6)
+            {
+                double extraWidth = (textWidth * 0.02) + textWidth; //Extra percent of width, in case
+                numberLines = (extraWidth * 0.352778) / maxWidth;
+                numberLines = Math.Ceiling(numberLines);
+            }
+
             //Height
             if (Constants.TextConfiguration.lineHeight < minHeight)
             {
