@@ -96,7 +96,8 @@ namespace GSC_Legend_Renderer.Dictionaries
             public const string annotationBreak = "ANNO_BREAK";
             public const string legendBoxDEM = "LegendBoxDEM";
 
-            public const string topNote = "NOTE";
+            public const string topNote = "TOP_NOTE";
+            public const string note = "NOTE";
 
             public const string unitLabel = "UNIT_LABEL"; //Added by GHV
             public const string heading1 = "HEADING1"; //Added by GHV

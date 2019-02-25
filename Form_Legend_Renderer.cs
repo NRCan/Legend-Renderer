@@ -2050,8 +2050,8 @@ namespace GSC_Legend_Renderer
 
                         #endregion
 
-                        #region TOP_NOTE
-                        if (currentElement == Constants.Graphics.topNote)
+                        #region NOTES
+                        if (currentElement == Constants.Graphics.topNote || currentElement == Constants.Graphics.note)
                         {
 
                             //Get appropriate element
@@ -2498,7 +2498,7 @@ namespace GSC_Legend_Renderer
                         }
 
                         //Special case for heading3
-                        if (fromElementType == Constants.Graphics.heading3 || fromElementType == Constants.Graphics.topNote)
+                        if (fromElementType == Constants.Graphics.heading3 || fromElementType == Constants.Graphics.topNote || fromElementType == Constants.Graphics.note)
                         {
                             y = fromElement.Geometry.Envelope.Height + Convert.ToDouble(ySpacings[fromElementType][toElementName].Split(' ')[0], CultureInfo.InvariantCulture);
                         }
@@ -2637,9 +2637,16 @@ namespace GSC_Legend_Renderer
                 ISimpleTextSymbol currentStyleSymbol = tElement.Symbol as ISimpleTextSymbol;
                 currentStyleSymbol.Size = Constants.TextConfiguration.tooLongLabelUnitBoxLabelFontSize; //Force size else incoming style might be too big.
 
-                if (unitBoxType == Constants.Graphics.UnitBoxType.split1 || unitBoxType == Constants.Graphics.UnitBoxType.split2)
+                //Manage placement
+                if (unitBoxType == Constants.Graphics.UnitBoxType.split2)
                 {
-                    currentStyleSymbol.VerticalAlignment = esriTextVerticalAlignment.esriTVABaseline; //shift down a bit
+                    //Shift down a bit for right part.
+                    currentStyleSymbol.VerticalAlignment = esriTextVerticalAlignment.esriTVABaseline; 
+                }
+                else if (unitBoxType == Constants.Graphics.UnitBoxType.split1)
+                {
+                    //Shift up a bit for left part
+                    currentStyleSymbol.VerticalAlignment = esriTextVerticalAlignment.esriTVATop;
                 }
                 
                 tElement.Symbol = Services.ObjectManagement.CopyInputObject(currentStyleSymbol) as ISimpleTextSymbol;
