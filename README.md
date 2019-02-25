@@ -19,7 +19,7 @@ User Guide Example with all possible symbols.
 
 # ESRI Addin
 
-The addin itself can be retrieved here  > https://gccode.ssc-spc.gc.ca/GSC-GDF/GSC-Legend-Renderer/blob/0.6-Testing/bin/Debug/GSC_Legend_Renderer.esriAddIn
+The addin itself can be retrieved here  > https://gccode.ssc-spc.gc.ca/GSC-GDF/GSC-Legend-Renderer/blob/master/bin/Debug/GSC_Legend_Renderer.esriAddIn
 
 # Current version
 0.6 (Testing phase)
