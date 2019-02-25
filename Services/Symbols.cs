@@ -265,6 +265,8 @@ namespace GSC_Legend_Renderer.Services
             IPictureFillSymbol pictureFill = inSymbol as PictureFillSymbol;
             ISimpleFillSymbol simpleFill = inSymbol as SimpleFillSymbol;
             IMultiLayerFillSymbol multiFill = inSymbol as IMultiLayerFillSymbol;
+            IDotDensityFillSymbol dotFill = inSymbol as IDotDensityFillSymbol;
+            IReferenceFillSymbol refFill = inSymbol as IReferenceFillSymbol;
 
             //Init a new object that will contain the correct symbol type
             object correctSymbol = new object();
@@ -301,6 +303,16 @@ namespace GSC_Legend_Renderer.Services
             {
                 correctSymbol = multiFill;
                 symbolTypeName = "IMultiLayerFillSymbol";
+            }
+            else if(dotFill != null)
+            {
+                correctSymbol = dotFill;
+                symbolTypeName = "IDotDensityFillSymbol";
+            }
+            else if (refFill != null)
+            {
+                correctSymbol = refFill;
+                symbolTypeName = "IReferenceFillSymbol";
             }
 
             return correctSymbol;
@@ -424,6 +436,33 @@ namespace GSC_Legend_Renderer.Services
             polySym.Color = colorLine;
 
             return polySym;
+        }
+
+        /// <summary>
+        /// Default style for marker fill symbol that are missing in a style
+        /// </summary>
+        /// <returns></returns>
+        public static IMarkerFillSymbol GetMissingOverlaySymbol()
+        {
+            //Create empty poly symbol for default symbol
+            IMarkerFillSymbol markerFillSym = new MarkerFillSymbol();
+            markerFillSym.Style = esriMarkerFillStyle.esriMFSRandom;
+
+            //Create an RGB object for the outline
+            RgbColor colorMarker = new RgbColor();
+            colorMarker.Red = 255;
+            colorMarker.Green = 0;
+            colorMarker.Blue = 0;
+
+            RgbColor colorOutline = new RgbColor();
+            colorOutline.Red = 0;
+            colorOutline.Green = 0;
+            colorOutline.Blue = 0;
+
+            markerFillSym.Color = colorMarker;
+            markerFillSym.Outline.Color = colorOutline;
+
+            return markerFillSym;
         }
 
         /// <summary>

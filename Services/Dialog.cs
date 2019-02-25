@@ -173,6 +173,7 @@ namespace GSC_Legend_Renderer.Services
             gxDialog.InternalCatalog.Close();
 
             //Release dialog
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(datas);
             System.Runtime.InteropServices.Marshal.ReleaseComObject(gxDialog);
 
 

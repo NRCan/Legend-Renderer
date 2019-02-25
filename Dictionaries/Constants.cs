@@ -96,7 +96,8 @@ namespace GSC_Legend_Renderer.Dictionaries
             public const string annotationBreak = "ANNO_BREAK";
             public const string legendBoxDEM = "LegendBoxDEM";
 
-            public const string topNote = "NOTE";
+            public const string topNote = "TOP_NOTE";
+            public const string note = "NOTE";
 
             public const string unitLabel = "UNIT_LABEL"; //Added by GHV
             public const string heading1 = "HEADING1"; //Added by GHV
@@ -190,7 +191,7 @@ namespace GSC_Legend_Renderer.Dictionaries
         public static class TextConfiguration
         {
             public const int charactersPerLine = 76;
-            public const double lineHeight = 3.3; //mm
+            public const double lineHeight = 3.28; //mm
             public const double header3LineHeight = 3.66; //mlm
             //HTML related tags
             public const string tagBold = "<bol>";
@@ -199,18 +200,31 @@ namespace GSC_Legend_Renderer.Dictionaries
             public const string endTagAllCaps = "</ACP>";
             public const string tagItalic = "<ITA>";
             public const string endTagItalic = "</ITA>";
-
+            public const string tagFont = "<FNT name = ";
+            public const string endTagFont = "</FNT>";
             //Missing terms
             public const string missingText = "Missing";
-
+            public const string NullLiteral = "<Null>";
             //Defaults
             public const double defaultUnitBoxLabelFontSize = 8.0; //Mainly used for labels that see their font size change when using a new style.
+            public const double tooLongLabelUnitBoxLabelFontSize = 7.5; //Mainly used for labels that see their font size change when using a new style.
         }
 
         public static class ImageConfiguration
         {
             public const int demTransparency = 178;
             public const string monoColoredImageNamePrefix = "Mono_";
+        }
+
+        public static class GraphicConfiguration
+        {
+            public const double outlineWidth = 0.43;
+        }
+
+        public static class Fonts
+        {
+            public const string geologyFontName = "GSCGeology2015";
+            public const double geologyFontHeightAjustement = 0.4; //Add 0.4 mm so it widens the box.
         }
     }
 }

@@ -19,6 +19,7 @@ using System.IO;
 using ESRI.ArcGIS.esriSystem;
 using ESRI.ArcGIS.Framework;
 using System.Drawing.Imaging;
+using System.Globalization;
 
 namespace GSC_Legend_Renderer
 {
@@ -38,6 +39,9 @@ namespace GSC_Legend_Renderer
         public IElement originalCGMLegend { get; set; } //Will be used to move legend  right if a left bracket is found for CGM maps only.
 
         public IMxDocument currentDoc { get; set; } //Wil be used to keep track of current document throughout methods
+
+        public Dictionary<int, double> arialCharactersWidth { get; set; } //Will be used to calculate text box height based on total lenght of characters
+
         //Extensions
         public const string gdbExt = Dictionaries.Constants.Extensions.gdbExt;
         public const string mdbExt = Dictionaries.Constants.Extensions.mdbExt;
@@ -152,6 +156,8 @@ namespace GSC_Legend_Renderer
 
                     //Fill the field list with field names
                     dataFieldList = Services.Tables.GetFieldList(selectedSTL.Table, true, selectedSTL);
+
+                    
                     #endregion
                 }
                 else if (selectedlTables.cboxDataName != null )
@@ -179,6 +185,9 @@ namespace GSC_Legend_Renderer
                         //Fill the field list with field names
                         dataFieldList = Services.Tables.GetFieldList(inputDataTable, true);
 
+                        //Release workspace so user can keep on editing
+                        Services.ObjectManagement.ReleaseObject(dbfWorkspace);
+
                     }
                     else if (dataPath.Contains(txtExt) || dataPath.Contains(csvExt))
                     {
@@ -191,6 +200,9 @@ namespace GSC_Legend_Renderer
 
                         //Fill the field list with field names
                         dataFieldList = Services.Tables.GetFieldList(inputDataTable, true);
+
+                        //Release workspace so user can keep on editing
+                        Services.ObjectManagement.ReleaseObject(txtFileWorkspace);
 
                     }
                     else if (dataPath.Contains(xlExt))
@@ -229,6 +241,10 @@ namespace GSC_Legend_Renderer
                         dataFieldList = Services.Tables.GetFieldList(inputDataTable, true);
 
                         dataFieldList.Add(string.Empty);
+
+                        //Release workspace so user can keep on editing
+                        Services.ObjectManagement.ReleaseObject(inputDataTable);
+                        Services.ObjectManagement.ReleaseObject(excelWorkspace);
                     }
 
                     #endregion
@@ -420,6 +436,7 @@ namespace GSC_Legend_Renderer
         /// </summary>
         public void CreateLegend()
         {
+            
             //Continu if table is valid
             if (this.comboBox_SelectTable.Text != null && this.comboBox_SelectTable.Text != string.Empty)
             {
@@ -428,6 +445,9 @@ namespace GSC_Legend_Renderer
                 {
 
                     #region GET and BUILD information
+                    //Get arial character widths
+                    arialCharactersWidth = GetArialCharacterWidth();
+
                     //Get json config files - check properties for path
                     ValidateJsonSpacingExistance();
 
@@ -477,13 +497,13 @@ namespace GSC_Legend_Renderer
                     {
                         legendTable = selectedTable.cboxSTLTable as ITable;
                     }
-                    
+
 
                     //Iterate through table and add elements
                     IQueryFilter ascendingOrderQuery = new QueryFilter();
                     IQueryFilterDefinition ascendingOrderQueryPostfix = ascendingOrderQuery as IQueryFilterDefinition;
                     ascendingOrderQueryPostfix.PostfixClause = "ORDER BY " + orderFieldUser;
-                    ICursor legendCursor = legendTable.Search(ascendingOrderQuery, false);
+                    ICursor legendCursor = legendTable.Search(ascendingOrderQuery, true);
 
                     //Get symbols
                     if (lineSymbolDico == null)
@@ -520,11 +540,12 @@ namespace GSC_Legend_Renderer
                     int columnFieldIndex = legendCursor.FindField(columnFieldUser);
                     int label2FieldIndex = legendCursor.FindField(label2FieldUser);
                     int label1StyleFieldIndex = legendCursor.FindField(label1StyleFieldUser);
+                    int label2StyleFieldIndex = legendCursor.FindField(label2StyleFieldUser);
 
                     int currentColumn = 1; //Default
 
-                    IRow legendRow = legendCursor.NextRow();
-                    while (legendRow != null)
+                    IRow legendRow;
+                    while ((legendRow = legendCursor.NextRow()) != null)
                     {
                         //Variables
                         currentIteration = currentIteration++;
@@ -538,6 +559,7 @@ namespace GSC_Legend_Renderer
                         string currentHeading = legendRow.Value[headingFieldIndex].ToString();
                         string currentElement = legendRow.Value[elementFieldIndex].ToString();
                         string currentLabel1Style = legendRow.Value[label1StyleFieldIndex].ToString();
+                        string currentLabel2Style = legendRow.Value[label2StyleFieldIndex].ToString();
 
                         IElement currentElementObject = Services.ObjectManagement.CopyInputObject(templateGraphicDico[currentElement]) as IElement;
 
@@ -631,8 +653,6 @@ namespace GSC_Legend_Renderer
                             firstIterationBreaker = false;
                         }
 
-
-
                         #region HEADINGS
                         if (currentElement.Contains(Constants.Graphics.heading1.Substring(0, 6)))
                         {
@@ -651,7 +671,7 @@ namespace GSC_Legend_Renderer
 
                                 //Set new anchor
                                 anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - ySpacing);
-                                
+
 
                                 //Set height for heading3 
                                 if (currentElement.Contains(Constants.Graphics.heading3))
@@ -662,19 +682,10 @@ namespace GSC_Legend_Renderer
                                     {
                                         tempGroupHeadingDescription = currentHeading + currentDescription;
                                     }
-                                    double heading3Height = GetTextHeight(tempGroupHeadingDescription, Constants.TextConfiguration.header3LineHeight);
+                                    double heading3Height = GetTextHeight(tempGroupHeadingDescription, descriptionWidth, Constants.TextConfiguration.lineHeight);
 
                                     //Set new envelope
                                     SetRectnagularPolygonFromAnchorTypeAndHeight(headElement, anchorPoint, heading3Height);
-
-                                    //Reset anchor point since the header has shrunk a bit.
-
-                                    if (heading3Height >= Constants.TextConfiguration.header3LineHeight)
-                                    {
-                                        heading3Height = heading3Height - Constants.TextConfiguration.header3LineHeight;
-                                    }
-                                    anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 + heading3Height);
-
                                 }
                                 else
                                 {
@@ -710,10 +721,10 @@ namespace GSC_Legend_Renderer
                                 }
 
                                 //Add Description to text - Only for heading 3 in theory
-                                if (currentDescription != null && currentDescription != string.Empty && currentDescription != " ")
+                                if (!IsTextEmpty(currentDescription))
                                 {
                                     //Add header if needed
-                                    if (currentHeading != null && currentHeading != string.Empty && currentHeading != " ")
+                                    if (!IsTextEmpty(currentHeading))
                                     {
                                         currentHeading = currentHeading + currentDescription;
                                     }
@@ -804,7 +815,7 @@ namespace GSC_Legend_Renderer
                                             currentLabel1 = Constants.TextConfiguration.missingText;
                                         }
 
-                                        unitBoxLabelElement = AddLabelInUnitBox(currentLabel1, innerElement, currentDoc, anchorPoint, Constants.Graphics.UnitBoxType.split1);
+                                        unitBoxLabelElement = AddLabelInUnitBox(currentLabel1, innerElement, currentDoc, anchorPoint, Constants.Graphics.UnitBoxType.split1, currentLabel1Style);
 
                                     }
                                     else if (el > 0)
@@ -816,7 +827,7 @@ namespace GSC_Legend_Renderer
                                         {
                                             currentLabel2 = Constants.TextConfiguration.missingText;
                                         }
-                                        unitBoxLabelElement = AddLabelInUnitBox(currentLabel2, innerElement, currentDoc, anchorPoint, Constants.Graphics.UnitBoxType.split2);
+                                        unitBoxLabelElement = AddLabelInUnitBox(currentLabel2, innerElement, currentDoc, anchorPoint, Constants.Graphics.UnitBoxType.split2, currentLabel2Style);
                                     }
 
                                 }
@@ -825,7 +836,7 @@ namespace GSC_Legend_Renderer
                             {
                                 demUnitBoxElement = SetPolygonFill(unitBoxElement, currentStyle1, true, true, anchorPoint);
                                 currentDoc.ActiveView.GraphicsContainer.AddElement(demUnitBoxElement as IElement, 0);
-                                
+
                                 //Add label
                                 if (currentLabel1 == null || currentLabel1 == string.Empty || currentLabel1 == " ")
                                 {
@@ -858,7 +869,7 @@ namespace GSC_Legend_Renderer
                                 if (currentColumn != 0)
                                 {
                                     anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - descriptionHeight); //New anchor point with proper move inside it
-                                                                                                                                        //Keep name
+                                                                                                                                       //Keep name
                                 }
 
                                 lastElement = newDescriptionElement;
@@ -882,7 +893,7 @@ namespace GSC_Legend_Renderer
                             }
                             legendElementList.Add(unitBoxLabelElement as IElement);
                             legendElementList.Add(unitBoxElement as IElement);
-                            
+
 
 
                         }
@@ -1284,7 +1295,7 @@ namespace GSC_Legend_Renderer
 
                         #endregion
 
-                        #region SYMBOLIZED AREAS
+                        #region SYMBOLIZED AREAS / OVERLAYS
                         if (currentElement == Constants.Graphics.overlay || currentElement == Constants.Graphics.blob)
                         {
 
@@ -1365,6 +1376,13 @@ namespace GSC_Legend_Renderer
                                     //Set new anchor
                                     Tuple<double, double> overlayPointAnchor = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - symAreasElement.Geometry.Envelope.Height / 2.0);
                                     SetPointFromAnchorType(symAreaPointElement, overlayPointAnchor, offset);
+                                }
+
+                                //For a new color fill on the symbol
+                                if (fillSymbolDico != null && fillSymbolDico.Count > 0 && fillSymbolDico.ContainsKey(currentStyle2))
+                                {
+                                    //Symbolize
+                                    symAreaPointElement = SetOverlayFillColor(symAreasElement, currentStyle1, currentStyle2);
                                 }
 
                                 if (symAreaPointElement != null)
@@ -2032,8 +2050,8 @@ namespace GSC_Legend_Renderer
 
                         #endregion
 
-                        #region TOP_NOTE
-                        if (currentElement == Constants.Graphics.topNote)
+                        #region NOTES
+                        if (currentElement == Constants.Graphics.topNote || currentElement == Constants.Graphics.note)
                         {
 
                             //Get appropriate element
@@ -2053,7 +2071,7 @@ namespace GSC_Legend_Renderer
                                 }
                                 else
                                 {
-                                    
+
                                     //Add header if needed
                                     if (currentHeading != null && currentHeading != string.Empty && currentHeading != " ")
                                     {
@@ -2066,7 +2084,7 @@ namespace GSC_Legend_Renderer
 
 
                                 //Set width and height
-                                double wantedTextHeight = GetTextHeight(currentDescription);
+                                double wantedTextHeight = GetTextHeight(currentDescription, descriptionWidth);
                                 IEnvelope env = noteElement.Geometry.Envelope;
                                 env.Width = noteElement.Geometry.Envelope.Width; //Set width
                                 env.Height = wantedTextHeight;
@@ -2130,20 +2148,16 @@ namespace GSC_Legend_Renderer
 
                         //}
 
-                        
+
 
 
                         #endregion
 
-                        legendRow = legendCursor.NextRow();
+                        //Release each row, else a lock can occur.
+                        Services.ObjectManagement.ReleaseObject(legendRow);
                     }
 
                     #endregion
-
-
-
-                    //Release objects
-                    Services.ObjectManagement.ReleaseObject(legendCursor);
 
                     #region Group all items 
 
@@ -2188,7 +2202,15 @@ namespace GSC_Legend_Renderer
 
                     currentDoc.ActiveView.Refresh();
 
+                    //Release all objects so user can keep on editing the original legend file
+                    Services.ObjectManagement.ReleaseObject(legendCursor);
+                    Services.ObjectManagement.ReleaseObject(legendTable);
+
+
+
                     CloseForm();
+
+
                 }
                 else
                 {
@@ -2208,7 +2230,6 @@ namespace GSC_Legend_Renderer
         /// </summary>
         private void CloseForm()
         {
-
             this.Close();
         }
 
@@ -2466,20 +2487,20 @@ namespace GSC_Legend_Renderer
                     {
                         try
                         {
-                            y = Convert.ToDouble(ySpacings[fromElementType][toElementName]);
+                            y = Convert.ToDouble(ySpacings[fromElementType][toElementName], CultureInfo.InvariantCulture);
                         }
                         catch (Exception)
                         {
                             if (ySpacings[fromElementType][toElementName].Contains(Constants.Graphics.anchorLowerLeft))
                             {
-                                y = (fromElement.Geometry.Envelope.YMin - lastYSpacing) + Convert.ToDouble(ySpacings[fromElementType][toElementName].Split(' ')[0]);
+                                y = (fromElement.Geometry.Envelope.YMin - lastYSpacing) + Convert.ToDouble(ySpacings[fromElementType][toElementName].Split(' ')[0], CultureInfo.InvariantCulture);
                             }
                         }
 
                         //Special case for heading3
-                        if (fromElementType == Constants.Graphics.heading3 || fromElementType == Constants.Graphics.topNote)
+                        if (fromElementType == Constants.Graphics.heading3 || fromElementType == Constants.Graphics.topNote || fromElementType == Constants.Graphics.note)
                         {
-                            y = fromElement.Geometry.Envelope.Height + Convert.ToDouble(ySpacings[fromElementType][toElementName].Split(' ')[0]);
+                            y = fromElement.Geometry.Envelope.Height + Convert.ToDouble(ySpacings[fromElementType][toElementName].Split(' ')[0], CultureInfo.InvariantCulture);
                         }
 
                     }
@@ -2505,7 +2526,7 @@ namespace GSC_Legend_Renderer
                 {
                     try
                     {
-                        x = Convert.ToDouble(xSpacings[toElementName]);
+                        x = Convert.ToDouble(xSpacings[toElementName], CultureInfo.InvariantCulture);
                     }
                     catch (Exception)
                     {
@@ -2556,7 +2577,7 @@ namespace GSC_Legend_Renderer
 
             //Get a list of all point layers inside table of content
             Services.Layers layerService = new Services.Layers();
-            UID layerUID = new UIDClass();
+            UID layerUID = new UID();
             layerUID.Value = "{34C20002-4D3C-11D0-92D8-00805F7C28B0}";
             List<IStandaloneTable> tocTables = layerService.GetListOfStandaloneTables((IMxDocument)ArcMap.Application.Document);
 
@@ -2574,6 +2595,7 @@ namespace GSC_Legend_Renderer
             this.comboBox_SelectTable.DataSource = _cboxlayers;
             this.comboBox_SelectTable.DisplayMember = "cboxDataName";
             this.comboBox_SelectTable.ValueMember = "cboxSTLTable";
+
         }
 
         #endregion
@@ -2607,6 +2629,27 @@ namespace GSC_Legend_Renderer
                 currentStyleSymbol.VerticalAlignment = esriTextVerticalAlignment.esriTVACenter; //Force vertical center for text else incoming style might be set to else where.
                 tElement.Symbol = Services.ObjectManagement.CopyInputObject(currentStyleSymbol) as ISimpleTextSymbol;
                 
+            }
+
+            //Mange too long text (mainly to fix when used in UNIT_SPLIT boxes).
+            if (inText.Length >= 6)
+            {
+                ISimpleTextSymbol currentStyleSymbol = tElement.Symbol as ISimpleTextSymbol;
+                currentStyleSymbol.Size = Constants.TextConfiguration.tooLongLabelUnitBoxLabelFontSize; //Force size else incoming style might be too big.
+
+                //Manage placement
+                if (unitBoxType == Constants.Graphics.UnitBoxType.split2)
+                {
+                    //Shift down a bit for right part.
+                    currentStyleSymbol.VerticalAlignment = esriTextVerticalAlignment.esriTVABaseline; 
+                }
+                else if (unitBoxType == Constants.Graphics.UnitBoxType.split1)
+                {
+                    //Shift up a bit for left part
+                    currentStyleSymbol.VerticalAlignment = esriTextVerticalAlignment.esriTVATop;
+                }
+                
+                tElement.Symbol = Services.ObjectManagement.CopyInputObject(currentStyleSymbol) as ISimpleTextSymbol;
             }
 
             //Manage missing
@@ -2725,7 +2768,7 @@ namespace GSC_Legend_Renderer
             ITextElement dtElement = descriptionElement as ITextElement;
 
             //Variables
-            double wantedTextHeight = GetTextHeight(dtElement.Text);
+            double wantedTextHeight = GetTextHeight(dtElement.Text, descriptionWidth);
             IElementProperties3 parentProperties = parentElem as IElementProperties3;
 
 
@@ -2936,7 +2979,7 @@ namespace GSC_Legend_Renderer
         }
         #endregion
 
-        #region BUILD GRAPIC
+        #region BUILD GRAPHIC
         /// <summary>
         /// Will create a marker symbol from given type, order and style. Will also return an offset parameter for linear markers
         /// </summary>
@@ -3125,6 +3168,22 @@ namespace GSC_Legend_Renderer
 
             return allLines;
         }
+
+        /// <summary>
+        /// Will validate if input text is different then string.empty, a space, null or string literal "<null>"
+        /// </summary>
+        /// <param name="inputText"></param>
+        /// <returns></returns>
+        public bool IsTextEmpty(string inputText)
+        {
+            bool isEmpty = false;
+            if (inputText == string.Empty || inputText == null || inputText == " " || inputText == Constants.TextConfiguration.NullLiteral)
+            {
+                isEmpty = true;
+            }
+
+            return isEmpty;
+        }
         #endregion
 
         #region CALCULATIONS
@@ -3135,26 +3194,217 @@ namespace GSC_Legend_Renderer
         /// <param name="inText"></param>
         /// <param name="minHeight">A minimal height in case text is a bit bolder or bigger, used for heading for example</param>
         /// <returns></returns>
-        public double GetTextHeight(string inText, double minHeight=0.0)
+        public double GetTextHeight(string inText, double maxWidth, double minHeight = 0.0, double fontSize = 8.0)
         {
-            //Count character
-            double charCount = Convert.ToDouble(inText.Count());
+            //Count total width of text
+            double textWidth = 0.0;
+            double tHeight = 0.0;
+            int j;
+
+            //Adjust with possible font GSCGeology2015. Need to have bigger box
+            if (inText.Contains(Constants.Fonts.geologyFontName))
+            {
+                tHeight = tHeight + Constants.Fonts.geologyFontHeightAjustement;
+            }
+
+            if (arialCharactersWidth == null)
+            {
+                arialCharactersWidth = GetArialCharacterWidth();
+            }
+
+            //Strip text of tags that could make it look longer then it is
+            inText = inText.Replace(Constants.TextConfiguration.tagAllCaps, "");
+            inText = inText.Replace(Constants.TextConfiguration.tagBold, "");
+            inText = inText.Replace(Constants.TextConfiguration.tagItalic, "");
+            inText = inText.Replace(Constants.TextConfiguration.tagFont + '"' + Constants.Fonts.geologyFontName + '"' + ">", "");
+            inText = inText.Replace(Constants.TextConfiguration.endTagAllCaps, "");
+            inText = inText.Replace(Constants.TextConfiguration.endTagBold, "");
+            inText = inText.Replace(Constants.TextConfiguration.endTagItalic, "");
+            inText = inText.Replace(Constants.TextConfiguration.endTagFont, "");
+
+            for (int i = 0; i < inText.Length; i++)
+            {
+                j = Encoding.Default.GetBytes(inText.Substring(i, 1))[0];
+                if (j >= 32)
+                {
+                    if (arialCharactersWidth.ContainsKey(j))
+                    {
+                        textWidth = textWidth + (fontSize * arialCharactersWidth[j]);
+                    }
+                    else
+                    {
+                        textWidth = textWidth + (fontSize * 1);
+                    }
+                    
+                }
+            }
 
             //Calculate approx. number of lines
-            double numberLines = charCount / Constants.TextConfiguration.charactersPerLine;
+            double numberLines = (textWidth * 0.352778) / maxWidth;
             numberLines = Math.Ceiling(numberLines); //Round to upper boundary
 
-            //Height
-            double tHeight = numberLines * (Constants.TextConfiguration.lineHeight);
+            //Extra validation
+            if (numberLines >= 6)
+            {
+                double extraWidth = (textWidth * 0.02) + textWidth; //Extra percent of width, in case
+                numberLines = (extraWidth * 0.352778) / maxWidth;
+                numberLines = Math.Ceiling(numberLines);
+            }
 
-            //Validation
+            //Height
             if (Constants.TextConfiguration.lineHeight < minHeight)
             {
-                tHeight = numberLines * (minHeight);
+                tHeight = tHeight + (numberLines * (minHeight));
+            }
+            else
+            {
+                tHeight = tHeight + (numberLines * (Constants.TextConfiguration.lineHeight));
             }
 
             return tHeight;
 
+        }
+
+        /// <summary>
+        /// Will output a dictionnary containing width in points for all arial character
+        /// </summary>
+        /// <returns></returns>
+        public Dictionary<int, double> GetArialCharacterWidth()
+        {
+            Dictionary<int, double> arialCharacterWidth = new Dictionary<int, double>();
+
+            for (int i = 32; i <= 127; i++)
+            {
+                switch (i)
+                {
+                    case 39:
+                    case 106:
+                    case 108:
+                        arialCharacterWidth[i] = 0.1902;
+                        break;
+                    case 105:
+                    case 116:
+                        arialCharacterWidth[i] = 0.2526;
+                        break;
+                    case 32:
+                    case 33:
+                    case 44:
+                    case 46:
+                    case 47:
+                    case 58:
+                    case 59:
+                    case 73:
+                    case 91:
+                    case 92:
+                    case 93:
+                    case 102:
+                    case 124:
+                        arialCharacterWidth[i] = 0.3144;
+                        break;
+                    case 34:
+                    case 40:
+                    case 41:
+                    case 45:
+                    case 96:
+                    case 114:
+                    case 123:
+                    case 125:
+                        arialCharacterWidth[i] = 0.3768;
+                        break;
+                    case 42:
+                    case 94:
+                    case 118:
+                    case 120:
+                        arialCharacterWidth[i] = 0.4392;
+                        break;
+                    case 107:
+                    case 115:
+                    case 122:
+                        arialCharacterWidth[i] = 0.501;
+                        break;
+                    case 35:
+                    case 36:
+                    case 48:
+                    case 49:
+                    case 50:
+                    case 51:
+                    case 52:
+                    case 53:
+                    case 54:
+                    case 55:
+                    case 56:
+                    case 57:
+                    case 63:
+                    case 74:
+                    case 76:
+                    case 84:
+                    case 90:
+                    case 95:
+                    case 97:
+                    case 98:
+                    case 99:
+                    case 100:
+                    case 101:
+                    case 103:
+                    case 104:
+                    case 110:
+                    case 111:
+                    case 112:
+                    case 113:
+                    case 117:
+                    case 121:
+                        arialCharacterWidth[i] = 0.5634;
+                        break;
+                    case 43:
+                    case 60:
+                    case 61:
+                    case 62:
+                    case 70:
+                    case 126:
+                        arialCharacterWidth[i] = 0.6252;
+                        break;
+                    case 38:
+                    case 65:
+                    case 66:
+                    case 69:
+                    case 72:
+                    case 75:
+                    case 78:
+                    case 80:
+                    case 82:
+                    case 83:
+                    case 85:
+                    case 86:
+                    case 88:
+                    case 89:
+                    case 119:
+                        arialCharacterWidth[i] = 0.6876;
+                        break;
+                    case 67:
+                    case 68:
+                    case 71:
+                    case 79:
+                    case 81:
+                        arialCharacterWidth[i] = 0.7494;
+                        break;
+                    case 77:
+                    case 109:
+                    case 127:
+                        arialCharacterWidth[i] = 0.8118;
+                        break;
+                    case 37:
+                        arialCharacterWidth[i] = 0.936;
+                        break;
+                    case 64:
+                    case 87:
+                        arialCharacterWidth[i] = 1.0602;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return arialCharacterWidth;
         }
 
         /// <summary>
@@ -3970,6 +4220,49 @@ namespace GSC_Legend_Renderer
             }
 
             return inThinUnitElement;
+        }
+
+        /// <summary>
+        /// Will set the marker fill of overlay symbol with a predefined color
+        /// </summary>
+        /// <returns></returns>
+        public IElement SetOverlayFillColor(IElement inElement, string style, string style2)
+        {
+            //Symbolize if symbol can be found in style file
+            IFillShapeElement inShapeElement = inElement as IFillShapeElement;
+
+            if (fillSymbolDico.ContainsKey(style) && fillSymbolDico.ContainsKey(style2))
+            {
+                //Get symbol type and color
+                string symbolTypeName = string.Empty;
+                IColor symbolColor = Services.Symbols.GetPolygonSymbolColor(fillSymbolDico[style2] as ISymbol, out symbolTypeName);
+
+                //Get symbol itself
+                IMultiLayerFillSymbol inMarkerFill = fillSymbolDico[style] as IMultiLayerFillSymbol;
+
+                //Create new symbol and apply, else it won't update...
+                IMultiLayerFillSymbol newMarkerFill = new MultiLayerFillSymbol();
+
+                //Add as many layer there is needed to the symbol.
+                for (int i = 0; i < inMarkerFill.LayerCount; i++)
+                {
+                    newMarkerFill.AddLayer(inMarkerFill.Layer[i]);
+                }
+
+                //Set color at the end 
+                newMarkerFill.Color = symbolColor;
+
+                inShapeElement.Symbol = newMarkerFill;
+                return inElement;
+            }
+            else
+            {
+                //Apply missing style
+                IMarkerFillSymbol missingMarkerFillSymbol = Services.Symbols.GetMissingOverlaySymbol();
+
+                inShapeElement.Symbol = missingMarkerFillSymbol;
+                return inElement;
+            }
         }
         #endregion
 

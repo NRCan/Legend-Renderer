@@ -34,7 +34,11 @@ namespace GSC_Legend_Renderer.Services
         {
             try
             {
-                System.Runtime.InteropServices.Marshal.ReleaseComObject(objectToRelease);
+                if (System.Runtime.InteropServices.Marshal.IsComObject(objectToRelease))
+                {
+                    System.Runtime.InteropServices.Marshal.ReleaseComObject(objectToRelease);
+                }
+                
                 objectToRelease = null;
             }
             catch (Exception ex)
@@ -42,10 +46,7 @@ namespace GSC_Legend_Renderer.Services
                 objectToRelease = null;
                 MessageBox.Show("Exception Occured while releasing object " + ex.StackTrace);
             }
-            finally
-            {
-                GC.Collect();
-            }
+
         }
     }
 }
