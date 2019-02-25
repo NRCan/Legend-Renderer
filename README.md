@@ -14,6 +14,8 @@ Original user guide is available on GCDoc for:
 *  Edition: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll/open/31349011
 *  Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=31349011&objAction=download
 
+User Guide Example with all possible symbols.
+*  Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=36398434&objAction=download
 
 # ESRI Addin
 
@@ -24,6 +26,12 @@ The addin itself can be retrieved here  > https://gccode.ssc-spc.gc.ca/GSC-GDF/G
 
 # Current set of results
 
-On GCDoc:
-
+CGM 348 --> File geodatabase (.gdb) with examples of UNIT_PARENT, UNIT_CHILD_LINE and UNIT_CHILD; PNT_CC_45 and PNT_LC_45, and GSCGeology2015 font.
 *  Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=33213794&objAction=download
+
+CGM 393 --> MS Excel (.xlsx) file with examples of OVERLAY
+*  Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=36397247&objAction=download
+
+CGM XXX (MaryRiver) --> File geodatabase (.gdb) with examples of UNIT_SPLIT.
+*  Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=36396628&objAction=download
+
