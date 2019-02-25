@@ -22,7 +22,7 @@ User Guide Example with all possible symbols.
 The addin itself can be retrieved here  > https://gccode.ssc-spc.gc.ca/GSC-GDF/GSC-Legend-Renderer/blob/master/bin/Debug/GSC_Legend_Renderer.esriAddIn
 
 # Current version
-0.6 (Testing phase)
+0.6.6 (Testing phase)
 
 # Current set of results
 
