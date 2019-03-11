@@ -10,12 +10,17 @@ The tools were developed on ArcGIS Desktop version 10.6.
 
 Original user guide is available on GCDoc for:
 
-
 *  Edition: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll/open/31349011
 *  Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=31349011&objAction=download
 
-User Guide Example with all possible symbols.
+Start-up Excel Sheet (contains users guide's complete example set)
+
+* Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=36882192&objAction=download
+
+User guide's complete example set.
+
 *  Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=36398434&objAction=download
+  
 
 # ESRI Addin
 
