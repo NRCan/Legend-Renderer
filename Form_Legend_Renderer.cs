@@ -1195,7 +1195,7 @@ namespace GSC_Legend_Renderer
                         #region LINES
                         if (currentElement == Constants.Graphics.beach || currentElement == Constants.Graphics.moraines || currentElement == Constants.Graphics.dunes
                             || currentElement == Constants.Graphics.landslide || currentElement == Constants.Graphics.line || currentElement == Constants.Graphics.wave
-                            || currentElement == Constants.Graphics.lineDouble || currentElement == Constants.Graphics.lineDoubleFLow)
+                            || currentElement == Constants.Graphics.lineDouble || currentElement == Constants.Graphics.lineDoubleFLow || currentElement == Constants.Graphics.lineDoubleFlip)
                         {
                             //Get appropriate element
                             IElement lineElement = Services.ObjectManagement.CopyInputObject(templateGraphicDico[currentElement]) as IElement;
@@ -1248,32 +1248,23 @@ namespace GSC_Legend_Renderer
                                     }
                                     if (currentShapeProp.Name == Constants.Graphics.subLineDoubleFLowBottom)
                                     {
-                                        // For double line, two style might be used if it's not inside a double line flow symbol
-                                        if (lineSymbolDico.ContainsKey(currentStyle2) && currentElement == Constants.Graphics.lineDouble)
+                                        //If something isn't found in style2 revert to first one
+                                        if (currentStyle2 != string.Empty && currentStyle2 != " " && currentStyle2 != null)
                                         {
-                                            //If something isn't found in style2 revert to first one
-                                            if (currentStyle2 != string.Empty && currentStyle2 != " " && currentStyle2 == null)
+                                            // For double line, two style might be used if it's not inside a double line flow symbol
+                                            currentShapeElement.Symbol = Services.ObjectManagement.CopyInputObject(lineSymbolDico[currentStyle2]) as ILineSymbol;
+
+                                            if (lineSymbolDico.ContainsKey(currentStyle2) && currentElement == Constants.Graphics.lineDoubleFLow)
                                             {
-                                                currentShapeElement.Symbol = Services.ObjectManagement.CopyInputObject(lineSymbolDico[currentStyle2]) as ILineSymbol;
-                                                
-                                            }
-                                            else
-                                            {
+                                                //For double line flow symbol keep bottom line just like the top one and take style2 field for the flow symbol
                                                 currentShapeElement.Symbol = Services.ObjectManagement.CopyInputObject(lineSymbolDico[currentStyle1]) as ILineSymbol;
                                             }
-
-                                        }
-                                        else if (lineSymbolDico.ContainsKey(currentStyle2) && currentElement == Constants.Graphics.lineDoubleFLow)
-                                        {
-                                            //For double line flow symbol keep bottom line just like the top one and take style2 field for the flow symbol
-                                            currentShapeElement.Symbol = Services.ObjectManagement.CopyInputObject(lineSymbolDico[currentStyle1]) as ILineSymbol;
                                         }
                                         else
                                         {
-                                            //Apply missing style
-                                            ISimpleLineSymbol missingFillSymbol = Services.Symbols.GetMissingLineSymbol();
-                                            currentShapeElement.Symbol = missingFillSymbol;
+                                            currentShapeElement.Symbol = Services.ObjectManagement.CopyInputObject(lineSymbolDico[currentStyle1]) as ILineSymbol;
                                         }
+
                                     }
 
                                     if (currentShapeProp.Name == Constants.Graphics.subLineDoubleFLowMiddle)

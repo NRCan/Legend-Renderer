@@ -61,6 +61,7 @@ namespace GSC_Legend_Renderer.Dictionaries
             public const string subUnitParentChildLine = "UNIT_CHILD_LINE";
 
             public const string lineDouble = "TWOSIDE";
+            public const string lineDoubleFlip = "TWOSIDE_FLIP";
             public const string subLineDoubleTop = "TWOSIDE_TOP";
             public const string subLineDoubleBottom = "TWOSIDE_BOTTOM";
 

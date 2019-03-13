@@ -22,6 +22,7 @@
   "WAVE": 0,
   "LINE": 0,
   "TWOSIDE": 0,
+  "TWOSIDE_FLIP": 0,
   "TWOSIDE_FLOW": 0,
   "BEACH": 4,
   "DUNES": 4,
