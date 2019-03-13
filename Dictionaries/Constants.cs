@@ -120,6 +120,7 @@ namespace GSC_Legend_Renderer.Dictionaries
             public const string unitBoxBracket = "UNIT_BOX_R_BRACKET_GAP"; //Added by GHV
             public const string measurementLabel = "MEASUREMENT_LABEL"; //Added by GHV
             public const string generationLabel = "GENERATION_LABEL"; //Added by GHV
+            public const string defaultpointLabel = "DEFAULT_POINT_LABEL"; //Added by GHV
             public const string bracketLeftColumnGap = "L_BRACKET_COLUMN_GAP"; //Added by GHV
             public const string annotationBlob = "ANNO_BLOB"; //Added by GHV
             public const string groupDescriptionWidth = "GROUP_DESCRIPTION_WIDTH"; //Added by GHV
@@ -174,7 +175,7 @@ namespace GSC_Legend_Renderer.Dictionaries
             /// <summary>
             /// A list of possible position of label surrounding marker points.
             /// </summary>
-            public enum MarkerLabelPositioning { FromCenterToUpperLeft, FromCenterToUpperRight, RightAboveCenter}
+            public enum MarkerLabelPositioning { FromCenterToUpperLeft, FromCenterToUpperRight, RightAboveCenter, FromCenterToUpperRightTight}
         }
 
         public static class XSpacings

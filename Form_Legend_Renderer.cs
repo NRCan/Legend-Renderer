@@ -1133,19 +1133,33 @@ namespace GSC_Legend_Renderer
                             //Add measurement value label
                             if (currentLabel1 != null && currentLabel1 != string.Empty && currentLabel1 != " ")
                             {
+
                                 //Find proper placement for label
                                 Constants.Styles.MarkerLabelPositioning placement = Constants.Styles.MarkerLabelPositioning.FromCenterToUpperLeft;
                                 if (currentElement == Constants.Graphics.pointAngleLine)
                                 {
                                     placement = Constants.Styles.MarkerLabelPositioning.FromCenterToUpperRight;
                                 }
+                                else if (currentElement == Constants.Graphics.point)
+                                {
+                                    placement = Constants.Styles.MarkerLabelPositioning.FromCenterToUpperRightTight;
+                                }
 
-                                IElement markerLabel1 = AddLabelToMarker(currentLabel1, pointElement, currentDoc, anchorPoint, placement);
+                                if (currentLabel1Style == null ||  currentLabel1Style == " ")
+                                {
+                                    currentLabel1Style = string.Empty;
+                                }
+                                IElement markerLabel1 = AddLabelToMarker(currentLabel1, pointElement, currentDoc, anchorPoint, placement, currentLabel1Style);
 
                                 //Add second label if any
                                 if (currentLabel2 != null && currentLabel2 != string.Empty && currentLabel2 != " ")
                                 {
-                                    AddLabelToMarker(currentLabel2, markerLabel1, currentDoc, anchorPoint, Constants.Styles.MarkerLabelPositioning.RightAboveCenter, placement);
+                                    if (currentLabel2Style == null || currentLabel2Style == " ")
+                                    {
+                                        currentLabel2Style = string.Empty;
+                                    }
+
+                                    AddLabelToMarker(currentLabel2, markerLabel1, currentDoc, anchorPoint, Constants.Styles.MarkerLabelPositioning.RightAboveCenter, currentLabel2Style, placement);
                                 }
                             }
 
@@ -2871,7 +2885,7 @@ namespace GSC_Legend_Renderer
         /// <param name="inAnchor">The anchor of the parent</param>
         /// <param name="parentElemType">The parent original name (type) to parse where to put the label (POINT_CC_45 vs POINT_LC_45)</param>
         /// <returns></returns>
-        private IElement AddLabelToMarker(string inLabelText, IElement parentElement, IMxDocument inDocument, Tuple<double, double> inAnchor, Constants.Styles.MarkerLabelPositioning wantedPosition, Constants.Styles.MarkerLabelPositioning parentPosition = Constants.Styles.MarkerLabelPositioning.FromCenterToUpperLeft)
+        private IElement AddLabelToMarker(string inLabelText, IElement parentElement, IMxDocument inDocument, Tuple<double, double> inAnchor, Constants.Styles.MarkerLabelPositioning wantedPosition, string inLabelStyle = "", Constants.Styles.MarkerLabelPositioning parentPosition = Constants.Styles.MarkerLabelPositioning.FromCenterToUpperLeft)
         {
             //Variables
             string inElementType = string.Empty;
@@ -2888,6 +2902,25 @@ namespace GSC_Legend_Renderer
             {
                 inElementType = Constants.Graphics.generationLabel;
                 markerLabelElement = Services.ObjectManagement.CopyInputObject(templateGraphicDico[inElementType]) as IElement;
+            }
+
+            if (inLabelStyle != string.Empty && textSymbolDico.ContainsKey(inLabelStyle))
+            {
+                inElementType = Constants.Graphics.defaultpointLabel;
+                markerLabelElement = Services.ObjectManagement.CopyInputObject(templateGraphicDico[inElementType]) as IElement;
+
+                //Get wanted symbol
+                ISimpleTextSymbol inStyleSymbol = textSymbolDico[inLabelStyle] as ISimpleTextSymbol;
+
+                //Get inside marker label symbol to change it with found label
+                ITextElement markerLabelTextElement = markerLabelElement as ITextElement;
+                ISimpleTextSymbol currentStyleSymbol = markerLabelTextElement.Symbol as ISimpleTextSymbol;
+                currentStyleSymbol.Font = inStyleSymbol.Font;
+                currentStyleSymbol.Color = inStyleSymbol.Color;
+                currentStyleSymbol.Size = currentStyleSymbol.Size; //Force size else incoming style might be too big.
+                currentStyleSymbol.VerticalAlignment = currentStyleSymbol.VerticalAlignment; //Force vertical center for text else incoming style might be set to else where.
+                markerLabelTextElement.Symbol = Services.ObjectManagement.CopyInputObject(currentStyleSymbol) as ISimpleTextSymbol;
+
             }
 
             //Create new text graphic with default style
@@ -2933,6 +2966,12 @@ namespace GSC_Legend_Renderer
                 case Constants.Styles.MarkerLabelPositioning.FromCenterToUpperRight:
                     //Value were found from manually placing the label at wanted place and calculating the ratio for the best move. 
                     xLabelAnchor = parentElement.Geometry.Envelope.XMin + (markerWidth / 2.0) * 2.18849;  //TODO move hardcoded value somewhere else
+                    yLabelAnchor = parentElement.Geometry.Envelope.YMin + (markerHeight) * 0.59923; //TODO move hardcoded value somewhere else
+                    break;
+
+                case Constants.Styles.MarkerLabelPositioning.FromCenterToUpperRightTight:
+                    //Value were found from manually placing the label at wanted place and calculating the ratio for the best move. 
+                    xLabelAnchor = parentElement.Geometry.Envelope.XMin + (markerWidth / 2.0) * 0.94849;  //TODO move hardcoded value somewhere else
                     yLabelAnchor = parentElement.Geometry.Envelope.YMin + (markerHeight) * 0.59923; //TODO move hardcoded value somewhere else
                     break;
 
