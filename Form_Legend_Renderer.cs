@@ -1133,19 +1133,33 @@ namespace GSC_Legend_Renderer
                             //Add measurement value label
                             if (currentLabel1 != null && currentLabel1 != string.Empty && currentLabel1 != " ")
                             {
+
                                 //Find proper placement for label
                                 Constants.Styles.MarkerLabelPositioning placement = Constants.Styles.MarkerLabelPositioning.FromCenterToUpperLeft;
                                 if (currentElement == Constants.Graphics.pointAngleLine)
                                 {
                                     placement = Constants.Styles.MarkerLabelPositioning.FromCenterToUpperRight;
                                 }
+                                else if (currentElement == Constants.Graphics.point)
+                                {
+                                    placement = Constants.Styles.MarkerLabelPositioning.FromCenterToUpperRightTight;
+                                }
 
-                                IElement markerLabel1 = AddLabelToMarker(currentLabel1, pointElement, currentDoc, anchorPoint, placement);
+                                if (currentLabel1Style == null ||  currentLabel1Style == " ")
+                                {
+                                    currentLabel1Style = string.Empty;
+                                }
+                                IElement markerLabel1 = AddLabelToMarker(currentLabel1, pointElement, currentDoc, anchorPoint, placement, currentLabel1Style);
 
                                 //Add second label if any
                                 if (currentLabel2 != null && currentLabel2 != string.Empty && currentLabel2 != " ")
                                 {
-                                    AddLabelToMarker(currentLabel2, markerLabel1, currentDoc, anchorPoint, Constants.Styles.MarkerLabelPositioning.RightAboveCenter, placement);
+                                    if (currentLabel2Style == null || currentLabel2Style == " ")
+                                    {
+                                        currentLabel2Style = string.Empty;
+                                    }
+
+                                    AddLabelToMarker(currentLabel2, markerLabel1, currentDoc, anchorPoint, Constants.Styles.MarkerLabelPositioning.RightAboveCenter, currentLabel2Style, placement);
                                 }
                             }
 
@@ -1217,16 +1231,48 @@ namespace GSC_Legend_Renderer
                                     IElementProperties currentShapeProp = inGroupElement.Element[el] as IElementProperties;
                                     double currentLineWidth = currentShapeElement.Symbol.Width;
 
-                                    if (lineSymbolDico.ContainsKey(currentStyle1))
+                                    if (currentShapeProp.Name == Constants.Graphics.subLineDoubleFLowTop)
                                     {
-                                        currentShapeElement.Symbol = Services.ObjectManagement.CopyInputObject(lineSymbolDico[currentStyle1]) as ILineSymbol;
+                                        if (lineSymbolDico.ContainsKey(currentStyle1))
+                                        {
+                                            currentShapeElement.Symbol = Services.ObjectManagement.CopyInputObject(lineSymbolDico[currentStyle1]) as ILineSymbol;
 
+                                        }
+                                        else
+                                        {
+                                            //Apply missing style
+                                            ISimpleLineSymbol missingFillSymbol = Services.Symbols.GetMissingLineSymbol();
+                                            currentShapeElement.Symbol = missingFillSymbol;
+                                        }
+                                        
                                     }
-                                    else
+                                    if (currentShapeProp.Name == Constants.Graphics.subLineDoubleFLowBottom)
                                     {
-                                        //Apply missing style
-                                        ISimpleLineSymbol missingFillSymbol = Services.Symbols.GetMissingLineSymbol();
-                                        currentShapeElement.Symbol = missingFillSymbol;
+                                        // For double line, two style might be used if it's not inside a double line flow symbol
+                                        if (lineSymbolDico.ContainsKey(currentStyle2) && currentElement == Constants.Graphics.lineDouble)
+                                        {
+                                            //If something isn't found in style2 revert to first one
+                                            if (currentStyle2 != string.Empty && currentStyle2 != " " && currentStyle2 == null)
+                                            {
+                                                currentShapeElement.Symbol = Services.ObjectManagement.CopyInputObject(lineSymbolDico[currentStyle2]) as ILineSymbol;
+                                            }
+                                            else
+                                            {
+                                                currentShapeElement.Symbol = Services.ObjectManagement.CopyInputObject(lineSymbolDico[currentStyle1]) as ILineSymbol;
+                                            }
+
+                                        }
+                                        else if (lineSymbolDico.ContainsKey(currentStyle2) && currentElement == Constants.Graphics.lineDoubleFLow)
+                                        {
+                                            //For double line flow symbol keep bottom line just like the top one and take style2 field for the flow symbol
+                                            currentShapeElement.Symbol = Services.ObjectManagement.CopyInputObject(lineSymbolDico[currentStyle1]) as ILineSymbol;
+                                        }
+                                        else
+                                        {
+                                            //Apply missing style
+                                            ISimpleLineSymbol missingFillSymbol = Services.Symbols.GetMissingLineSymbol();
+                                            currentShapeElement.Symbol = missingFillSymbol;
+                                        }
                                     }
 
                                     if (currentShapeProp.Name == Constants.Graphics.subLineDoubleFLowMiddle)
@@ -1351,7 +1397,7 @@ namespace GSC_Legend_Renderer
                                     //Create new text graphic with default style
                                     IMarkerElement saMarkerElement = symAreaPointElement as IMarkerElement;
                                     IMultiLayerMarkerSymbol mlCharacterElement = saMarkerElement.Symbol as IMultiLayerMarkerSymbol;
-                                    ICharacterMarkerSymbol saCharacterElement = mlCharacterElement.Layer[0] as ICharacterMarkerSymbol;
+                                    ICharacterMarkerSymbol saCharacterElement = Services.ObjectManagement.CopyInputObject(mlCharacterElement.Layer[0]) as ICharacterMarkerSymbol;
 
                                     int labelCharset = 0;
                                     if (int.TryParse(currentLabel1, out labelCharset))
@@ -1362,6 +1408,12 @@ namespace GSC_Legend_Renderer
                                     {
                                         saCharacterElement.CharacterIndex = labelCharset;
                                     }
+
+                                    mlCharacterElement.DeleteLayer(mlCharacterElement.Layer[0]);
+                                    mlCharacterElement.AddLayer(saCharacterElement);
+                                    mlCharacterElement.MoveLayer(saCharacterElement, 0);
+
+                                    saMarkerElement.Symbol = Services.ObjectManagement.CopyInputObject(mlCharacterElement) as IMultiLayerMarkerSymbol;
 
                                     //Set new anchor
                                     SetPointFromAnchorType(symAreaPointElement, anchorPoint, offset);
@@ -2871,7 +2923,7 @@ namespace GSC_Legend_Renderer
         /// <param name="inAnchor">The anchor of the parent</param>
         /// <param name="parentElemType">The parent original name (type) to parse where to put the label (POINT_CC_45 vs POINT_LC_45)</param>
         /// <returns></returns>
-        private IElement AddLabelToMarker(string inLabelText, IElement parentElement, IMxDocument inDocument, Tuple<double, double> inAnchor, Constants.Styles.MarkerLabelPositioning wantedPosition, Constants.Styles.MarkerLabelPositioning parentPosition = Constants.Styles.MarkerLabelPositioning.FromCenterToUpperLeft)
+        private IElement AddLabelToMarker(string inLabelText, IElement parentElement, IMxDocument inDocument, Tuple<double, double> inAnchor, Constants.Styles.MarkerLabelPositioning wantedPosition, string inLabelStyle = "", Constants.Styles.MarkerLabelPositioning parentPosition = Constants.Styles.MarkerLabelPositioning.FromCenterToUpperLeft)
         {
             //Variables
             string inElementType = string.Empty;
@@ -2888,6 +2940,25 @@ namespace GSC_Legend_Renderer
             {
                 inElementType = Constants.Graphics.generationLabel;
                 markerLabelElement = Services.ObjectManagement.CopyInputObject(templateGraphicDico[inElementType]) as IElement;
+            }
+
+            if (inLabelStyle != string.Empty && textSymbolDico.ContainsKey(inLabelStyle))
+            {
+                inElementType = Constants.Graphics.defaultpointLabel;
+                markerLabelElement = Services.ObjectManagement.CopyInputObject(templateGraphicDico[inElementType]) as IElement;
+
+                //Get wanted symbol
+                ISimpleTextSymbol inStyleSymbol = textSymbolDico[inLabelStyle] as ISimpleTextSymbol;
+
+                //Get inside marker label symbol to change it with found label
+                ITextElement markerLabelTextElement = markerLabelElement as ITextElement;
+                ISimpleTextSymbol currentStyleSymbol = markerLabelTextElement.Symbol as ISimpleTextSymbol;
+                currentStyleSymbol.Font = inStyleSymbol.Font;
+                currentStyleSymbol.Color = inStyleSymbol.Color;
+                currentStyleSymbol.Size = currentStyleSymbol.Size; //Force size else incoming style might be too big.
+                currentStyleSymbol.VerticalAlignment = currentStyleSymbol.VerticalAlignment; //Force vertical center for text else incoming style might be set to else where.
+                markerLabelTextElement.Symbol = Services.ObjectManagement.CopyInputObject(currentStyleSymbol) as ISimpleTextSymbol;
+
             }
 
             //Create new text graphic with default style
@@ -2933,6 +3004,12 @@ namespace GSC_Legend_Renderer
                 case Constants.Styles.MarkerLabelPositioning.FromCenterToUpperRight:
                     //Value were found from manually placing the label at wanted place and calculating the ratio for the best move. 
                     xLabelAnchor = parentElement.Geometry.Envelope.XMin + (markerWidth / 2.0) * 2.18849;  //TODO move hardcoded value somewhere else
+                    yLabelAnchor = parentElement.Geometry.Envelope.YMin + (markerHeight) * 0.59923; //TODO move hardcoded value somewhere else
+                    break;
+
+                case Constants.Styles.MarkerLabelPositioning.FromCenterToUpperRightTight:
+                    //Value were found from manually placing the label at wanted place and calculating the ratio for the best move. 
+                    xLabelAnchor = parentElement.Geometry.Envelope.XMin + (markerWidth / 2.0) * 0.94849;  //TODO move hardcoded value somewhere else
                     yLabelAnchor = parentElement.Geometry.Envelope.YMin + (markerHeight) * 0.59923; //TODO move hardcoded value somewhere else
                     break;
 
@@ -3037,7 +3114,7 @@ namespace GSC_Legend_Renderer
         /// <returns>Output path for the new mxd.</returns>
         private string ValidateTemplateMXDExistance()
         {
-            string outputFolderName = System.IO.Path.Combine(Dictionaries.Constants.ESRI.defaultArcGISFolderName, Dictionaries.Constants.Namespaces.mainNamespace);
+            string outputFolderName = System.IO.Path.Combine(Dictionaries.Constants.ESRI.defaultArcGISFolderName, Dictionaries.Constants.Namespaces.mainNamespace + " " + ThisAddIn.Version.ToString());
             string outputFolderPath = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), outputFolderName);
             string outputFilePath = System.IO.Path.Combine(outputFolderPath, Dictionaries.Constants.Assets.mxdEmbeddedFile);
             if (!System.IO.File.Exists(outputFilePath))
@@ -3085,7 +3162,7 @@ namespace GSC_Legend_Renderer
         /// <returns></returns>
         public void ValidateJsonSpacingExistance()
         {
-            string outputFolderName = System.IO.Path.Combine(Dictionaries.Constants.ESRI.defaultArcGISFolderName, Dictionaries.Constants.Namespaces.mainNamespace);
+            string outputFolderName = System.IO.Path.Combine(Dictionaries.Constants.ESRI.defaultArcGISFolderName, Dictionaries.Constants.Namespaces.mainNamespace + " " + ThisAddIn.Version.ToString());
             string outputFolderPath = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), outputFolderName);
             jsonYSpacingFilePath = System.IO.Path.Combine(outputFolderPath, Dictionaries.Constants.Assets.jsonYSpacingEmbeddedFile);
             if (!System.IO.File.Exists(jsonYSpacingFilePath))
@@ -3106,7 +3183,7 @@ namespace GSC_Legend_Renderer
         /// </summary>
         public string ValidateDEMPictureExistance()
         {
-            string outputFolderName = System.IO.Path.Combine(Dictionaries.Constants.ESRI.defaultArcGISFolderName, Dictionaries.Constants.Namespaces.mainNamespace);
+            string outputFolderName = System.IO.Path.Combine(Dictionaries.Constants.ESRI.defaultArcGISFolderName, Dictionaries.Constants.Namespaces.mainNamespace + " " + ThisAddIn.Version.ToString());
             string outputFolderPath = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), outputFolderName);
             string outputFilePath = System.IO.Path.Combine(outputFolderPath, Dictionaries.Constants.Assets.demPicture);
             if (!System.IO.File.Exists(outputFilePath))
