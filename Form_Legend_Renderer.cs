@@ -1365,7 +1365,7 @@ namespace GSC_Legend_Renderer
                                     //Create new text graphic with default style
                                     IMarkerElement saMarkerElement = symAreaPointElement as IMarkerElement;
                                     IMultiLayerMarkerSymbol mlCharacterElement = saMarkerElement.Symbol as IMultiLayerMarkerSymbol;
-                                    ICharacterMarkerSymbol saCharacterElement = mlCharacterElement.Layer[0] as ICharacterMarkerSymbol;
+                                    ICharacterMarkerSymbol saCharacterElement = Services.ObjectManagement.CopyInputObject(mlCharacterElement.Layer[0]) as ICharacterMarkerSymbol;
 
                                     int labelCharset = 0;
                                     if (int.TryParse(currentLabel1, out labelCharset))
@@ -1376,6 +1376,12 @@ namespace GSC_Legend_Renderer
                                     {
                                         saCharacterElement.CharacterIndex = labelCharset;
                                     }
+
+                                    mlCharacterElement.DeleteLayer(mlCharacterElement.Layer[0]);
+                                    mlCharacterElement.AddLayer(saCharacterElement);
+                                    mlCharacterElement.MoveLayer(saCharacterElement, 0);
+
+                                    saMarkerElement.Symbol = Services.ObjectManagement.CopyInputObject(mlCharacterElement) as IMultiLayerMarkerSymbol;
 
                                     //Set new anchor
                                     SetPointFromAnchorType(symAreaPointElement, anchorPoint, offset);
