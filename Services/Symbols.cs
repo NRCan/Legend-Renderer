@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using ESRI.ArcGIS.Display;
 using ESRI.ArcGIS.Carto;
 using ESRI.ArcGIS.Geodatabase;
+using GSC_Legend_Renderer.Dictionaries;
 
 namespace GSC_Legend_Renderer.Services
 {
@@ -343,32 +344,32 @@ namespace GSC_Legend_Renderer.Services
             if (gradientFill != null)
             {
                 symbolColor = gradientFill.Color;
-                symbolTypeName = "IGradientFillSymbol";
+                symbolTypeName = Constants.ObjectNames.fillTypeGradient;
             }
             else if (lineFill != null)
             {
                 symbolColor = lineFill.Color;
-                symbolTypeName = "ILineFillSymbol";
+                symbolTypeName = Constants.ObjectNames.fillTypeLine;
             }
             else if (markerFil != null)
             {
                 symbolColor = markerFil.Color;
-                symbolTypeName = "IMarkerFillSymbol";
+                symbolTypeName = Constants.ObjectNames.fillTypeMarker;
             }
             else if (pictureFill != null)
             {
                 symbolColor = pictureFill.Color;
-                symbolTypeName = "IPictureFillSymbol";
+                symbolTypeName = Constants.ObjectNames.fillTypePicture;
             }
             else if (simpleFill != null)
             {
                 symbolColor = simpleFill.Color;
-                symbolTypeName = "ISimpleFillSymbol";
+                symbolTypeName = Constants.ObjectNames.fillTypeSimple;
             }
             else if (multiFill != null)
             {
                 symbolColor = multiFill.Color;
-                symbolTypeName = "IMultiLayerFillSymbol";
+                symbolTypeName = Constants.ObjectNames.fillTypeMultilayer;
             }
 
             return symbolColor;

@@ -227,5 +227,16 @@ namespace GSC_Legend_Renderer.Dictionaries
             public const string geologyFontName = "GSCGeology2015";
             public const double geologyFontHeightAjustement = 0.4; //Add 0.4 mm so it widens the box.
         }
+
+        public static class ObjectNames
+        {
+            public const string fillTypeSimple = "ISimpleFillSymbol";
+            public const string fillTypeGradient = "IGradientFillSymbol";
+            public const string fillTypeLine = "ILineFillSymbol";
+            public const string fillTypeMarker = "IMarkerFillSymbol";
+            public const string fillTypePicture = "IPictureFillSymbol";
+            public const string fillTypeMultilayer = "IMultiLayerFillSymbol";
+
+        }
     }
 }

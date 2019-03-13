@@ -1255,6 +1255,7 @@ namespace GSC_Legend_Renderer
                                             if (currentStyle2 != string.Empty && currentStyle2 != " " && currentStyle2 == null)
                                             {
                                                 currentShapeElement.Symbol = Services.ObjectManagement.CopyInputObject(lineSymbolDico[currentStyle2]) as ILineSymbol;
+                                                
                                             }
                                             else
                                             {
@@ -1837,7 +1838,7 @@ namespace GSC_Legend_Renderer
                             //Move accordingly to x spacing from json file
                             ITransform2D transAnnoBracketElement = annotationBracket as ITransform2D;
                             //transAnnoBracketElement.Move(GetXSpacing(currentElement), 0); 
-
+                            
                             //Move at the right anchor
                             double xMove = Math.Abs(waitingCenterLeftBracket.Geometry.Envelope.XMin - annotationBracket.Geometry.Envelope.XMax);
                             transAnnoBracketElement.Move(xMove, 0);
@@ -4110,11 +4111,12 @@ namespace GSC_Legend_Renderer
                 //Get symbol type and color
                 string symbolTypeName = string.Empty;
                 IColor symbolColor = Services.Symbols.GetPolygonSymbolColor(fillSymbolDico[style] as ISymbol, out symbolTypeName);
+                IRgbColor rgbCol = symbolColor as IRgbColor;
 
                 //Fill polygon or replace with related DEM image
-                if (this.checkBox_DEMBoxes.Checked && isUnitBoxOnly)
+                if (this.checkBox_DEMBoxes.Checked && isUnitBoxOnly && rgbCol != null)
                 {
-                    IRgbColor rgbCol = symbolColor as IRgbColor;
+                    
                     Color fillColors = Color.FromArgb(255, rgbCol.Red, rgbCol.Green, rgbCol.Blue);
                     IElement demElement = SetPolygonDEM(inElement, fillColors, inAnchor);
 
@@ -4126,6 +4128,14 @@ namespace GSC_Legend_Renderer
                     intShapeElement.Symbol = newSimpleFill;
 
                     return demElement;
+                }
+                else if (symbolTypeName == Constants.ObjectNames.fillTypeMultilayer && rgbCol == null)
+                {
+                    //Will act as a non simple fill
+                    IFillSymbol fillMulti = fillSymbolDico[style] as IFillSymbol;
+                    fillMulti.Outline = inOutline;
+                    intShapeElement.Symbol = fillMulti;
+                    return inElement;
                 }
                 else
                 {
@@ -4179,7 +4189,7 @@ namespace GSC_Legend_Renderer
             Image demImage = Image.FromFile(demImagePath);
 
             //Build path to new mono colored image
-            string outputFolderName = System.IO.Path.Combine(Dictionaries.Constants.ESRI.defaultArcGISFolderName, Dictionaries.Constants.Namespaces.mainNamespace);
+            string outputFolderName = System.IO.Path.Combine(Dictionaries.Constants.ESRI.defaultArcGISFolderName, Dictionaries.Constants.Namespaces.mainNamespace + " " + ThisAddIn.Version.ToString());
             string outputFolderPath = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), outputFolderName);
             string monoColoredName = Constants.ImageConfiguration.monoColoredImageNamePrefix + inColor.A.ToString() + "_" + inColor.R.ToString() + "_" + inColor.G.ToString() + "_" + inColor.B.ToString() + ".png";
             string demColoredName = Constants.Graphics.legendBoxDEM + "_" + inColor.A.ToString() + "_" + inColor.R.ToString() + "_" + inColor.G.ToString() + "_" + inColor.B.ToString() + ".png";
