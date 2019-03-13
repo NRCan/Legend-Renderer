@@ -1231,16 +1231,48 @@ namespace GSC_Legend_Renderer
                                     IElementProperties currentShapeProp = inGroupElement.Element[el] as IElementProperties;
                                     double currentLineWidth = currentShapeElement.Symbol.Width;
 
-                                    if (lineSymbolDico.ContainsKey(currentStyle1))
+                                    if (currentShapeProp.Name == Constants.Graphics.subLineDoubleFLowTop)
                                     {
-                                        currentShapeElement.Symbol = Services.ObjectManagement.CopyInputObject(lineSymbolDico[currentStyle1]) as ILineSymbol;
+                                        if (lineSymbolDico.ContainsKey(currentStyle1))
+                                        {
+                                            currentShapeElement.Symbol = Services.ObjectManagement.CopyInputObject(lineSymbolDico[currentStyle1]) as ILineSymbol;
 
+                                        }
+                                        else
+                                        {
+                                            //Apply missing style
+                                            ISimpleLineSymbol missingFillSymbol = Services.Symbols.GetMissingLineSymbol();
+                                            currentShapeElement.Symbol = missingFillSymbol;
+                                        }
+                                        
                                     }
-                                    else
+                                    if (currentShapeProp.Name == Constants.Graphics.subLineDoubleFLowBottom)
                                     {
-                                        //Apply missing style
-                                        ISimpleLineSymbol missingFillSymbol = Services.Symbols.GetMissingLineSymbol();
-                                        currentShapeElement.Symbol = missingFillSymbol;
+                                        // For double line, two style might be used if it's not inside a double line flow symbol
+                                        if (lineSymbolDico.ContainsKey(currentStyle2) && currentElement == Constants.Graphics.lineDouble)
+                                        {
+                                            //If something isn't found in style2 revert to first one
+                                            if (currentStyle2 != string.Empty && currentStyle2 != " " && currentStyle2 == null)
+                                            {
+                                                currentShapeElement.Symbol = Services.ObjectManagement.CopyInputObject(lineSymbolDico[currentStyle2]) as ILineSymbol;
+                                            }
+                                            else
+                                            {
+                                                currentShapeElement.Symbol = Services.ObjectManagement.CopyInputObject(lineSymbolDico[currentStyle1]) as ILineSymbol;
+                                            }
+
+                                        }
+                                        else if (lineSymbolDico.ContainsKey(currentStyle2) && currentElement == Constants.Graphics.lineDoubleFLow)
+                                        {
+                                            //For double line flow symbol keep bottom line just like the top one and take style2 field for the flow symbol
+                                            currentShapeElement.Symbol = Services.ObjectManagement.CopyInputObject(lineSymbolDico[currentStyle1]) as ILineSymbol;
+                                        }
+                                        else
+                                        {
+                                            //Apply missing style
+                                            ISimpleLineSymbol missingFillSymbol = Services.Symbols.GetMissingLineSymbol();
+                                            currentShapeElement.Symbol = missingFillSymbol;
+                                        }
                                     }
 
                                     if (currentShapeProp.Name == Constants.Graphics.subLineDoubleFLowMiddle)
@@ -3082,7 +3114,7 @@ namespace GSC_Legend_Renderer
         /// <returns>Output path for the new mxd.</returns>
         private string ValidateTemplateMXDExistance()
         {
-            string outputFolderName = System.IO.Path.Combine(Dictionaries.Constants.ESRI.defaultArcGISFolderName, Dictionaries.Constants.Namespaces.mainNamespace);
+            string outputFolderName = System.IO.Path.Combine(Dictionaries.Constants.ESRI.defaultArcGISFolderName, Dictionaries.Constants.Namespaces.mainNamespace + " " + ThisAddIn.Version.ToString());
             string outputFolderPath = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), outputFolderName);
             string outputFilePath = System.IO.Path.Combine(outputFolderPath, Dictionaries.Constants.Assets.mxdEmbeddedFile);
             if (!System.IO.File.Exists(outputFilePath))
@@ -3130,7 +3162,7 @@ namespace GSC_Legend_Renderer
         /// <returns></returns>
         public void ValidateJsonSpacingExistance()
         {
-            string outputFolderName = System.IO.Path.Combine(Dictionaries.Constants.ESRI.defaultArcGISFolderName, Dictionaries.Constants.Namespaces.mainNamespace);
+            string outputFolderName = System.IO.Path.Combine(Dictionaries.Constants.ESRI.defaultArcGISFolderName, Dictionaries.Constants.Namespaces.mainNamespace + " " + ThisAddIn.Version.ToString());
             string outputFolderPath = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), outputFolderName);
             jsonYSpacingFilePath = System.IO.Path.Combine(outputFolderPath, Dictionaries.Constants.Assets.jsonYSpacingEmbeddedFile);
             if (!System.IO.File.Exists(jsonYSpacingFilePath))
@@ -3151,7 +3183,7 @@ namespace GSC_Legend_Renderer
         /// </summary>
         public string ValidateDEMPictureExistance()
         {
-            string outputFolderName = System.IO.Path.Combine(Dictionaries.Constants.ESRI.defaultArcGISFolderName, Dictionaries.Constants.Namespaces.mainNamespace);
+            string outputFolderName = System.IO.Path.Combine(Dictionaries.Constants.ESRI.defaultArcGISFolderName, Dictionaries.Constants.Namespaces.mainNamespace + " " + ThisAddIn.Version.ToString());
             string outputFolderPath = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), outputFolderName);
             string outputFilePath = System.IO.Path.Combine(outputFolderPath, Dictionaries.Constants.Assets.demPicture);
             if (!System.IO.File.Exists(outputFilePath))

@@ -65,9 +65,9 @@ namespace GSC_Legend_Renderer.Dictionaries
             public const string subLineDoubleBottom = "TWOSIDE_BOTTOM";
 
             public const string lineDoubleFLow = "TWOSIDE_FLOW";
-            public const string subLineDoubleFLowTop = "TWOSIDE_FLOW_TOP";
+            public const string subLineDoubleFLowTop = "TWOSIDE_TOP";
             public const string subLineDoubleFLowMiddle = "TWOSIDE_FLOW_MIDDLE";
-            public const string subLineDoubleFLowBottom= "TWOSIDE_FLOW_BOTTOM";
+            public const string subLineDoubleFLowBottom= "TWOSIDE_BOTTOM";
 
             public const string bracketLeftLower = "L_BRACKET_L";
             public const string bracketLeftCenter = "L_BRACKET_C";
