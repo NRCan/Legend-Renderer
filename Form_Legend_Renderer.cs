@@ -4102,13 +4102,18 @@ namespace GSC_Legend_Renderer
                 //Get symbol type and color
                 string symbolTypeName = string.Empty;
                 IColor symbolColor = Services.Symbols.GetPolygonSymbolColor(fillSymbolDico[style] as ISymbol, out symbolTypeName);
+                bool isNullColor = symbolColor.NullColor;
                 IRgbColor rgbCol = symbolColor as IRgbColor;
 
                 //Fill polygon or replace with related DEM image
                 if (this.checkBox_DEMBoxes.Checked && isUnitBoxOnly && rgbCol != null)
                 {
-                    
+                    //Detect tranparent color or white one
                     Color fillColors = Color.FromArgb(255, rgbCol.Red, rgbCol.Green, rgbCol.Blue);
+                    if (isNullColor)
+                    {
+                        fillColors = Color.FromArgb(255, 255, 255, 255);
+                    }
                     IElement demElement = SetPolygonDEM(inElement, fillColors, inAnchor);
 
                     //Create new symbol and apply, else it won't update...
