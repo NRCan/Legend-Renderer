@@ -4218,6 +4218,10 @@ namespace GSC_Legend_Renderer
 
             //Add to document
             currentDoc.ActiveView.GraphicsContainer.AddElement(demElement, 0);
+            IPageLayout currentLayout = currentDoc.ActiveView as IPageLayout;
+            IGraphicsContainerSelect currentGrapSelection = currentLayout as IGraphicsContainerSelect;
+
+            currentDoc.ActivatedView.GraphicsContainer.SendToBack(currentGrapSelection.SelectedElements);
             legendElementList.Add(demElement);
 
             //Move if needed
