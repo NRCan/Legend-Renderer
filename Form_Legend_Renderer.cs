@@ -4101,16 +4101,19 @@ namespace GSC_Legend_Renderer
             {
                 //Get symbol type and color
                 string symbolTypeName = string.Empty;
-                IColor symbolColor = Services.Symbols.GetPolygonSymbolColor(fillSymbolDico[style] as ISymbol, out symbolTypeName);
-                bool isNullColor = symbolColor.NullColor;
+                ISymbol fillSymbol = fillSymbolDico[style] as ISymbol;
+                IColor symbolColor = Services.Symbols.GetPolygonSymbolColor(fillSymbol, out symbolTypeName);
+                bool isFillNullColor = symbolColor.NullColor;
                 IRgbColor rgbCol = symbolColor as IRgbColor;
+                IFillSymbol iFillSymbol = fillSymbol as IFillSymbol;
+                bool isOutlineNullColor = iFillSymbol.Outline.Color.NullColor;
 
                 //Fill polygon or replace with related DEM image
                 if (this.checkBox_DEMBoxes.Checked && isUnitBoxOnly && rgbCol != null)
                 {
-                    //Detect tranparent color or white one
+                    //Detect tranparent color and force it white
                     Color fillColors = Color.FromArgb(255, rgbCol.Red, rgbCol.Green, rgbCol.Blue);
-                    if (isNullColor)
+                    if (isFillNullColor)
                     {
                         fillColors = Color.FromArgb(255, 255, 255, 255);
                     }
@@ -4119,7 +4122,19 @@ namespace GSC_Legend_Renderer
                     //Create new symbol and apply, else it won't update...
                     ISimpleFillSymbol newSimpleFill = new SimpleFillSymbol();
                     newSimpleFill.Style = esriSimpleFillStyle.esriSFSHollow;
-                    newSimpleFill.Outline = inOutline;
+
+                    //Manage outline
+                    if (isOutlineNullColor)
+                    {
+                        //Apply black outline 
+                        newSimpleFill.Outline = inOutline;
+                    }
+                    else
+                    {
+                        //Keep wanted outline
+                        newSimpleFill.Outline = iFillSymbol.Outline;
+                    }
+
 
                     intShapeElement.Symbol = newSimpleFill;
 
@@ -4128,8 +4143,19 @@ namespace GSC_Legend_Renderer
                 else if (symbolTypeName == Constants.ObjectNames.fillTypeMultilayer && rgbCol == null)
                 {
                     //Will act as a non simple fill
-                    IFillSymbol fillMulti = fillSymbolDico[style] as IFillSymbol;
-                    fillMulti.Outline = inOutline;
+                    IFillSymbol fillMulti = iFillSymbol;
+
+                    //Manage outline
+                    if (isOutlineNullColor)
+                    {
+                        //Apply black outline 
+                        fillMulti.Outline = inOutline;
+                    }
+                    else
+                    {
+                        //Keep wanted outline
+                        fillMulti.Outline = iFillSymbol.Outline;
+                    }
                     intShapeElement.Symbol = fillMulti;
                     return inElement;
                 }
@@ -4139,7 +4165,17 @@ namespace GSC_Legend_Renderer
                     ISimpleFillSymbol newSimpleFill = new SimpleFillSymbol();
                     newSimpleFill.Color = symbolColor;
                     newSimpleFill.Style = esriSimpleFillStyle.esriSFSSolid;
-                    newSimpleFill.Outline = inOutline;
+                    //Manage outline
+                    if (isOutlineNullColor)
+                    {
+                        //Apply black outline 
+                        newSimpleFill.Outline = inOutline;
+                    }
+                    else
+                    {
+                        //Keep wanted outline
+                        newSimpleFill.Outline = iFillSymbol.Outline;
+                    }
 
                     intShapeElement.Symbol = newSimpleFill;
                     return inElement;
@@ -4160,6 +4196,7 @@ namespace GSC_Legend_Renderer
                 ISimpleFillSymbol missingFillSymbol = Services.Symbols.GetMissingPolygonSymbol();
                 missingFillSymbol.Style = esriSimpleFillStyle.esriSFSSolid;
                 missingFillSymbol.Outline = inOutline;
+                missingFillSymbol.Outline.Color = inOutline.Color;
 
                 intShapeElement.Symbol = missingFillSymbol;
                 return inElement;
