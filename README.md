@@ -27,7 +27,7 @@ User guide's complete example set.
 The addin itself can be retrieved here  > https://gccode.ssc-spc.gc.ca/GSC-GDF/GSC-Legend-Renderer/blob/master/bin/Debug/GSC_Legend_Renderer.esriAddIn
 
 # Current version
-0.6.8 (Testing phase)
+0.6.10 (Testing phase)
 
 # Current set of results
 

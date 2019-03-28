@@ -478,6 +478,7 @@ namespace GSC_Legend_Renderer
                     Tuple<double, double> anchorPointParent = new Tuple<double, double>(0, 0);
                     heading5Text = string.Empty; //Init
                     int currentIteration = 0; //Will be used if user has forgot to enter an order.
+                    bool nullOrderBreaker = false; //Will be used to show error message to user if null values are found, but only once.
 
                     //Get selection of graphic (will help doing a clear)
                     IPageLayout currentLayout = currentDoc.ActiveView as IPageLayout;
@@ -562,6 +563,17 @@ namespace GSC_Legend_Renderer
                         string currentLabel2Style = legendRow.Value[label2StyleFieldIndex].ToString();
 
                         IElement currentElementObject = Services.ObjectManagement.CopyInputObject(templateGraphicDico[currentElement]) as IElement;
+
+                        //Manage null order
+                        if (legendRow.Value[orderFieldIndex].ToString() == string.Empty || legendRow.Value[orderFieldIndex].ToString() == "<Null>" || legendRow.Value[orderFieldIndex] == null || legendRow.Value[orderFieldIndex] == DBNull.Value)
+                        {
+                            if (!nullOrderBreaker)
+                            {
+                                MessageBox.Show("Missing value found in " + Constants.LegendTable.legendOrderField + " field. this might cause some problems on item rendering"); //TODO change this message for localized one and better text.
+                                nullOrderBreaker = true;
+                            }
+                            
+                        }
 
                         //Manage columns
                         if (!this.checkBox_autoCalculateColumns.Checked)
@@ -1862,7 +1874,7 @@ namespace GSC_Legend_Renderer
                         if (currentElement == Constants.Graphics.bracketRightUpper)
                         {
                             //Get appropriate element
-                            if (templateGraphicDico.ContainsKey(currentElement))
+                            if (templateGraphicDico.ContainsKey(currentElement) && lastElement != null)
                             {
                                 IElement rightBracketElement = Services.ObjectManagement.CopyInputObject(templateGraphicDico[currentElement]) as IElement;
                                 IElementProperties rightBracketdElProp = rightBracketElement as IElementProperties;
@@ -1905,7 +1917,7 @@ namespace GSC_Legend_Renderer
                         if (currentElement == Constants.Graphics.bracketRightLower)
                         {
                             //Get appropriate element
-                            if (templateGraphicDico.ContainsKey(currentElement))
+                            if (templateGraphicDico.ContainsKey(currentElement) && upRightBracket != null)
                             {
                                 #region END BRACKET NOTCH
                                 IElement rightEndBracketElement = Services.ObjectManagement.CopyInputObject(templateGraphicDico[currentElement]) as IElement;
