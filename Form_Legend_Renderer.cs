@@ -602,7 +602,7 @@ namespace GSC_Legend_Renderer
                             double rightBracketSpacing = 0;
                             if (howManyRightBrackets > 0)
                             {
-                                rightBracketSpacing = howManyRightBrackets * (descriptionWidth + elementDescriptGapWidth + elementWidth + GetXSpacing(Constants.Graphics.bracketRightCenter) + GetXSpacing(Constants.Graphics.unitBoxBracket));
+                                rightBracketSpacing = (descriptionWidth + elementDescriptGapWidth + elementWidth + GetXSpacing(Constants.Graphics.bracketRightCenter) + GetXSpacing(Constants.Graphics.unitBoxBracket));
                             }
 
                             //Move to right and reset Y.
