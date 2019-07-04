@@ -1243,7 +1243,7 @@ namespace GSC_Legend_Renderer
                                     IElementProperties currentShapeProp = inGroupElement.Element[el] as IElementProperties;
                                     double currentLineWidth = currentShapeElement.Symbol.Width;
 
-                                    if (currentShapeProp.Name == Constants.Graphics.subLineDoubleFLowTop)
+                                    if (currentShapeProp.Name != Constants.Graphics.subLineDoubleFLowBottom && currentShapeProp.Name != Constants.Graphics.subLineDoubleFLowMiddle)
                                     {
                                         if (lineSymbolDico.ContainsKey(currentStyle1))
                                         {
