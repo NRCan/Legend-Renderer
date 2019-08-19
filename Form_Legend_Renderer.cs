@@ -3763,6 +3763,7 @@ namespace GSC_Legend_Renderer
                             dX = -(oriCenterX) + inAnchor.Item1 + elementWidth / 2.0;
                             dY = (oriCenterY) - inAnchor.Item2 - polycurveHeight / 2.0;
                         }
+
                     }
                     else if (oriCenterX > inAnchor.Item1)
                     {
@@ -3816,11 +3817,11 @@ namespace GSC_Legend_Renderer
 
                 if (oriCenterX < inAnchor.Item1 && oriCenterY < inAnchor.Item2)
                 {
-                    transElement.Move(dX, dY); //Move accordingly to anchor point which is center center
+                    transElement.Move(dX, Math.Abs(dY)); //Move accordingly to anchor point which is center center
                 }
                 else if (oriCenterX > inAnchor.Item1 && oriCenterY < inAnchor.Item2)
                 {
-                    transElement.Move(-dX, dY);
+                    transElement.Move(-dX, Math.Abs(dY));
                 }
                 else if (oriCenterX > inAnchor.Item1 && oriCenterY > inAnchor.Item2)
                 {

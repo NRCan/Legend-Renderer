@@ -176,7 +176,6 @@ D:\GMF\GSC-Legend-Renderer\bin\Debug\ESRI.ArcGIS.Output.xml
 D:\GMF\GSC-Legend-Renderer\bin\Debug\ESRI.ArcGIS.PublisherControls.xml
 D:\GMF\GSC-Legend-Renderer\bin\Debug\Newtonsoft.Json.xml
 D:\GMF\GSC-Legend-Renderer\bin\Debug\ESRI.ArcGIS.System.dll
-D:\GMF\GSC-Legend-Renderer\obj\Debug\GSC_Legend_Renderer.csprojAssemblyReference.cache
 D:\GMF\GSC-Legend-Renderer\obj\Debug\GSC_Legend_Renderer.csproj.ResolveComReference.cache
 D:\GMF\GSC-Legend-Renderer\obj\Debug\GSC_Legend_Renderer.Form_Legend_Renderer.resources
 D:\GMF\GSC-Legend-Renderer\obj\Debug\GSC_Legend_Renderer.Properties.GSC_LegendRenderer_Resources.resources
