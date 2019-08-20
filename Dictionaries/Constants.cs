@@ -155,6 +155,7 @@ namespace GSC_Legend_Renderer.Dictionaries
             public const string mxdEmbeddedFile = "LegendRendererTemplate.mxd";
             public const string jsonYSpacingEmbeddedFile = "YSpacing.json";
             public const string jsonXSpacingEmbeddedFile = "XSpacing.json";
+            public const string jsonStyleFontsOtherEmbeddedFile = "OtherComponents.json";
             public const string demPicture = "LegendBoxDEM.png";
         }
 
@@ -165,7 +166,8 @@ namespace GSC_Legend_Renderer.Dictionaries
 
         public static class Styles
         {
-            public const string styleName = "GSC_SymbolStandard";
+            //public const string styleName = "GSC_SymbolStandard"; //Moved to JSON file
+            public const string styleNameJSON = "GEOLOGY_STYLE_NAME";
             public const string styleExtension = ".style";
             public const string styleFillClass = "Fill Symbols";
             public const string styleMarkerClass = "Marker Symbols";
@@ -225,7 +227,8 @@ namespace GSC_Legend_Renderer.Dictionaries
 
         public static class Fonts
         {
-            public const string geologyFontName = "GSCGeology2015";
+            //public const string geologyFontName = "GSCGeology2015"; //Moved to JSON file
+            public const string geologytFontNameJSON = "GEOLOGY_FONT_NAME";
             public const double geologyFontHeightAjustement = 0.4; //Add 0.4 mm so it widens the box.
         }
 

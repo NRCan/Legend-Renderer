@@ -99,8 +99,10 @@ namespace GSC_Legend_Renderer
         //JSON
         public string jsonYSpacingFilePath { get; set; }
         public string jsonXSpacingFilePath { get; set; }
+        public string jsonOtherFilePath { get; set; }
         public Dictionary<string, Dictionary<string, string>> ySpacings { get; set; }
         public Dictionary<string, string> xSpacings { get; set; }
+        public Dictionary<string, string> otherComponents { get; set; }
 
         //OTHER
         public double columnWidth { get; set; }
@@ -132,6 +134,7 @@ namespace GSC_Legend_Renderer
             templateGraphicDico = new Dictionary<string, IElement>();
             ySpacings = new Dictionary<string, Dictionary<string, string>>();
             xSpacings = new Dictionary<string, string>();
+            otherComponents = new Dictionary<string, string>();
 
             //TODO fill legend text box file path automatically with internal settings with last selected one.
 
@@ -440,6 +443,10 @@ namespace GSC_Legend_Renderer
             //Continu if table is valid
             if (this.comboBox_SelectTable.Text != null && this.comboBox_SelectTable.Text != string.Empty)
             {
+                //Get json config files - check properties for path
+                ValidateJsonFilesExistance();
+                BuildOtherComponentsDictionary();
+
                 //Validate if needed style has been loaded
                 if (ValidateStyleFile())
                 {
@@ -447,9 +454,6 @@ namespace GSC_Legend_Renderer
                     #region GET and BUILD information
                     //Get arial character widths
                     arialCharactersWidth = GetArialCharacterWidth();
-
-                    //Get json config files - check properties for path
-                    ValidateJsonSpacingExistance();
 
                     //Set document units, else if it's not in mm the legend will be looking bad...
                     currentDoc = (IMxDocument)ArcMap.Application.Document;
@@ -2525,6 +2529,18 @@ namespace GSC_Legend_Renderer
         }
 
         /// <summary>
+        /// Will deserialize a json file to get all other key components required by the tool, especially for styles and fonts
+        /// </summary>
+        private void BuildOtherComponentsDictionary()
+        {
+            if (otherComponents.Count() == 0)
+            {
+                otherComponents = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(jsonOtherFilePath));
+            }
+
+        }
+
+        /// <summary>
         /// Will return a y spacing based on from and to element names
         /// </summary>
         /// <returns></returns>
@@ -3146,15 +3162,19 @@ namespace GSC_Legend_Renderer
             foreach (int indexes in fileIndexes)
             {
                 //Detect already loaded styles
-                if (styleStore.File[indexes].Contains(Dictionaries.Constants.Styles.styleName))
+                if (otherComponents.ContainsKey(Dictionaries.Constants.Styles.styleNameJSON))
                 {
-                    isLoaded = true;
+                    if (styleStore.File[indexes].Contains(otherComponents[Dictionaries.Constants.Styles.styleNameJSON]))
+                    {
+                        isLoaded = true;
 
-                    //Keep style path
-                    gscStyle = ArcMap.Document.StyleGallery;
-                    gscStylePath = styleStore.File[indexes];
-                    break;
+                        //Keep style path
+                        gscStyle = ArcMap.Document.StyleGallery;
+                        gscStylePath = styleStore.File[indexes];
+                        break;
+                    }
                 }
+
             }
 
             return isLoaded;
@@ -3164,7 +3184,7 @@ namespace GSC_Legend_Renderer
         /// Will return wanted json file path, if it doesn't exist a copy will be made inside My Document\Arc GIS folder
         /// </summary>
         /// <returns></returns>
-        public void ValidateJsonSpacingExistance()
+        public void ValidateJsonFilesExistance()
         {
             string outputFolderName = System.IO.Path.Combine(Dictionaries.Constants.ESRI.defaultArcGISFolderName, Dictionaries.Constants.Namespaces.mainNamespace + " " + ThisAddIn.Version.ToString());
             string outputFolderPath = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), outputFolderName);
@@ -3178,6 +3198,12 @@ namespace GSC_Legend_Renderer
             if (!System.IO.File.Exists(jsonXSpacingFilePath))
             {
                 Services.FolderAndFiles.WriteResourceToFile(Dictionaries.Constants.Assets.jsonXSpacingEmbeddedFile, Dictionaries.Constants.Assets.AssetFolder, Dictionaries.Constants.Namespaces.mainNamespace, outputFolderPath);
+            }
+
+            jsonOtherFilePath = System.IO.Path.Combine(outputFolderPath, Dictionaries.Constants.Assets.jsonStyleFontsOtherEmbeddedFile);
+            if (!System.IO.File.Exists(jsonOtherFilePath))
+            {
+                Services.FolderAndFiles.WriteResourceToFile(Dictionaries.Constants.Assets.jsonStyleFontsOtherEmbeddedFile, Dictionaries.Constants.Assets.AssetFolder, Dictionaries.Constants.Namespaces.mainNamespace, outputFolderPath);
             }
 
         }
@@ -3283,9 +3309,12 @@ namespace GSC_Legend_Renderer
             int j;
 
             //Adjust with possible font GSCGeology2015. Need to have bigger box
-            if (inText.Contains(Constants.Fonts.geologyFontName))
+            if (otherComponents.ContainsKey(Constants.Fonts.geologytFontNameJSON) && inText.Contains(otherComponents[Constants.Fonts.geologytFontNameJSON]))
             {
                 tHeight = tHeight + Constants.Fonts.geologyFontHeightAjustement;
+
+                //Strip text of tags that could make it look longer then it is
+                inText = inText.Replace(Constants.TextConfiguration.tagFont + '"' + otherComponents[Constants.Fonts.geologytFontNameJSON] + '"' + ">", "");
             }
 
             if (arialCharactersWidth == null)
@@ -3297,7 +3326,6 @@ namespace GSC_Legend_Renderer
             inText = inText.Replace(Constants.TextConfiguration.tagAllCaps, "");
             inText = inText.Replace(Constants.TextConfiguration.tagBold, "");
             inText = inText.Replace(Constants.TextConfiguration.tagItalic, "");
-            inText = inText.Replace(Constants.TextConfiguration.tagFont + '"' + Constants.Fonts.geologyFontName + '"' + ">", "");
             inText = inText.Replace(Constants.TextConfiguration.endTagAllCaps, "");
             inText = inText.Replace(Constants.TextConfiguration.endTagBold, "");
             inText = inText.Replace(Constants.TextConfiguration.endTagItalic, "");

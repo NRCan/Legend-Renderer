@@ -270,6 +270,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Assets\XSpacing.json" />
+    <EmbeddedResource Include="Assets\OtherComponents.json" />
     <None Include="packages.config" />
     <None Include="README.md" />
   </ItemGroup>
