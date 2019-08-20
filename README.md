@@ -21,6 +21,9 @@ User guide's complete example set.
 
 *  Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=36398434&objAction=download
   
+# Poster (pptx)
+
+* Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=39129695&objAction=download 
 
 # ESRI Addin
 
