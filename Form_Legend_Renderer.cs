@@ -2224,15 +2224,17 @@ namespace GSC_Legend_Renderer
                     //TODO make group legend workable, for now inner items seems scathered on the map, worst inside CGM tempalte
                     //if (!isCGMTemplateMXD)
                     //{
-                    //    IGroupElement3 groupedLegend = GetGroupLegendElement();
-                    //    foreach (IElement tElements in legendElementList)
-                    //    {
-                    //        currentDoc.ActiveView.GraphicsContainer.MoveElementToGroup(tElements, groupedLegend as IGroupElement);
-                    //    }
+                    IGroupElement3 groupedLegend = GetGroupLegendElement("Test");
+                    legendElementList.Reverse();
+
+                    foreach (IElement tElements in legendElementList)
+                    {
+                        currentDoc.ActiveView.GraphicsContainer.MoveElementToGroup(tElements, groupedLegend as IGroupElement);
+                    }
 
 
-                    //    //Add group legend
-                    //    currentDoc.ActiveView.GraphicsContainer.AddElement(groupedLegend as IElement, 0);
+                    //Add group legend
+                    currentDoc.ActiveView.GraphicsContainer.AddElement(groupedLegend as IElement, 0);
 
 
                     //    #region Move whole legend if left bracket was found
@@ -2255,10 +2257,10 @@ namespace GSC_Legend_Renderer
                     }
 
                     //Reset units to be like it was
-                    if (originalUnits != esriUnits.esriMillimeters)
-                    {
-                        SetDocumentUnits(currentDoc, originalUnits);
-                    }
+                    //if (originalUnits != esriUnits.esriMillimeters)
+                    //{
+                    //    SetDocumentUnits(currentDoc, originalUnits);
+                    //}
 
                     currentDoc.ActiveView.Refresh();
 
@@ -2625,14 +2627,16 @@ namespace GSC_Legend_Renderer
             //Set name
             IElementProperties elementGL = groupedLegend as IElementProperties;
             elementGL.Name = elementName;
+            elementGL.AutoTransform = true;
 
             //Set anchor point
             IElementProperties3 elemProp3 = groupedLegend as IElementProperties3;
             elemProp3.AnchorPoint = esriAnchorPointEnum.esriTopLeftCorner;
+            elemProp3.AutoTransform = true;
 
             //Set fixed aspect ratio, else moving a grouped element can see it's inner parts going elsewhere in the map...
             IBoundsProperties elementBoundsProp = groupedLegend as IBoundsProperties;
-            elementBoundsProp.FixedAspectRatio = true;
+            elementBoundsProp.FixedAspectRatio = false;
 
 
             return groupedLegend;
