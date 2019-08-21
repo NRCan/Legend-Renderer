@@ -280,6 +280,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Assets\LegendBoxDEM.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="LICENSE.txt" />
+  </ItemGroup>
   <PropertyGroup>
     <ZipFileExtension>esriAddIn</ZipFileExtension>
     <AddInTargetProduct>Desktop</AddInTargetProduct>
