@@ -30,7 +30,7 @@ User guide's complete example set.
 The addin itself can be retrieved here  > https://gccode.ssc-spc.gc.ca/GSC-GDF/GSC-Legend-Renderer/blob/master/bin/Debug/GSC_Legend_Renderer.esriAddIn
 
 # Current version
-0.6.14 (Testing phase)
+1.0 - 2019/10/07
 
 # Current set of results
 
@@ -43,7 +43,7 @@ CGM 393 --> MS Excel (.xlsx) file with examples of OVERLAY
 CGM XXX (MaryRiver) --> File geodatabase (.gdb) with examples of UNIT_SPLIT.
 *  Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=36396628&objAction=download
   
-Surficial Complete Legend --> Excel sheet with output pdf.
+Surficial Complete Legend (Model 2.3)--> Excel sheet with output pdf.
 *  Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=36987544&objAction=download
 
 
