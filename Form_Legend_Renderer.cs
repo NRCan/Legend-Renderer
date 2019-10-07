@@ -2221,32 +2221,32 @@ namespace GSC_Legend_Renderer
 
                     #region Group all items 
 
-                    //TODO make group legend workable, for now inner items seems scathered on the map, worst inside CGM tempalte
-                    //if (!isCGMTemplateMXD)
+                    ////TODO: Finish Issue #2 bc69669a latest commit about it.
+                    ////if (!isCGMTemplateMXD)
+                    ////{
+                    //IGroupElement3 groupedLegend = GetGroupLegendElement("Test");
+                    //legendElementList.Reverse();
+
+                    //foreach (IElement tElements in legendElementList)
                     //{
-                    IGroupElement3 groupedLegend = GetGroupLegendElement("Test");
-                    legendElementList.Reverse();
-
-                    foreach (IElement tElements in legendElementList)
-                    {
-                        currentDoc.ActiveView.GraphicsContainer.MoveElementToGroup(tElements, groupedLegend as IGroupElement);
-                    }
-
-
-                    //Add group legend
-                    currentDoc.ActiveView.GraphicsContainer.AddElement(groupedLegend as IElement, 0);
-
-
-                    //    #region Move whole legend if left bracket was found
-                    //    //TODO fix why when moving group element inner parts don't move at the right place
-                    //    if (upLeftBracket != null)
-                    //    {
-                    //        //ITransform2D moveGroupedLegend = groupedLegend as ITransform2D;
-                    //        //moveGroupedLegend.Move(9.9206, 0);
-                    //    }
-                    //    #endregion
-
+                    //    currentDoc.ActiveView.GraphicsContainer.MoveElementToGroup(tElements, groupedLegend as IGroupElement);
                     //}
+
+
+                    ////Add group legend
+                    //currentDoc.ActiveView.GraphicsContainer.AddElement(groupedLegend as IElement, 0);
+
+
+                    ////    #region Move whole legend if left bracket was found
+                    ////    //TODO fix why when moving group element inner parts don't move at the right place
+                    ////    if (upLeftBracket != null)
+                    ////    {
+                    ////        //ITransform2D moveGroupedLegend = groupedLegend as ITransform2D;
+                    ////        //moveGroupedLegend.Move(9.9206, 0);
+                    ////    }
+                    ////    #endregion
+
+                    ////}
 
                     #endregion
 
@@ -2256,11 +2256,12 @@ namespace GSC_Legend_Renderer
                         currentDoc.ActiveView.GraphicsContainer.DeleteElement(originalCGMLegend);
                     }
 
+                    //TODO commit this part for issue #2 commit bc69669a
                     //Reset units to be like it was
-                    //if (originalUnits != esriUnits.esriMillimeters)
-                    //{
-                    //    SetDocumentUnits(currentDoc, originalUnits);
-                    //}
+                    if (originalUnits != esriUnits.esriMillimeters)
+                    {
+                        SetDocumentUnits(currentDoc, originalUnits);
+                    }
 
                     currentDoc.ActiveView.Refresh();
 
