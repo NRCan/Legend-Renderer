@@ -153,9 +153,9 @@ namespace GSC_Legend_Renderer.Dictionaries
         {
             public const string AssetFolder = "Assets";
             public const string mxdEmbeddedFile = "LegendRendererTemplate.mxd";
-            public const string jsonYSpacingEmbeddedFile = "YSpacing.json";
-            public const string jsonXSpacingEmbeddedFile = "XSpacing.json";
-            public const string jsonStyleFontsOtherEmbeddedFile = "OtherComponents.json";
+            public const string jsonYSpacingEmbeddedFile = "Configuration_Y_Spacings.json";
+            public const string jsonXSpacingEmbeddedFile = "Configuration_X_Spacings.json";
+            public const string jsonStyleFontsOtherEmbeddedFile = "Configuration_Other.json";
             public const string demPicture = "LegendBoxDEM.png";
         }
 

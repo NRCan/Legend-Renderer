@@ -6,7 +6,7 @@
   <Image>Images\GSCLogo.png</Image>
   <Author>Geological Survey Canada</Author>
   <Company>Natural Resources Canada</Company>
-  <Date>2019-10-07</Date>
+  <Date>2019-10-11</Date>
   <Targets>
     <Target name="Desktop" version="10.6" />
   </Targets>

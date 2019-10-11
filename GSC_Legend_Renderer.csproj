@@ -266,11 +266,11 @@
     <EmbeddedResource Include="Assets\LegendRendererTemplate.mxd" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Assets\YSpacing.json" />
+    <EmbeddedResource Include="Assets\Configuration_Y_Spacings.json" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Assets\XSpacing.json" />
-    <EmbeddedResource Include="Assets\OtherComponents.json" />
+    <EmbeddedResource Include="Assets\Configuration_X_Spacings.json" />
+    <EmbeddedResource Include="Assets\Configuration_Other.json" />
     <None Include="packages.config" />
     <None Include="README.md" />
   </ItemGroup>
