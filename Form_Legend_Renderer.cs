@@ -50,7 +50,7 @@ namespace GSC_Legend_Renderer
         public const string csvExt = Dictionaries.Constants.Extensions.csvExt;
         public const string dbfExt = Dictionaries.Constants.Extensions.dbfExt;
 
-        //Legend generator table
+        //Legend table
         public const string fieldOrder = Dictionaries.Constants.LegendTable.legendOrderField;
         public const string fieldColumn = Dictionaries.Constants.LegendTable.legendColumnField;
         public const string fieldElement = Dictionaries.Constants.LegendTable.legendElementField;
@@ -89,7 +89,6 @@ namespace GSC_Legend_Renderer
         public Dictionary<string, object> fillSymbolDico { get; set; } //Will hold symbol name (01.01.0l) and it's associate style object
         public Dictionary<string, object> lineSymbolDico { get; set; } //Will hold symbol name (01.01.0l) and it's associate style object
         public Dictionary<string, object> markerSymbolDico { get; set; } //Will hold symbol name (01.01.0l) and it's associate style object
-        //public Dictionary<string, object> repMarkerSymbolDico { get; set; } //Will hold smbol name and it's associated style object
         public Dictionary<string, object> textSymbolDico { get; set; } //Will hold symbol name and style object
 
         //Style
@@ -116,11 +115,11 @@ namespace GSC_Legend_Renderer
 
         public bool isCGMTemplateMXD { get; set; } //Will be used to prevent legend grouping in a CGM template to prevent weird behavior.
 
-        /// UI
+        //UI
         public class CboxTables
         {
             public string cboxDataName { get; set; }
-            public IStandaloneTable cboxSTLTable { get; set; } //This field can hold a layer object or will be set to null if a string path is availabel inside layer name
+            public IStandaloneTable cboxSTLTable { get; set; } //This field can hold a layer object or will be set to null if a string path is available inside layer name
         }
         #endregion
 
@@ -128,132 +127,15 @@ namespace GSC_Legend_Renderer
         public Form_Legend_Renderer()
         {
             InitializeComponent();
-            fillTableViewCombobox();
+            FillTableViewCombobox();
             this.comboBox_SelectTable.SelectedIndexChanged += comboBox_SelectTable_SelectedIndexChanged;
 
+            //Init of dictionaries
             templateGraphicDico = new Dictionary<string, IElement>();
             ySpacings = new Dictionary<string, Dictionary<string, string>>();
             xSpacings = new Dictionary<string, string>();
             otherComponents = new Dictionary<string, string>();
 
-            //TODO fill legend text box file path automatically with internal settings with last selected one.
-
-
-        }
-
-        /// <summary>
-        /// Will retrieve a list of field depending on the data extension type
-        /// </summary>
-        private void InitFieldList()
-        {
-
-            if (this.comboBox_SelectTable.SelectedIndex != -1)
-            {
-                CboxTables selectedlTables = this.comboBox_SelectTable.SelectedItem as CboxTables;
-
-                if (selectedlTables.cboxSTLTable != null)
-                {
-                    #region for table views
-
-                    IStandaloneTable selectedSTL = selectedlTables.cboxSTLTable;
-
-                    //Fill the field list with field names
-                    dataFieldList = Services.Tables.GetFieldList(selectedSTL.Table, true, selectedSTL);
-
-                    
-                    #endregion
-                }
-                else if (selectedlTables.cboxDataName != null )
-                {
-                    #region FOR EXTERNAL DATA
-                    if (dataPath.Contains(gdbExt) || dataPath.Contains(mdbExt))
-                    {
-                        //Open as table
-                        inputDataTable = Services.Tables.OpenTableFromStringFaster(dataPath);
-
-
-                        //Fill the field list with field names
-                        dataFieldList = Services.Tables.GetFieldList(inputDataTable, true);
-
-                    }
-                    else if (dataPath.Contains(dbfExt))
-                    {
-                        //Get the table name and extension only
-                        string fileNameOnly = System.IO.Path.GetFileName(dataPath);
-
-                        //Get the excel workspace factory
-                        IWorkspace dbfWorkspace = Services.Workspace.AccessWorkspace(dataPath);
-                        inputDataTable = Services.Tables.OpenTableFromWorkspace(dbfWorkspace, fileNameOnly);
-
-                        //Fill the field list with field names
-                        dataFieldList = Services.Tables.GetFieldList(inputDataTable, true);
-
-                        //Release workspace so user can keep on editing
-                        Services.ObjectManagement.ReleaseObject(dbfWorkspace);
-
-                    }
-                    else if (dataPath.Contains(txtExt) || dataPath.Contains(csvExt))
-                    {
-                        //Get the sheet name only
-                        string fileNameOnly = System.IO.Path.GetFileName(dataPath);
-
-                        //Get the excel workspace factory
-                        IWorkspace txtFileWorkspace = Services.Workspace.AccessTextfileWorkspace(dataPath);
-                        inputDataTable = Services.Tables.OpenTableFromWorkspace(txtFileWorkspace, fileNameOnly);
-
-                        //Fill the field list with field names
-                        dataFieldList = Services.Tables.GetFieldList(inputDataTable, true);
-
-                        //Release workspace so user can keep on editing
-                        Services.ObjectManagement.ReleaseObject(txtFileWorkspace);
-
-                    }
-                    else if (dataPath.Contains(xlExt))
-                    {
-                        //Get the sheet name
-                        string[] splitedPath = dataPath.Split('\\');
-
-                        //Build path to the file itself without the sheet
-                        string dataPathFileOnly = string.Empty;
-
-                        foreach (string parts in splitedPath)
-                        {
-                            if (parts != splitedPath[splitedPath.Length - 1])
-                            {
-                                if (dataPathFileOnly != string.Empty)
-                                {
-                                    dataPathFileOnly = dataPathFileOnly + "\\" + parts;
-                                }
-                                else
-                                {
-                                    dataPathFileOnly = parts;
-                                }
-
-                            }
-
-                        }
-
-                        //Get the sheet name only
-                        string fileSheetName = splitedPath[splitedPath.Length - 1];
-
-                        //Get the excel workspace factory
-                        IWorkspace excelWorkspace = Services.Workspace.AccessExcelWorkspace(dataPathFileOnly);
-                        inputDataTable = Services.Tables.OpenTableFromWorkspace(excelWorkspace, fileSheetName);
-
-                        //Fill the field list with field names
-                        dataFieldList = Services.Tables.GetFieldList(inputDataTable, true);
-
-                        dataFieldList.Add(string.Empty);
-
-                        //Release workspace so user can keep on editing
-                        Services.ObjectManagement.ReleaseObject(inputDataTable);
-                        Services.ObjectManagement.ReleaseObject(excelWorkspace);
-                    }
-
-                    #endregion
-                }
-            }
-                
         }
 
         #endregion
@@ -433,6 +315,122 @@ namespace GSC_Legend_Renderer
         #endregion
 
         #region METHODS
+
+        /// <summary>
+        /// Will retrieve a list of table fields depending on the data extension type
+        /// Will later be used to fill in the UI
+        /// </summary>
+        private void InitFieldList()
+        {
+
+            if (this.comboBox_SelectTable.SelectedIndex != -1)
+            {
+                CboxTables selectedlTables = this.comboBox_SelectTable.SelectedItem as CboxTables;
+
+                if (selectedlTables.cboxSTLTable != null)
+                {
+                    #region FOR TABLE VIEWS IN TABLE OF CONTENT
+
+                    IStandaloneTable selectedSTL = selectedlTables.cboxSTLTable;
+
+                    //Fill the field list with field names
+                    dataFieldList = Services.Tables.GetFieldList(selectedSTL.Table, true, selectedSTL);
+
+
+                    #endregion
+                }
+                else if (selectedlTables.cboxDataName != null)
+                {
+                    #region FOR EXTERNAL DATA
+                    if (dataPath.Contains(gdbExt) || dataPath.Contains(mdbExt))
+                    {
+                        //Open as table
+                        inputDataTable = Services.Tables.OpenTableFromStringFaster(dataPath);
+
+
+                        //Fill the field list with field names
+                        dataFieldList = Services.Tables.GetFieldList(inputDataTable, true);
+
+                    }
+                    else if (dataPath.Contains(dbfExt))
+                    {
+                        //Get the table name and extension only
+                        string fileNameOnly = System.IO.Path.GetFileName(dataPath);
+
+                        //Get the excel workspace factory
+                        IWorkspace dbfWorkspace = Services.Workspace.AccessWorkspace(dataPath);
+                        inputDataTable = Services.Tables.OpenTableFromWorkspace(dbfWorkspace, fileNameOnly);
+
+                        //Fill the field list with field names
+                        dataFieldList = Services.Tables.GetFieldList(inputDataTable, true);
+
+                        //Release workspace so user can keep on editing
+                        Services.ObjectManagement.ReleaseObject(dbfWorkspace);
+
+                    }
+                    else if (dataPath.Contains(txtExt) || dataPath.Contains(csvExt))
+                    {
+                        //Get the sheet name only
+                        string fileNameOnly = System.IO.Path.GetFileName(dataPath);
+
+                        //Get the excel workspace factory
+                        IWorkspace txtFileWorkspace = Services.Workspace.AccessTextfileWorkspace(dataPath);
+                        inputDataTable = Services.Tables.OpenTableFromWorkspace(txtFileWorkspace, fileNameOnly);
+
+                        //Fill the field list with field names
+                        dataFieldList = Services.Tables.GetFieldList(inputDataTable, true);
+
+                        //Release workspace so user can keep on editing
+                        Services.ObjectManagement.ReleaseObject(txtFileWorkspace);
+
+                    }
+                    else if (dataPath.Contains(xlExt))
+                    {
+                        //Get the sheet name
+                        string[] splitedPath = dataPath.Split('\\');
+
+                        //Build path to the file itself without the sheet
+                        string dataPathFileOnly = string.Empty;
+
+                        foreach (string parts in splitedPath)
+                        {
+                            if (parts != splitedPath[splitedPath.Length - 1])
+                            {
+                                if (dataPathFileOnly != string.Empty)
+                                {
+                                    dataPathFileOnly = dataPathFileOnly + "\\" + parts;
+                                }
+                                else
+                                {
+                                    dataPathFileOnly = parts;
+                                }
+
+                            }
+
+                        }
+
+                        //Get the sheet name only
+                        string fileSheetName = splitedPath[splitedPath.Length - 1];
+
+                        //Get the excel workspace factory
+                        IWorkspace excelWorkspace = Services.Workspace.AccessExcelWorkspace(dataPathFileOnly);
+                        inputDataTable = Services.Tables.OpenTableFromWorkspace(excelWorkspace, fileSheetName);
+
+                        //Fill the field list with field names
+                        dataFieldList = Services.Tables.GetFieldList(inputDataTable, true);
+
+                        dataFieldList.Add(string.Empty);
+
+                        //Release workspace so user can keep on editing
+                        Services.ObjectManagement.ReleaseObject(inputDataTable);
+                        Services.ObjectManagement.ReleaseObject(excelWorkspace);
+                    }
+
+                    #endregion
+                }
+            }
+
+        }
 
         /// <summary>
         /// Will create the legend.
@@ -2586,7 +2584,7 @@ namespace GSC_Legend_Renderer
         }
 
         /// <summary>
-        /// Will return a x spacing based on from and to element names
+        /// Will return a x spacing based on element names
         /// </summary>
         /// <returns></returns>
         private double GetXSpacing(string toElementName)
@@ -2645,9 +2643,9 @@ namespace GSC_Legend_Renderer
 
 
         /// <summary>
-        ///     Will fill the combobox control with all layers from table of content
+        /// Will fill the combobox control with all layers from table of content
         /// </summary>
-        private void fillTableViewCombobox()
+        private void FillTableViewCombobox()
         {
             //Unset list before change
             this.comboBox_SelectTable.DataSource = null;
@@ -3082,6 +3080,7 @@ namespace GSC_Legend_Renderer
         #endregion
 
         #region BUILD GRAPHIC
+
         /// <summary>
         /// Will create a marker symbol from given type, order and style. Will also return an offset parameter for linear markers
         /// </summary>
@@ -3939,7 +3938,7 @@ namespace GSC_Legend_Renderer
 
         /// <summary>
         /// Will output the x,y coordinate for the first anchor of the legend
-        /// Default is center of dataframe, else if inside CGM template, will be placed inside the LEGEND element.
+        /// Default is center of layout, else if inside CGM template, will be placed inside the LEGEND element.
         /// </summary>
         /// <returns></returns>
         public Tuple<double, double> GetAnchorPointStart()
@@ -4435,7 +4434,6 @@ namespace GSC_Legend_Renderer
             }
         }
         #endregion
-
 
     }
 }
