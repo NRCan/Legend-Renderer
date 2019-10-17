@@ -50,7 +50,7 @@ namespace GSC_Legend_Renderer
         public const string csvExt = Dictionaries.Constants.Extensions.csvExt;
         public const string dbfExt = Dictionaries.Constants.Extensions.dbfExt;
 
-        //Legend generator table
+        //Legend table
         public const string fieldOrder = Dictionaries.Constants.LegendTable.legendOrderField;
         public const string fieldColumn = Dictionaries.Constants.LegendTable.legendColumnField;
         public const string fieldElement = Dictionaries.Constants.LegendTable.legendElementField;
@@ -89,7 +89,6 @@ namespace GSC_Legend_Renderer
         public Dictionary<string, object> fillSymbolDico { get; set; } //Will hold symbol name (01.01.0l) and it's associate style object
         public Dictionary<string, object> lineSymbolDico { get; set; } //Will hold symbol name (01.01.0l) and it's associate style object
         public Dictionary<string, object> markerSymbolDico { get; set; } //Will hold symbol name (01.01.0l) and it's associate style object
-        //public Dictionary<string, object> repMarkerSymbolDico { get; set; } //Will hold smbol name and it's associated style object
         public Dictionary<string, object> textSymbolDico { get; set; } //Will hold symbol name and style object
 
         //Style
@@ -99,8 +98,10 @@ namespace GSC_Legend_Renderer
         //JSON
         public string jsonYSpacingFilePath { get; set; }
         public string jsonXSpacingFilePath { get; set; }
+        public string jsonOtherFilePath { get; set; }
         public Dictionary<string, Dictionary<string, string>> ySpacings { get; set; }
         public Dictionary<string, string> xSpacings { get; set; }
+        public Dictionary<string, string> otherComponents { get; set; }
 
         //OTHER
         public double columnWidth { get; set; }
@@ -114,11 +115,11 @@ namespace GSC_Legend_Renderer
 
         public bool isCGMTemplateMXD { get; set; } //Will be used to prevent legend grouping in a CGM template to prevent weird behavior.
 
-        /// UI
+        //UI
         public class CboxTables
         {
             public string cboxDataName { get; set; }
-            public IStandaloneTable cboxSTLTable { get; set; } //This field can hold a layer object or will be set to null if a string path is availabel inside layer name
+            public IStandaloneTable cboxSTLTable { get; set; } //This field can hold a layer object or will be set to null if a string path is available inside layer name
         }
         #endregion
 
@@ -126,131 +127,15 @@ namespace GSC_Legend_Renderer
         public Form_Legend_Renderer()
         {
             InitializeComponent();
-            fillTableViewCombobox();
+            FillTableViewCombobox();
             this.comboBox_SelectTable.SelectedIndexChanged += comboBox_SelectTable_SelectedIndexChanged;
 
+            //Init of dictionaries
             templateGraphicDico = new Dictionary<string, IElement>();
             ySpacings = new Dictionary<string, Dictionary<string, string>>();
             xSpacings = new Dictionary<string, string>();
+            otherComponents = new Dictionary<string, string>();
 
-            //TODO fill legend text box file path automatically with internal settings with last selected one.
-
-
-        }
-
-        /// <summary>
-        /// Will retrieve a list of field depending on the data extension type
-        /// </summary>
-        private void InitFieldList()
-        {
-
-            if (this.comboBox_SelectTable.SelectedIndex != -1)
-            {
-                CboxTables selectedlTables = this.comboBox_SelectTable.SelectedItem as CboxTables;
-
-                if (selectedlTables.cboxSTLTable != null)
-                {
-                    #region for table views
-
-                    IStandaloneTable selectedSTL = selectedlTables.cboxSTLTable;
-
-                    //Fill the field list with field names
-                    dataFieldList = Services.Tables.GetFieldList(selectedSTL.Table, true, selectedSTL);
-
-                    
-                    #endregion
-                }
-                else if (selectedlTables.cboxDataName != null )
-                {
-                    #region FOR EXTERNAL DATA
-                    if (dataPath.Contains(gdbExt) || dataPath.Contains(mdbExt))
-                    {
-                        //Open as table
-                        inputDataTable = Services.Tables.OpenTableFromStringFaster(dataPath);
-
-
-                        //Fill the field list with field names
-                        dataFieldList = Services.Tables.GetFieldList(inputDataTable, true);
-
-                    }
-                    else if (dataPath.Contains(dbfExt))
-                    {
-                        //Get the table name and extension only
-                        string fileNameOnly = System.IO.Path.GetFileName(dataPath);
-
-                        //Get the excel workspace factory
-                        IWorkspace dbfWorkspace = Services.Workspace.AccessWorkspace(dataPath);
-                        inputDataTable = Services.Tables.OpenTableFromWorkspace(dbfWorkspace, fileNameOnly);
-
-                        //Fill the field list with field names
-                        dataFieldList = Services.Tables.GetFieldList(inputDataTable, true);
-
-                        //Release workspace so user can keep on editing
-                        Services.ObjectManagement.ReleaseObject(dbfWorkspace);
-
-                    }
-                    else if (dataPath.Contains(txtExt) || dataPath.Contains(csvExt))
-                    {
-                        //Get the sheet name only
-                        string fileNameOnly = System.IO.Path.GetFileName(dataPath);
-
-                        //Get the excel workspace factory
-                        IWorkspace txtFileWorkspace = Services.Workspace.AccessTextfileWorkspace(dataPath);
-                        inputDataTable = Services.Tables.OpenTableFromWorkspace(txtFileWorkspace, fileNameOnly);
-
-                        //Fill the field list with field names
-                        dataFieldList = Services.Tables.GetFieldList(inputDataTable, true);
-
-                        //Release workspace so user can keep on editing
-                        Services.ObjectManagement.ReleaseObject(txtFileWorkspace);
-
-                    }
-                    else if (dataPath.Contains(xlExt))
-                    {
-                        //Get the sheet name
-                        string[] splitedPath = dataPath.Split('\\');
-
-                        //Build path to the file itself without the sheet
-                        string dataPathFileOnly = string.Empty;
-
-                        foreach (string parts in splitedPath)
-                        {
-                            if (parts != splitedPath[splitedPath.Length - 1])
-                            {
-                                if (dataPathFileOnly != string.Empty)
-                                {
-                                    dataPathFileOnly = dataPathFileOnly + "\\" + parts;
-                                }
-                                else
-                                {
-                                    dataPathFileOnly = parts;
-                                }
-
-                            }
-
-                        }
-
-                        //Get the sheet name only
-                        string fileSheetName = splitedPath[splitedPath.Length - 1];
-
-                        //Get the excel workspace factory
-                        IWorkspace excelWorkspace = Services.Workspace.AccessExcelWorkspace(dataPathFileOnly);
-                        inputDataTable = Services.Tables.OpenTableFromWorkspace(excelWorkspace, fileSheetName);
-
-                        //Fill the field list with field names
-                        dataFieldList = Services.Tables.GetFieldList(inputDataTable, true);
-
-                        dataFieldList.Add(string.Empty);
-
-                        //Release workspace so user can keep on editing
-                        Services.ObjectManagement.ReleaseObject(inputDataTable);
-                        Services.ObjectManagement.ReleaseObject(excelWorkspace);
-                    }
-
-                    #endregion
-                }
-            }
-                
         }
 
         #endregion
@@ -432,6 +317,122 @@ namespace GSC_Legend_Renderer
         #region METHODS
 
         /// <summary>
+        /// Will retrieve a list of table fields depending on the data extension type
+        /// Will later be used to fill in the UI
+        /// </summary>
+        private void InitFieldList()
+        {
+
+            if (this.comboBox_SelectTable.SelectedIndex != -1)
+            {
+                CboxTables selectedlTables = this.comboBox_SelectTable.SelectedItem as CboxTables;
+
+                if (selectedlTables.cboxSTLTable != null)
+                {
+                    #region FOR TABLE VIEWS IN TABLE OF CONTENT
+
+                    IStandaloneTable selectedSTL = selectedlTables.cboxSTLTable;
+
+                    //Fill the field list with field names
+                    dataFieldList = Services.Tables.GetFieldList(selectedSTL.Table, true, selectedSTL);
+
+
+                    #endregion
+                }
+                else if (selectedlTables.cboxDataName != null)
+                {
+                    #region FOR EXTERNAL DATA
+                    if (dataPath.Contains(gdbExt) || dataPath.Contains(mdbExt))
+                    {
+                        //Open as table
+                        inputDataTable = Services.Tables.OpenTableFromStringFaster(dataPath);
+
+
+                        //Fill the field list with field names
+                        dataFieldList = Services.Tables.GetFieldList(inputDataTable, true);
+
+                    }
+                    else if (dataPath.Contains(dbfExt))
+                    {
+                        //Get the table name and extension only
+                        string fileNameOnly = System.IO.Path.GetFileName(dataPath);
+
+                        //Get the excel workspace factory
+                        IWorkspace dbfWorkspace = Services.Workspace.AccessWorkspace(dataPath);
+                        inputDataTable = Services.Tables.OpenTableFromWorkspace(dbfWorkspace, fileNameOnly);
+
+                        //Fill the field list with field names
+                        dataFieldList = Services.Tables.GetFieldList(inputDataTable, true);
+
+                        //Release workspace so user can keep on editing
+                        Services.ObjectManagement.ReleaseObject(dbfWorkspace);
+
+                    }
+                    else if (dataPath.Contains(txtExt) || dataPath.Contains(csvExt))
+                    {
+                        //Get the sheet name only
+                        string fileNameOnly = System.IO.Path.GetFileName(dataPath);
+
+                        //Get the excel workspace factory
+                        IWorkspace txtFileWorkspace = Services.Workspace.AccessTextfileWorkspace(dataPath);
+                        inputDataTable = Services.Tables.OpenTableFromWorkspace(txtFileWorkspace, fileNameOnly);
+
+                        //Fill the field list with field names
+                        dataFieldList = Services.Tables.GetFieldList(inputDataTable, true);
+
+                        //Release workspace so user can keep on editing
+                        Services.ObjectManagement.ReleaseObject(txtFileWorkspace);
+
+                    }
+                    else if (dataPath.Contains(xlExt))
+                    {
+                        //Get the sheet name
+                        string[] splitedPath = dataPath.Split('\\');
+
+                        //Build path to the file itself without the sheet
+                        string dataPathFileOnly = string.Empty;
+
+                        foreach (string parts in splitedPath)
+                        {
+                            if (parts != splitedPath[splitedPath.Length - 1])
+                            {
+                                if (dataPathFileOnly != string.Empty)
+                                {
+                                    dataPathFileOnly = dataPathFileOnly + "\\" + parts;
+                                }
+                                else
+                                {
+                                    dataPathFileOnly = parts;
+                                }
+
+                            }
+
+                        }
+
+                        //Get the sheet name only
+                        string fileSheetName = splitedPath[splitedPath.Length - 1];
+
+                        //Get the excel workspace factory
+                        IWorkspace excelWorkspace = Services.Workspace.AccessExcelWorkspace(dataPathFileOnly);
+                        inputDataTable = Services.Tables.OpenTableFromWorkspace(excelWorkspace, fileSheetName);
+
+                        //Fill the field list with field names
+                        dataFieldList = Services.Tables.GetFieldList(inputDataTable, true);
+
+                        dataFieldList.Add(string.Empty);
+
+                        //Release workspace so user can keep on editing
+                        Services.ObjectManagement.ReleaseObject(inputDataTable);
+                        Services.ObjectManagement.ReleaseObject(excelWorkspace);
+                    }
+
+                    #endregion
+                }
+            }
+
+        }
+
+        /// <summary>
         /// Will create the legend.
         /// </summary>
         public void CreateLegend()
@@ -440,6 +441,10 @@ namespace GSC_Legend_Renderer
             //Continu if table is valid
             if (this.comboBox_SelectTable.Text != null && this.comboBox_SelectTable.Text != string.Empty)
             {
+                //Get json config files - check properties for path
+                ValidateJsonFilesExistance();
+                BuildOtherComponentsDictionary();
+
                 //Validate if needed style has been loaded
                 if (ValidateStyleFile())
                 {
@@ -447,9 +452,6 @@ namespace GSC_Legend_Renderer
                     #region GET and BUILD information
                     //Get arial character widths
                     arialCharactersWidth = GetArialCharacterWidth();
-
-                    //Get json config files - check properties for path
-                    ValidateJsonSpacingExistance();
 
                     //Set document units, else if it's not in mm the legend will be looking bad...
                     currentDoc = (IMxDocument)ArcMap.Application.Document;
@@ -1243,7 +1245,7 @@ namespace GSC_Legend_Renderer
                                     IElementProperties currentShapeProp = inGroupElement.Element[el] as IElementProperties;
                                     double currentLineWidth = currentShapeElement.Symbol.Width;
 
-                                    if (currentShapeProp.Name == Constants.Graphics.subLineDoubleFLowTop)
+                                    if (currentShapeProp.Name != Constants.Graphics.subLineDoubleFLowBottom && currentShapeProp.Name != Constants.Graphics.subLineDoubleFLowMiddle)
                                     {
                                         if (lineSymbolDico.ContainsKey(currentStyle1))
                                         {
@@ -2217,30 +2219,32 @@ namespace GSC_Legend_Renderer
 
                     #region Group all items 
 
-                    //TODO make group legend workable, for now inner items seems scathered on the map, worst inside CGM tempalte
-                    //if (!isCGMTemplateMXD)
+                    ////TODO: Finish Issue #2 bc69669a latest commit about it.
+                    ////if (!isCGMTemplateMXD)
+                    ////{
+                    //IGroupElement3 groupedLegend = GetGroupLegendElement("Test");
+                    //legendElementList.Reverse();
+
+                    //foreach (IElement tElements in legendElementList)
                     //{
-                    //    IGroupElement3 groupedLegend = GetGroupLegendElement();
-                    //    foreach (IElement tElements in legendElementList)
-                    //    {
-                    //        currentDoc.ActiveView.GraphicsContainer.MoveElementToGroup(tElements, groupedLegend as IGroupElement);
-                    //    }
-
-
-                    //    //Add group legend
-                    //    currentDoc.ActiveView.GraphicsContainer.AddElement(groupedLegend as IElement, 0);
-
-
-                    //    #region Move whole legend if left bracket was found
-                    //    //TODO fix why when moving group element inner parts don't move at the right place
-                    //    if (upLeftBracket != null)
-                    //    {
-                    //        //ITransform2D moveGroupedLegend = groupedLegend as ITransform2D;
-                    //        //moveGroupedLegend.Move(9.9206, 0);
-                    //    }
-                    //    #endregion
-
+                    //    currentDoc.ActiveView.GraphicsContainer.MoveElementToGroup(tElements, groupedLegend as IGroupElement);
                     //}
+
+
+                    ////Add group legend
+                    //currentDoc.ActiveView.GraphicsContainer.AddElement(groupedLegend as IElement, 0);
+
+
+                    ////    #region Move whole legend if left bracket was found
+                    ////    //TODO fix why when moving group element inner parts don't move at the right place
+                    ////    if (upLeftBracket != null)
+                    ////    {
+                    ////        //ITransform2D moveGroupedLegend = groupedLegend as ITransform2D;
+                    ////        //moveGroupedLegend.Move(9.9206, 0);
+                    ////    }
+                    ////    #endregion
+
+                    ////}
 
                     #endregion
 
@@ -2250,6 +2254,7 @@ namespace GSC_Legend_Renderer
                         currentDoc.ActiveView.GraphicsContainer.DeleteElement(originalCGMLegend);
                     }
 
+                    //TODO commit this part for issue #2 commit bc69669a
                     //Reset units to be like it was
                     if (originalUnits != esriUnits.esriMillimeters)
                     {
@@ -2525,6 +2530,18 @@ namespace GSC_Legend_Renderer
         }
 
         /// <summary>
+        /// Will deserialize a json file to get all other key components required by the tool, especially for styles and fonts
+        /// </summary>
+        private void BuildOtherComponentsDictionary()
+        {
+            if (otherComponents.Count() == 0)
+            {
+                otherComponents = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(jsonOtherFilePath));
+            }
+
+        }
+
+        /// <summary>
         /// Will return a y spacing based on from and to element names
         /// </summary>
         /// <returns></returns>
@@ -2567,7 +2584,7 @@ namespace GSC_Legend_Renderer
         }
 
         /// <summary>
-        /// Will return a x spacing based on from and to element names
+        /// Will return a x spacing based on element names
         /// </summary>
         /// <returns></returns>
         private double GetXSpacing(string toElementName)
@@ -2609,14 +2626,16 @@ namespace GSC_Legend_Renderer
             //Set name
             IElementProperties elementGL = groupedLegend as IElementProperties;
             elementGL.Name = elementName;
+            elementGL.AutoTransform = true;
 
             //Set anchor point
             IElementProperties3 elemProp3 = groupedLegend as IElementProperties3;
             elemProp3.AnchorPoint = esriAnchorPointEnum.esriTopLeftCorner;
+            elemProp3.AutoTransform = true;
 
             //Set fixed aspect ratio, else moving a grouped element can see it's inner parts going elsewhere in the map...
             IBoundsProperties elementBoundsProp = groupedLegend as IBoundsProperties;
-            elementBoundsProp.FixedAspectRatio = true;
+            elementBoundsProp.FixedAspectRatio = false;
 
 
             return groupedLegend;
@@ -2624,9 +2643,9 @@ namespace GSC_Legend_Renderer
 
 
         /// <summary>
-        ///     Will fill the combobox control with all layers from table of content
+        /// Will fill the combobox control with all layers from table of content
         /// </summary>
-        private void fillTableViewCombobox()
+        private void FillTableViewCombobox()
         {
             //Unset list before change
             this.comboBox_SelectTable.DataSource = null;
@@ -3061,6 +3080,7 @@ namespace GSC_Legend_Renderer
         #endregion
 
         #region BUILD GRAPHIC
+
         /// <summary>
         /// Will create a marker symbol from given type, order and style. Will also return an offset parameter for linear markers
         /// </summary>
@@ -3146,15 +3166,19 @@ namespace GSC_Legend_Renderer
             foreach (int indexes in fileIndexes)
             {
                 //Detect already loaded styles
-                if (styleStore.File[indexes].Contains(Dictionaries.Constants.Styles.styleName))
+                if (otherComponents.ContainsKey(Dictionaries.Constants.Styles.styleNameJSON))
                 {
-                    isLoaded = true;
+                    if (styleStore.File[indexes].Contains(otherComponents[Dictionaries.Constants.Styles.styleNameJSON]))
+                    {
+                        isLoaded = true;
 
-                    //Keep style path
-                    gscStyle = ArcMap.Document.StyleGallery;
-                    gscStylePath = styleStore.File[indexes];
-                    break;
+                        //Keep style path
+                        gscStyle = ArcMap.Document.StyleGallery;
+                        gscStylePath = styleStore.File[indexes];
+                        break;
+                    }
                 }
+
             }
 
             return isLoaded;
@@ -3164,7 +3188,7 @@ namespace GSC_Legend_Renderer
         /// Will return wanted json file path, if it doesn't exist a copy will be made inside My Document\Arc GIS folder
         /// </summary>
         /// <returns></returns>
-        public void ValidateJsonSpacingExistance()
+        public void ValidateJsonFilesExistance()
         {
             string outputFolderName = System.IO.Path.Combine(Dictionaries.Constants.ESRI.defaultArcGISFolderName, Dictionaries.Constants.Namespaces.mainNamespace + " " + ThisAddIn.Version.ToString());
             string outputFolderPath = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), outputFolderName);
@@ -3178,6 +3202,12 @@ namespace GSC_Legend_Renderer
             if (!System.IO.File.Exists(jsonXSpacingFilePath))
             {
                 Services.FolderAndFiles.WriteResourceToFile(Dictionaries.Constants.Assets.jsonXSpacingEmbeddedFile, Dictionaries.Constants.Assets.AssetFolder, Dictionaries.Constants.Namespaces.mainNamespace, outputFolderPath);
+            }
+
+            jsonOtherFilePath = System.IO.Path.Combine(outputFolderPath, Dictionaries.Constants.Assets.jsonStyleFontsOtherEmbeddedFile);
+            if (!System.IO.File.Exists(jsonOtherFilePath))
+            {
+                Services.FolderAndFiles.WriteResourceToFile(Dictionaries.Constants.Assets.jsonStyleFontsOtherEmbeddedFile, Dictionaries.Constants.Assets.AssetFolder, Dictionaries.Constants.Namespaces.mainNamespace, outputFolderPath);
             }
 
         }
@@ -3283,9 +3313,12 @@ namespace GSC_Legend_Renderer
             int j;
 
             //Adjust with possible font GSCGeology2015. Need to have bigger box
-            if (inText.Contains(Constants.Fonts.geologyFontName))
+            if (otherComponents.ContainsKey(Constants.Fonts.geologytFontNameJSON) && inText.Contains(otherComponents[Constants.Fonts.geologytFontNameJSON]))
             {
                 tHeight = tHeight + Constants.Fonts.geologyFontHeightAjustement;
+
+                //Strip text of tags that could make it look longer then it is
+                inText = inText.Replace(Constants.TextConfiguration.tagFont + '"' + otherComponents[Constants.Fonts.geologytFontNameJSON] + '"' + ">", "");
             }
 
             if (arialCharactersWidth == null)
@@ -3297,7 +3330,6 @@ namespace GSC_Legend_Renderer
             inText = inText.Replace(Constants.TextConfiguration.tagAllCaps, "");
             inText = inText.Replace(Constants.TextConfiguration.tagBold, "");
             inText = inText.Replace(Constants.TextConfiguration.tagItalic, "");
-            inText = inText.Replace(Constants.TextConfiguration.tagFont + '"' + Constants.Fonts.geologyFontName + '"' + ">", "");
             inText = inText.Replace(Constants.TextConfiguration.endTagAllCaps, "");
             inText = inText.Replace(Constants.TextConfiguration.endTagBold, "");
             inText = inText.Replace(Constants.TextConfiguration.endTagItalic, "");
@@ -3763,6 +3795,7 @@ namespace GSC_Legend_Renderer
                             dX = -(oriCenterX) + inAnchor.Item1 + elementWidth / 2.0;
                             dY = (oriCenterY) - inAnchor.Item2 - polycurveHeight / 2.0;
                         }
+
                     }
                     else if (oriCenterX > inAnchor.Item1)
                     {
@@ -3816,11 +3849,11 @@ namespace GSC_Legend_Renderer
 
                 if (oriCenterX < inAnchor.Item1 && oriCenterY < inAnchor.Item2)
                 {
-                    transElement.Move(dX, dY); //Move accordingly to anchor point which is center center
+                    transElement.Move(dX, Math.Abs(dY)); //Move accordingly to anchor point which is center center
                 }
                 else if (oriCenterX > inAnchor.Item1 && oriCenterY < inAnchor.Item2)
                 {
-                    transElement.Move(-dX, dY);
+                    transElement.Move(-dX, Math.Abs(dY));
                 }
                 else if (oriCenterX > inAnchor.Item1 && oriCenterY > inAnchor.Item2)
                 {
@@ -3905,7 +3938,7 @@ namespace GSC_Legend_Renderer
 
         /// <summary>
         /// Will output the x,y coordinate for the first anchor of the legend
-        /// Default is center of dataframe, else if inside CGM template, will be placed inside the LEGEND element.
+        /// Default is center of layout, else if inside CGM template, will be placed inside the LEGEND element.
         /// </summary>
         /// <returns></returns>
         public Tuple<double, double> GetAnchorPointStart()
@@ -4401,7 +4434,6 @@ namespace GSC_Legend_Renderer
             }
         }
         #endregion
-
 
     }
 }
