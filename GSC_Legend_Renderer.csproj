@@ -196,9 +196,6 @@
     </AddInContent>
   </ItemGroup>
   <ItemGroup>
-    <AddInContent Include="Images\GSC_Legend_Renderer_1.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Button_Legend_Renderer.cs" />
     <AddInContent Include="Images\GSC_Legend_Renderer.png" />
   </ItemGroup>
@@ -274,9 +271,7 @@
     <None Include="packages.config" />
     <None Include="README.md" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <EmbeddedResource Include="Assets\LegendBoxDEM.png" />
   </ItemGroup>

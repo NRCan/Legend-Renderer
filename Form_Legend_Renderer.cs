@@ -4185,7 +4185,7 @@ namespace GSC_Legend_Renderer
 
                     return demElement;
                 }
-                else if (symbolTypeName == Constants.ObjectNames.fillTypeMultilayer && rgbCol == null)
+                else if (symbolTypeName == Constants.ObjectNames.fillTypeMultilayer)
                 {
                     //Will act as a non simple fill
                     IFillSymbol fillMulti = iFillSymbol;
