@@ -223,7 +223,7 @@ namespace GSC_Legend_Renderer.Dictionaries
 
         public static class ImageConfiguration
         {
-            public const int demTransparency = 178;
+            public const int demTransparency = 178; // 178/255 --> 70% opaque which is 30% transparent.
             public const string monoColoredImageNamePrefix = "Mono_";
         }
 

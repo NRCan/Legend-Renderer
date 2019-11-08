@@ -848,7 +848,10 @@ namespace GSC_Legend_Renderer
                             }
                             else
                             {
-                                demUnitBoxElement = SetPolygonFill(unitBoxElement, currentStyle1, true, true, anchorPoint);
+                                //Symbolize
+                                demUnitBoxElement = SetPolygonFill(unitBoxElement, currentStyle1, true, true, anchorPoint, currentStyle2);
+                                
+                                //Add
                                 currentDoc.ActiveView.GraphicsContainer.AddElement(demUnitBoxElement as IElement, 0);
 
                                 //Add label
@@ -4134,7 +4137,7 @@ namespace GSC_Legend_Renderer
         /// </summary>
         /// <param name="inElement"></param>
         /// <param name="style"></param>
-        public IElement SetPolygonFill(IElement inElement, string style, bool isSimpleFill, bool isUnitBoxOnly = false, Tuple<double, double> inAnchor = null)
+        public IElement SetPolygonFill(IElement inElement, string style, bool isSimpleFill, bool isUnitBoxOnly = false, Tuple<double, double> inAnchor = null, string style2 = "")
         {
 
             //Symbolize if symbol can be found in style file
@@ -4185,10 +4188,21 @@ namespace GSC_Legend_Renderer
 
                     return demElement;
                 }
-                else if (symbolTypeName == Constants.ObjectNames.fillTypeMultilayer && rgbCol == null)
+                //Overlay fill type 
+                else if (symbolTypeName == Constants.ObjectNames.fillTypeMultilayer)
                 {
                     //Will act as a non simple fill
                     IFillSymbol fillMulti = iFillSymbol;
+
+                    //Set color if needed
+                    if (style2!= string.Empty && style2 != null && fillSymbolDico.ContainsKey(style2))
+                    {
+                        string symbolTypeName2 = string.Empty;
+                        ISymbol fillSymbol2 = fillSymbolDico[style2] as ISymbol;
+                        IColor symbolColor2 = Services.Symbols.GetPolygonSymbolColor(fillSymbol2, out symbolTypeName2);
+
+                        fillMulti.Color = symbolColor2;
+                    }
 
                     //Manage outline
                     if (isOutlineNullColor)
