@@ -1099,6 +1099,15 @@ namespace GSC_Legend_Renderer
                                     SetRectnagularPolygonFromAnchorTypeAndHeight(parentChildElement, anchorPoint, descriptionHeight);
                                 }
 
+                                //Reset anchor for next unit to be added
+                                if (currentElement == Constants.Graphics.subUnitParentChild || currentElement == Constants.Graphics.subUnitParentChildLine)
+                                {
+                                    double newDescriptionHeight = descriptionHeight - smallDescriptionHeight;
+                                    double newParentHeight = parentElement.Geometry.Envelope.Height + newDescriptionHeight;
+                                    SetRectnagularPolygonFromAnchorTypeAndHeight(parentElement, anchorPointParent, newParentHeight); //Reset parent box height
+                                    anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - newDescriptionHeight); //New anchor point with proper move inside it
+                                }
+
                             }
                             //Keep name
                             lastElement = parentChildElement;
