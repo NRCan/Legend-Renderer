@@ -112,6 +112,7 @@ namespace GSC_Legend_Renderer.Dictionaries
             public const string heading3 = "HEADING3"; //Added by GHV
             public const string heading4 = "HEADING4"; //Added by GHV
             public const string heading5 = "HEADING5"; //Added by GHV
+            public const string heading5_end = "HEADING5_END"; //Added by GHV
             public const string annoBracket = "ANNO_BRACKET"; //Added by GHV
             public const string description = "DESCRIPTION"; //Added by GHV
             public const string heading5Description = "GROUP_DESCRIPTION";
