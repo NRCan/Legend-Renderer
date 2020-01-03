@@ -817,7 +817,8 @@ namespace GSC_Legend_Renderer
                         #endregion
 
                         #region MAP UNITS 
-                        if (currentElement == Constants.Graphics.unitBox || currentElement == Constants.Graphics.unitSplit)
+                        if (currentElement == Constants.Graphics.unitBox || currentElement == Constants.Graphics.unitSplit || 
+                            currentElement == Constants.Graphics.unitindent1 || currentElement == Constants.Graphics.unitindent2)
                         {
 
                             //Get appropriate element
@@ -834,6 +835,13 @@ namespace GSC_Legend_Renderer
                             //Set new anchor
                             anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - ySpacing); //New anchor point with proper move inside it
                             SetRectangularPolygonFromAnchorType(unitBoxElement, anchorPoint);
+
+                            //Move
+                            if (currentElement == Constants.Graphics.unitindent1 || currentElement == Constants.Graphics.unitindent2)
+                            {
+                                ITransform2D transElement = unitBoxElement as ITransform2D;
+                                transElement.Move(xSpacing, 0); //Move accordingly to x spacing if any
+                            }
 
                             #endregion
 
@@ -899,12 +907,24 @@ namespace GSC_Legend_Renderer
 
                             }
 
+                            //Move label and/or dem
+                            if (currentElement == Constants.Graphics.unitindent1 || currentElement == Constants.Graphics.unitindent2)
+                            {
+                                //LABEL
+                                ITransform2D transLabelElement = unitBoxLabelElement as ITransform2D;
+                                transLabelElement.Move(xSpacing * 2, 0); //Move accordingly to x spacing if any
+
+                                //DEM
+                                if (demUnitBoxElement != null)
+                                {
+                                    ITransform2D transDEMElement = demUnitBoxElement as ITransform2D;
+                                    transDEMElement.Move(xSpacing, 0); //Move accordingly to x spacing if any
+                                }
+                            }
+
                             //Keep name
                             lastElement = unitBoxElement;
                             lastElementType = originalElementName;
-
-                            //Add base element
-                            //currentDoc.ActiveView.GraphicsContainer.AddElement(unitGroup as IElement, 0);
 
                             //Add header if needed
                             if (currentHeading != null && currentHeading != string.Empty && currentHeading != " ")
@@ -927,6 +947,13 @@ namespace GSC_Legend_Renderer
                                 lastElement = newDescriptionElement;
                                 lastElementType = Constants.Graphics.description;
 
+                            }
+
+                            //Move description
+                            if (currentElement == Constants.Graphics.unitindent1 || currentElement == Constants.Graphics.unitindent2)
+                            {
+                                ITransform2D transDescElement = newDescriptionElement as ITransform2D;
+                                transDescElement.Move(xSpacing, 0); //Move accordingly to x spacing if any
                             }
 
                             //Keep element if for bracket
@@ -2867,6 +2894,16 @@ namespace GSC_Legend_Renderer
         {
             //Get appropriate element
             IElement descriptionElement = Services.ObjectManagement.CopyInputObject(templateGraphicDico[Constants.Graphics.description]) as IElement;
+
+            //Get different size description
+            if (parentElemType == Constants.Graphics.unitindent1)
+            {
+                descriptionElement = Services.ObjectManagement.CopyInputObject(templateGraphicDico[Constants.Graphics.description_indent]) as IElement;
+            }
+            else if (parentElemType == Constants.Graphics.unitindent1)
+            {
+                descriptionElement = Services.ObjectManagement.CopyInputObject(templateGraphicDico[Constants.Graphics.description_indent2]) as IElement;
+            }
 
             //If description is meant for a group 5 heading, then modify style
             if (heading5Text >= 1)
