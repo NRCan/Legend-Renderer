@@ -762,13 +762,22 @@ namespace GSC_Legend_Renderer
                                 //Manage style if needed
                                 if (currentStyle1 != "")
                                 {
-                                    ISimpleTextSymbol inStyleSymbol = textSymbolDico[currentStyle1] as ISimpleTextSymbol;
-                                    ISimpleTextSymbol currentStyleSymbol = tElement.Symbol as ISimpleTextSymbol;
-                                    currentStyleSymbol.Font = inStyleSymbol.Font;
-                                    currentStyleSymbol.Color = inStyleSymbol.Color;
-                                    currentStyleSymbol.Size = currentStyleSymbol.Size; //Force size else incoming style might be too big.
-                                    currentStyleSymbol.VerticalAlignment = currentStyleSymbol.VerticalAlignment; //Force vertical center for text else incoming style might be set to else where.
-                                    tElement.Symbol = Services.ObjectManagement.CopyInputObject(currentStyleSymbol) as ISimpleTextSymbol;
+                                    if (textSymbolDico.ContainsKey(currentStyle1))
+                                    {
+                                        ISimpleTextSymbol inStyleSymbol = textSymbolDico[currentStyle1] as ISimpleTextSymbol;
+                                        ISimpleTextSymbol currentStyleSymbol = tElement.Symbol as ISimpleTextSymbol;
+                                        currentStyleSymbol.Font = inStyleSymbol.Font;
+                                        currentStyleSymbol.Color = inStyleSymbol.Color;
+                                        currentStyleSymbol.Size = currentStyleSymbol.Size; //Force size else incoming style might be too big.
+                                        currentStyleSymbol.VerticalAlignment = currentStyleSymbol.VerticalAlignment; //Force vertical center for text else incoming style might be set to else where.
+                                        tElement.Symbol = Services.ObjectManagement.CopyInputObject(currentStyleSymbol) as ISimpleTextSymbol;
+                                    }
+                                    else
+                                    {
+                                        //Missing or wrong style 
+                                        tElement.Symbol = Services.Symbols.GetMissingTextSymbol(tElement.Symbol);
+                                    }
+
 
                                 }
 
