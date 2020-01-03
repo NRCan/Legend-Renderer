@@ -19,8 +19,9 @@ namespace GSC_Legend_Renderer.Services
         /// <param name="imageToMimic">The original image to copy outline from</param>
         /// <param name="inColor">Wanted color for the new image</param>
         /// <param name="outPath">The output path for the new image</param>
-        public Bitmap CreateMonoColorFromImageCopy(Image imageToMimic, Color inColor, string outPath)
+        public Bitmap CreateMonoColorFromImageCopy(Image imageToMimic, Color inColor, string outPath, int demTransparency = 178)
         {
+
             //Calculate and create array buffer size
             int byteBuffer = 4 * imageToMimic.Width * imageToMimic.Height;
             byte[] imageBuffer = new byte[byteBuffer];
@@ -33,7 +34,7 @@ namespace GSC_Legend_Renderer.Services
                     byte green = (byte)inColor.G;
                     byte blue = (byte)inColor.B;
 
-                    PlotPixel(x, y, red, green, blue, imageBuffer, imageToMimic);
+                    PlotPixel(x, y, red, green, blue, imageBuffer, imageToMimic, demTransparency);
                 }
             }
 
@@ -62,9 +63,10 @@ namespace GSC_Legend_Renderer.Services
         /// <param name="blueValue">The blue component for the new pixel</param>
         /// <param name="inBuffer">The byte array that act as buffer</param>
         /// <param name="inImage">The original image to retrieve width and height</param>
-        public void PlotPixel(int x, int y, byte redValue, byte greenValue, byte blueValue, byte[] inBuffer, Image inImage)
+        public void PlotPixel(int x, int y, byte redValue, byte greenValue, byte blueValue, byte[] inBuffer, Image inImage, int demTransparency)
         {
-            byte transparency = Dictionaries.Constants.ImageConfiguration.demTransparency;
+            //Calculate dem transparency
+            byte transparency = (byte)demTransparency;
             int offset = ((inImage.Width * 4) * y) + (x * 4);
             inBuffer[offset] = blueValue;
             inBuffer[offset + 1] = greenValue;

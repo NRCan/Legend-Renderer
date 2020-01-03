@@ -4318,6 +4318,16 @@ namespace GSC_Legend_Renderer
             //Variables
             Services.ImageProcessing imProcessing = new Services.ImageProcessing();
 
+            //Calculate DEM transparency
+            int demtransparency = 178; //178/255 is 70% opacity
+            if (otherComponents.ContainsKey(Constants.ImageConfiguration.demTransparencyNameJSON))
+            {
+                int.TryParse(otherComponents[Constants.ImageConfiguration.demTransparencyNameJSON], out demtransparency);
+                double opacityConversion = Math.Round(((double)demtransparency / 100.0) * 255.0);
+                demtransparency = Convert.ToInt16(opacityConversion);
+            }
+            
+
             //Validate DEM picture existance and get path
             string demImagePath = ValidateDEMPictureExistance();
 
@@ -4335,7 +4345,7 @@ namespace GSC_Legend_Renderer
             //Process and a get a copy of new mono colored image
             if (!System.IO.File.Exists(monoColoredPath))
             {
-                imProcessing.CreateMonoColorFromImageCopy(demImage, inColor, monoColoredPath);
+                imProcessing.CreateMonoColorFromImageCopy(demImage, inColor, monoColoredPath, demtransparency);
             }
             
             //Create bitmaps from original dem image and mono colored one
