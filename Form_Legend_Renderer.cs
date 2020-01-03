@@ -724,11 +724,24 @@ namespace GSC_Legend_Renderer
                                     tElement.Symbol = Services.Symbols.GetMissingTextSymbol(tElement.Symbol);
                                 }
 
-                                if (!currentElement.Contains(Constants.Graphics.heading5))
+                                //Special case for heading 3 since we can't have bolded all caps setting inside a graphic along
+                                //no cap and not bolded description.
+                                if (currentElement.Contains(Constants.Graphics.heading3))
                                 {
                                     currentHeading = Constants.TextConfiguration.tagAllCaps + Constants.TextConfiguration.tagBold + currentHeading + Constants.TextConfiguration.endTagBold + Constants.TextConfiguration.endTagAllCaps + " ";
+
+                                    //Add Description to text - Only for heading 3 in theory
+                                    if (!IsTextEmpty(currentDescription))
+                                    {
+                                        //Add header if needed
+                                        if (!IsTextEmpty(currentHeading))
+                                        {
+                                            currentHeading = currentHeading + currentDescription;
+                                        }
+                                    }
+
                                 }
-                                else
+                                else if (currentElement.Contains(Constants.Graphics.heading5))
                                 {
                                     //Keep heading text so it can be used for a trigger to modify description style for heading 5 only.
                                     heading5Text = currentHeading;
@@ -749,13 +762,22 @@ namespace GSC_Legend_Renderer
                                 //Manage style if needed
                                 if (currentStyle1 != "")
                                 {
-                                    ISimpleTextSymbol inStyleSymbol = textSymbolDico[currentStyle1] as ISimpleTextSymbol;
-                                    ISimpleTextSymbol currentStyleSymbol = tElement.Symbol as ISimpleTextSymbol;
-                                    currentStyleSymbol.Font = inStyleSymbol.Font;
-                                    currentStyleSymbol.Color = inStyleSymbol.Color;
-                                    currentStyleSymbol.Size = currentStyleSymbol.Size; //Force size else incoming style might be too big.
-                                    currentStyleSymbol.VerticalAlignment = currentStyleSymbol.VerticalAlignment; //Force vertical center for text else incoming style might be set to else where.
-                                    tElement.Symbol = Services.ObjectManagement.CopyInputObject(currentStyleSymbol) as ISimpleTextSymbol;
+                                    if (textSymbolDico.ContainsKey(currentStyle1))
+                                    {
+                                        ISimpleTextSymbol inStyleSymbol = textSymbolDico[currentStyle1] as ISimpleTextSymbol;
+                                        ISimpleTextSymbol currentStyleSymbol = tElement.Symbol as ISimpleTextSymbol;
+                                        currentStyleSymbol.Font = inStyleSymbol.Font;
+                                        currentStyleSymbol.Color = inStyleSymbol.Color;
+                                        currentStyleSymbol.Size = currentStyleSymbol.Size; //Force size else incoming style might be too big.
+                                        currentStyleSymbol.VerticalAlignment = currentStyleSymbol.VerticalAlignment; //Force vertical center for text else incoming style might be set to else where.
+                                        tElement.Symbol = Services.ObjectManagement.CopyInputObject(currentStyleSymbol) as ISimpleTextSymbol;
+                                    }
+                                    else
+                                    {
+                                        //Missing or wrong style 
+                                        tElement.Symbol = Services.Symbols.GetMissingTextSymbol(tElement.Symbol);
+                                    }
+
 
                                 }
 
