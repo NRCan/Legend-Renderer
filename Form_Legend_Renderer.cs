@@ -1541,7 +1541,27 @@ namespace GSC_Legend_Renderer
                             IPolyline polylineElement = lineElement.Geometry as IPolyline;
                             SetLineFromAnchorType(lineElement, lastElement, anchorPoint, polylineElement.Length);
 
+                            #endregion
 
+                            #region Set symbol
+                            ILineElement breakLineElement = lineElement as ILineElement;
+                            if (currentStyle1 != string.Empty && currentStyle1 != " " && currentStyle1 != null)
+                            {
+                                if (lineSymbolDico.ContainsKey(currentStyle1))
+                                {
+                                    breakLineElement.Symbol = Services.ObjectManagement.CopyInputObject(lineSymbolDico[currentStyle1]) as ILineSymbol;
+                                }
+                                else
+                                {
+                                    //Apply missing style
+                                    ISimpleLineSymbol missingFillSymbol = Services.Symbols.GetMissingLineSymbol();
+                                    breakLineElement.Symbol = missingFillSymbol;
+                                }
+                                
+
+                            }
+
+                            
                             #endregion
 
                             //Rename
