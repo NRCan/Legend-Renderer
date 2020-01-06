@@ -910,16 +910,16 @@ namespace GSC_Legend_Renderer
                             //Move label and/or dem
                             if (currentElement == Constants.Graphics.unitindent1 || currentElement == Constants.Graphics.unitindent2)
                             {
-                                //LABEL
-                                ITransform2D transLabelElement = unitBoxLabelElement as ITransform2D;
-                                transLabelElement.Move(xSpacing * 2, 0); //Move accordingly to x spacing if any
-
                                 //DEM
-                                if (demUnitBoxElement != null)
+                                if (this.checkBox_DEMBoxes.Checked)
                                 {
                                     ITransform2D transDEMElement = demUnitBoxElement as ITransform2D;
                                     transDEMElement.Move(xSpacing, 0); //Move accordingly to x spacing if any
                                 }
+
+                                //LABEL
+                                ITransform2D transLabelElement = unitBoxLabelElement as ITransform2D;
+                                transLabelElement.Move(xSpacing, 0); //Move accordingly to x spacing if any
                             }
 
                             //Keep name
@@ -2788,7 +2788,7 @@ namespace GSC_Legend_Renderer
             ITextElement tElement = unitBoxLabelElement as ITextElement;
 
             //Manage incoming style if needed
-            if (inStyle!="")
+            if (inStyle!="" && inStyle != null && textSymbolDico.ContainsKey(inStyle))
             {
                 ISimpleTextSymbol inStyleSymbol = textSymbolDico[inStyle] as ISimpleTextSymbol;
                 ISimpleTextSymbol currentStyleSymbol = tElement.Symbol as ISimpleTextSymbol;
@@ -2900,7 +2900,7 @@ namespace GSC_Legend_Renderer
             {
                 descriptionElement = Services.ObjectManagement.CopyInputObject(templateGraphicDico[Constants.Graphics.description_indent]) as IElement;
             }
-            else if (parentElemType == Constants.Graphics.unitindent1)
+            else if (parentElemType == Constants.Graphics.unitindent2)
             {
                 descriptionElement = Services.ObjectManagement.CopyInputObject(templateGraphicDico[Constants.Graphics.description_indent2]) as IElement;
             }
@@ -2976,10 +2976,10 @@ namespace GSC_Legend_Renderer
             {
                 env.Width = groupDescriptionWidth;//Set width
             }
-            else
-            {
-                env.Width = descriptionWidth; //Set width
-            }
+            //else
+            //{
+            //    env.Width = descriptionWidth; //Set width
+            //}
 
             env.Height = wantedTextHeight;
             IPolygon pol = new Polygon() as IPolygon; //Create new polygon from wanted envelope
@@ -4244,10 +4244,27 @@ namespace GSC_Legend_Renderer
             //Symbolize if symbol can be found in style file
             //IGroupElement3 groupShapeElement = GetGroupLegendElement(Constants.Graphics.legendBoxDEM);
             IFillShapeElement intShapeElement = inElement as IFillShapeElement;
+
+            //Detect cartographic line and force rounded joins
+            ///Special case found for UNIT_SPLIT having the wrong join and showing a bad rendering.
+            IMultiLayerLineSymbol multiLineSymbol = intShapeElement.Symbol.Outline as IMultiLayerLineSymbol;
+            if (multiLineSymbol != null && style2 != "")
+            {
+                for (int i = 0; i < multiLineSymbol.LayerCount; i++)
+                {
+                    ICartographicLineSymbol cartoLineSymbol = multiLineSymbol.Layer[i] as ICartographicLineSymbol;
+                    if (cartoLineSymbol != null)
+                    {
+                        cartoLineSymbol.Join = esriLineJoinStyle.esriLJSRound;
+                    }
+
+                }
+            }
             ILineSymbol inOutline = intShapeElement.Symbol.Outline; //Cast to keep actual outline
 
             if (fillSymbolDico.ContainsKey(style) && isSimpleFill)
             {
+
                 //Get symbol type and color
                 string symbolTypeName = string.Empty;
                 ISymbol fillSymbol = fillSymbolDico[style] as ISymbol;
@@ -4294,7 +4311,7 @@ namespace GSC_Legend_Renderer
                 {
                     //Will act as a non simple fill
                     IFillSymbol fillMulti = iFillSymbol;
-
+                    
                     //Set color if needed
                     if (style2!= string.Empty && style2 != null && fillSymbolDico.ContainsKey(style2))
                     {
@@ -4314,9 +4331,11 @@ namespace GSC_Legend_Renderer
                     else
                     {
                         //Keep wanted outline
-                        fillMulti.Outline = iFillSymbol.Outline;
+                        fillMulti.Outline = multiLineSymbol;
+
                     }
                     intShapeElement.Symbol = fillMulti;
+
                     return inElement;
                 }
                 else
@@ -4338,11 +4357,9 @@ namespace GSC_Legend_Renderer
                     }
 
                     intShapeElement.Symbol = newSimpleFill;
+
                     return inElement;
                 }
-
-
-
 
             }
             else if (fillSymbolDico.ContainsKey(style) && !isSimpleFill)
@@ -4361,6 +4378,8 @@ namespace GSC_Legend_Renderer
                 intShapeElement.Symbol = missingFillSymbol;
                 return inElement;
             }
+
+
 
         }
 
