@@ -66,6 +66,9 @@ namespace GSC_Legend_Renderer.Dictionaries
             public const string subUnitParentChild = "UNIT_CHILD";
             public const string subUnitParentChildLine = "UNIT_CHILD_LINE";
 
+            public const string unitindent1 = "UNIT_INDENT";
+            public const string unitindent2 = "UNIT_INDENT2";
+
             public const string lineDouble = "TWOSIDE";
             public const string lineDoubleFlip = "TWOSIDE_FLIP";
             public const string subLineDoubleTop = "TWOSIDE_TOP";
@@ -112,8 +115,11 @@ namespace GSC_Legend_Renderer.Dictionaries
             public const string heading3 = "HEADING3"; //Added by GHV
             public const string heading4 = "HEADING4"; //Added by GHV
             public const string heading5 = "HEADING5"; //Added by GHV
+            public const string heading5_end = "HEADING5_END"; //Added by GHV
             public const string annoBracket = "ANNO_BRACKET"; //Added by GHV
             public const string description = "DESCRIPTION"; //Added by GHV
+            public const string description_indent = "DESCRIPTION_INDENT";//Added by GHV
+            public const string description_indent2 = "DESCRIPTION_INDENT2";//Added by GHV
             public const string heading5Description = "GROUP_DESCRIPTION";
 
             //Other element names
@@ -223,7 +229,8 @@ namespace GSC_Legend_Renderer.Dictionaries
 
         public static class ImageConfiguration
         {
-            public const int demTransparency = 178; // 178/255 --> 70% opaque which is 30% transparent.
+            //public const int demTransparency = 178; // 178/255 --> 70% opaque which is 30% transparent.
+            public const string demTransparencyNameJSON = "DEM_OPACITY_PERCENT";
             public const string monoColoredImageNamePrefix = "Mono_";
         }
 

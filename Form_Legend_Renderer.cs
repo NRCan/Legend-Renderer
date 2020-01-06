@@ -111,7 +111,7 @@ namespace GSC_Legend_Renderer
         public double columnColumnGapWidth { get; set; }
         public double smallDescriptionHeight { get; set; }
         public double groupDescriptionWidth { get; set; }
-        public string heading5Text { get; set; } //Will be used to detect heading 5 elements, which will see their description made italic and indented of 10 points
+        public int heading5Text { get; set; } //Will be used to detect heading 5 elements, which will see their description made italic and indented of 10 points
 
         public bool isCGMTemplateMXD { get; set; } //Will be used to prevent legend grouping in a CGM template to prevent weird behavior.
 
@@ -478,7 +478,7 @@ namespace GSC_Legend_Renderer
                     Tuple<double, double> anchorPoint = GetAnchorPointStart(); //TODO Find if mxd is a CGM one or not.
                     originalYSpacing = anchorPoint.Item2; //Synchronise with initial calculate anchor.
                     Tuple<double, double> anchorPointParent = new Tuple<double, double>(0, 0);
-                    heading5Text = string.Empty; //Init
+                    heading5Text = 0; //Init
                     int currentIteration = 0; //Will be used if user has forgot to enter an order.
                     bool nullOrderBreaker = false; //Will be used to show error message to user if null values are found, but only once.
 
@@ -564,7 +564,13 @@ namespace GSC_Legend_Renderer
                         string currentLabel1Style = legendRow.Value[label1StyleFieldIndex].ToString();
                         string currentLabel2Style = legendRow.Value[label2StyleFieldIndex].ToString();
 
-                        IElement currentElementObject = Services.ObjectManagement.CopyInputObject(templateGraphicDico[currentElement]) as IElement;
+                        //Get related graphic, if exists
+                        IElement currentElementObject = null;
+                        if (templateGraphicDico.ContainsKey(currentElement))
+                        {
+                            currentElementObject = Services.ObjectManagement.CopyInputObject(templateGraphicDico[currentElement]) as IElement;
+                        }
+                        
 
                         //Manage null order
                         if (legendRow.Value[orderFieldIndex].ToString() == string.Empty || legendRow.Value[orderFieldIndex].ToString() == "<Null>" || legendRow.Value[orderFieldIndex] == null || legendRow.Value[orderFieldIndex] == DBNull.Value)
@@ -631,11 +637,18 @@ namespace GSC_Legend_Renderer
 
                         }
 
-                        //Set heading5 trigger
-                        if (heading5Text != string.Empty && currentHeading != heading5Text) //If currentheading and heading5 text is the same, keep trigger on to modify description
+                        //Set heading5 trigger for special style symbols
+                        ///Two case, either user repeats heading5 text in wanted embedded symbols, or
+                        ///uses the latest element named HEADING5_END without duplicating heading5 text in all symbols
+                        if ((currentHeading == string.Empty || currentHeading == null) && heading5Text > 1)
                         {
-                            heading5Text = string.Empty; //Will shot down trigger so description aren't made for heading 5 types
+                            heading5Text = 0;
                         }
+                        else if (currentElement == Constants.Graphics.heading5_end)
+                        {
+                            heading5Text = 0;
+                        }
+
 
                         //Get spacings dictionnary loaded up
                         if (!firstIterationBreaker && !currentElement.Contains(Constants.Graphics.keywordBracket))
@@ -741,10 +754,10 @@ namespace GSC_Legend_Renderer
                                     }
 
                                 }
-                                else if (currentElement.Contains(Constants.Graphics.heading5))
+                                if (currentElement.Contains(Constants.Graphics.heading5))
                                 {
                                     //Keep heading text so it can be used for a trigger to modify description style for heading 5 only.
-                                    heading5Text = currentHeading;
+                                    heading5Text = heading5Text + 1;
                                 }
 
                                 //Add Description to text - Only for heading 3 in theory
@@ -804,7 +817,8 @@ namespace GSC_Legend_Renderer
                         #endregion
 
                         #region MAP UNITS 
-                        if (currentElement == Constants.Graphics.unitBox || currentElement == Constants.Graphics.unitSplit)
+                        if (currentElement == Constants.Graphics.unitBox || currentElement == Constants.Graphics.unitSplit || 
+                            currentElement == Constants.Graphics.unitindent1 || currentElement == Constants.Graphics.unitindent2)
                         {
 
                             //Get appropriate element
@@ -821,6 +835,13 @@ namespace GSC_Legend_Renderer
                             //Set new anchor
                             anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - ySpacing); //New anchor point with proper move inside it
                             SetRectangularPolygonFromAnchorType(unitBoxElement, anchorPoint);
+
+                            //Move
+                            if (currentElement == Constants.Graphics.unitindent1 || currentElement == Constants.Graphics.unitindent2)
+                            {
+                                ITransform2D transElement = unitBoxElement as ITransform2D;
+                                transElement.Move(xSpacing, 0); //Move accordingly to x spacing if any
+                            }
 
                             #endregion
 
@@ -886,12 +907,24 @@ namespace GSC_Legend_Renderer
 
                             }
 
+                            //Move label and/or dem
+                            if (currentElement == Constants.Graphics.unitindent1 || currentElement == Constants.Graphics.unitindent2)
+                            {
+                                //DEM
+                                if (this.checkBox_DEMBoxes.Checked)
+                                {
+                                    ITransform2D transDEMElement = demUnitBoxElement as ITransform2D;
+                                    transDEMElement.Move(xSpacing, 0); //Move accordingly to x spacing if any
+                                }
+
+                                //LABEL
+                                ITransform2D transLabelElement = unitBoxLabelElement as ITransform2D;
+                                transLabelElement.Move(xSpacing, 0); //Move accordingly to x spacing if any
+                            }
+
                             //Keep name
                             lastElement = unitBoxElement;
                             lastElementType = originalElementName;
-
-                            //Add base element
-                            //currentDoc.ActiveView.GraphicsContainer.AddElement(unitGroup as IElement, 0);
 
                             //Add header if needed
                             if (currentHeading != null && currentHeading != string.Empty && currentHeading != " ")
@@ -914,6 +947,13 @@ namespace GSC_Legend_Renderer
                                 lastElement = newDescriptionElement;
                                 lastElementType = Constants.Graphics.description;
 
+                            }
+
+                            //Move description
+                            if (currentElement == Constants.Graphics.unitindent1 || currentElement == Constants.Graphics.unitindent2)
+                            {
+                                ITransform2D transDescElement = newDescriptionElement as ITransform2D;
+                                transDescElement.Move(xSpacing, 0); //Move accordingly to x spacing if any
                             }
 
                             //Keep element if for bracket
@@ -1528,7 +1568,27 @@ namespace GSC_Legend_Renderer
                             IPolyline polylineElement = lineElement.Geometry as IPolyline;
                             SetLineFromAnchorType(lineElement, lastElement, anchorPoint, polylineElement.Length);
 
+                            #endregion
 
+                            #region Set symbol
+                            ILineElement breakLineElement = lineElement as ILineElement;
+                            if (currentStyle1 != string.Empty && currentStyle1 != " " && currentStyle1 != null)
+                            {
+                                if (lineSymbolDico.ContainsKey(currentStyle1))
+                                {
+                                    breakLineElement.Symbol = Services.ObjectManagement.CopyInputObject(lineSymbolDico[currentStyle1]) as ILineSymbol;
+                                }
+                                else
+                                {
+                                    //Apply missing style
+                                    ISimpleLineSymbol missingFillSymbol = Services.Symbols.GetMissingLineSymbol();
+                                    breakLineElement.Symbol = missingFillSymbol;
+                                }
+                                
+
+                            }
+
+                            
                             #endregion
 
                             //Rename
@@ -2728,7 +2788,7 @@ namespace GSC_Legend_Renderer
             ITextElement tElement = unitBoxLabelElement as ITextElement;
 
             //Manage incoming style if needed
-            if (inStyle!="")
+            if (inStyle!="" && inStyle != null && textSymbolDico.ContainsKey(inStyle))
             {
                 ISimpleTextSymbol inStyleSymbol = textSymbolDico[inStyle] as ISimpleTextSymbol;
                 ISimpleTextSymbol currentStyleSymbol = tElement.Symbol as ISimpleTextSymbol;
@@ -2835,8 +2895,18 @@ namespace GSC_Legend_Renderer
             //Get appropriate element
             IElement descriptionElement = Services.ObjectManagement.CopyInputObject(templateGraphicDico[Constants.Graphics.description]) as IElement;
 
+            //Get different size description
+            if (parentElemType == Constants.Graphics.unitindent1)
+            {
+                descriptionElement = Services.ObjectManagement.CopyInputObject(templateGraphicDico[Constants.Graphics.description_indent]) as IElement;
+            }
+            else if (parentElemType == Constants.Graphics.unitindent2)
+            {
+                descriptionElement = Services.ObjectManagement.CopyInputObject(templateGraphicDico[Constants.Graphics.description_indent2]) as IElement;
+            }
+
             //If description is meant for a group 5 heading, then modify style
-            if (heading5Text != string.Empty)
+            if (heading5Text >= 1)
             {
                 descriptionElement = Services.ObjectManagement.CopyInputObject(templateGraphicDico[Constants.Graphics.heading5Description]) as IElement;
                 double indentation = GetXSpacing(Constants.Graphics.heading5Description) - GetXSpacing(Constants.Graphics.description);
@@ -2902,14 +2972,14 @@ namespace GSC_Legend_Renderer
 
             //Set width and height and manage group description for heading 5
             IEnvelope env = descriptionElement.Geometry.Envelope;
-            if (heading5Text != string.Empty)
+            if (heading5Text >= 1)
             {
                 env.Width = groupDescriptionWidth;//Set width
             }
-            else
-            {
-                env.Width = descriptionWidth; //Set width
-            }
+            //else
+            //{
+            //    env.Width = descriptionWidth; //Set width
+            //}
 
             env.Height = wantedTextHeight;
             IPolygon pol = new Polygon() as IPolygon; //Create new polygon from wanted envelope
@@ -4174,10 +4244,27 @@ namespace GSC_Legend_Renderer
             //Symbolize if symbol can be found in style file
             //IGroupElement3 groupShapeElement = GetGroupLegendElement(Constants.Graphics.legendBoxDEM);
             IFillShapeElement intShapeElement = inElement as IFillShapeElement;
+
+            //Detect cartographic line and force rounded joins
+            ///Special case found for UNIT_SPLIT having the wrong join and showing a bad rendering.
+            IMultiLayerLineSymbol multiLineSymbol = intShapeElement.Symbol.Outline as IMultiLayerLineSymbol;
+            if (multiLineSymbol != null && style2 != "")
+            {
+                for (int i = 0; i < multiLineSymbol.LayerCount; i++)
+                {
+                    ICartographicLineSymbol cartoLineSymbol = multiLineSymbol.Layer[i] as ICartographicLineSymbol;
+                    if (cartoLineSymbol != null)
+                    {
+                        cartoLineSymbol.Join = esriLineJoinStyle.esriLJSRound;
+                    }
+
+                }
+            }
             ILineSymbol inOutline = intShapeElement.Symbol.Outline; //Cast to keep actual outline
 
             if (fillSymbolDico.ContainsKey(style) && isSimpleFill)
             {
+
                 //Get symbol type and color
                 string symbolTypeName = string.Empty;
                 ISymbol fillSymbol = fillSymbolDico[style] as ISymbol;
@@ -4224,7 +4311,7 @@ namespace GSC_Legend_Renderer
                 {
                     //Will act as a non simple fill
                     IFillSymbol fillMulti = iFillSymbol;
-
+                    
                     //Set color if needed
                     if (style2!= string.Empty && style2 != null && fillSymbolDico.ContainsKey(style2))
                     {
@@ -4244,9 +4331,11 @@ namespace GSC_Legend_Renderer
                     else
                     {
                         //Keep wanted outline
-                        fillMulti.Outline = iFillSymbol.Outline;
+                        fillMulti.Outline = multiLineSymbol;
+
                     }
                     intShapeElement.Symbol = fillMulti;
+
                     return inElement;
                 }
                 else
@@ -4268,11 +4357,9 @@ namespace GSC_Legend_Renderer
                     }
 
                     intShapeElement.Symbol = newSimpleFill;
+
                     return inElement;
                 }
-
-
-
 
             }
             else if (fillSymbolDico.ContainsKey(style) && !isSimpleFill)
@@ -4292,6 +4379,8 @@ namespace GSC_Legend_Renderer
                 return inElement;
             }
 
+
+
         }
 
         /// <summary>
@@ -4304,6 +4393,16 @@ namespace GSC_Legend_Renderer
 
             //Variables
             Services.ImageProcessing imProcessing = new Services.ImageProcessing();
+
+            //Calculate DEM transparency
+            int demtransparency = 178; //178/255 is 70% opacity
+            if (otherComponents.ContainsKey(Constants.ImageConfiguration.demTransparencyNameJSON))
+            {
+                int.TryParse(otherComponents[Constants.ImageConfiguration.demTransparencyNameJSON], out demtransparency);
+                double opacityConversion = Math.Round(((double)demtransparency / 100.0) * 255.0);
+                demtransparency = Convert.ToInt16(opacityConversion);
+            }
+            
 
             //Validate DEM picture existance and get path
             string demImagePath = ValidateDEMPictureExistance();
@@ -4322,7 +4421,7 @@ namespace GSC_Legend_Renderer
             //Process and a get a copy of new mono colored image
             if (!System.IO.File.Exists(monoColoredPath))
             {
-                imProcessing.CreateMonoColorFromImageCopy(demImage, inColor, monoColoredPath);
+                imProcessing.CreateMonoColorFromImageCopy(demImage, inColor, monoColoredPath, demtransparency);
             }
             
             //Create bitmaps from original dem image and mono colored one
