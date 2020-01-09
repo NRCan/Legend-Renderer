@@ -25,6 +25,11 @@ User guide's complete example set.
 
 * Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=39129695&objAction=download 
 
+File Geodatabase (.gdb)
+
+* A file geodatabase with an empty legend table and a already filled domain with all legend elements.
+https://gccode.ssc-spc.gc.ca/GSC-GDF/GSC-Legend-Renderer/wikis/Legend-Table-Schema---File-Geodatabase
+
 # ESRI Addin
 
 The addin itself can be retrieved here  > https://gccode.ssc-spc.gc.ca/GSC-GDF/GSC-Legend-Renderer/blob/master/bin/Debug/GSC_Legend_Renderer.esriAddIn
@@ -45,6 +50,7 @@ CGM XXX (MaryRiver) --> File geodatabase (.gdb) with examples of UNIT_SPLIT.
   
 Surficial Complete Legend (Model 2.3)--> Excel sheet with output pdf.
 *  Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=36987544&objAction=download
+
 
 # Documentation
 
