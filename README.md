@@ -21,14 +21,14 @@ User guide's complete example set.
 
 *  Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=36398434&objAction=download
   
-# Poster (pptx)
-
-* Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=39129695&objAction=download 
-
 File Geodatabase (.gdb)
 
 * A file geodatabase with an empty legend table and a already filled domain with all legend elements.
 https://gccode.ssc-spc.gc.ca/GSC-GDF/GSC-Legend-Renderer/wikis/Legend-Table-Schema---File-Geodatabase
+
+# Poster (pptx)
+
+* Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=39129695&objAction=download 
 
 # ESRI Addin
 
