@@ -111,7 +111,7 @@ namespace GSC_Legend_Renderer
         public double columnColumnGapWidth { get; set; }
         public double smallDescriptionHeight { get; set; }
         public double groupDescriptionWidth { get; set; }
-        public int heading5Text { get; set; } //Will be used to detect heading 5 elements, which will see their description made italic and indented of 10 points
+        public List<string> heading5Text { get; set; } //Will be used to detect heading 5 elements, which will see their description made italic and indented of 10 points
 
         public bool isCGMTemplateMXD { get; set; } //Will be used to prevent legend grouping in a CGM template to prevent weird behavior.
 
@@ -478,7 +478,7 @@ namespace GSC_Legend_Renderer
                     Tuple<double, double> anchorPoint = GetAnchorPointStart(); //TODO Find if mxd is a CGM one or not.
                     originalYSpacing = anchorPoint.Item2; //Synchronise with initial calculate anchor.
                     Tuple<double, double> anchorPointParent = new Tuple<double, double>(0, 0);
-                    heading5Text = 0; //Init
+                    heading5Text = new List<string>(); //Init
                     int currentIteration = 0; //Will be used if user has forgot to enter an order.
                     bool nullOrderBreaker = false; //Will be used to show error message to user if null values are found, but only once.
 
@@ -640,16 +640,26 @@ namespace GSC_Legend_Renderer
                         //Set heading5 trigger for special style symbols
                         ///Two case, either user repeats heading5 text in wanted embedded symbols, or
                         ///uses the latest element named HEADING5_END without duplicating heading5 text in all symbols
-                        if ((currentHeading == string.Empty || currentHeading == null) && heading5Text > 1)
+                        if (heading5Text.Count > 0)
                         {
-                            heading5Text = 0;
-                        }
-                        else if (currentElement == Constants.Graphics.heading5_end)
-                        {
-                            heading5Text = 0;
-                        }
+                            //Add any duplicate
+                            if (heading5Text[0] == currentHeading)
+                            {
+                                heading5Text.Add(currentHeading);
+                            }
 
-
+                            //Detect suddent misrupt of heading 5 text in heading column
+                            if (heading5Text[0] != currentHeading && heading5Text.Count > 1)
+                            {
+                                heading5Text = new List<string>(); //reinitialize
+                            }
+                            //Detect explicit use of a heading 5 end element
+                            if (currentElement == Constants.Graphics.heading5_end)
+                            {
+                                heading5Text = new List<string>(); //reinitialize
+                            }
+                        }     
+                        
                         //Get spacings dictionnary loaded up
                         if (!firstIterationBreaker && !currentElement.Contains(Constants.Graphics.keywordBracket))
                         {
@@ -757,17 +767,7 @@ namespace GSC_Legend_Renderer
                                 if (currentElement.Contains(Constants.Graphics.heading5))
                                 {
                                     //Keep heading text so it can be used for a trigger to modify description style for heading 5 only.
-                                    heading5Text = heading5Text + 1;
-                                }
-
-                                //Add Description to text - Only for heading 3 in theory
-                                if (!IsTextEmpty(currentDescription))
-                                {
-                                    //Add header if needed
-                                    if (!IsTextEmpty(currentHeading))
-                                    {
-                                        currentHeading = currentHeading + currentDescription;
-                                    }
+                                    heading5Text.Add(currentHeading);
                                 }
 
                                 tElement.Text = currentHeading;
@@ -2906,7 +2906,7 @@ namespace GSC_Legend_Renderer
             }
 
             //If description is meant for a group 5 heading, then modify style
-            if (heading5Text >= 1)
+            if (heading5Text.Count >= 1)
             {
                 descriptionElement = Services.ObjectManagement.CopyInputObject(templateGraphicDico[Constants.Graphics.heading5Description]) as IElement;
                 double indentation = GetXSpacing(Constants.Graphics.heading5Description) - GetXSpacing(Constants.Graphics.description);
@@ -2972,7 +2972,7 @@ namespace GSC_Legend_Renderer
 
             //Set width and height and manage group description for heading 5
             IEnvelope env = descriptionElement.Geometry.Envelope;
-            if (heading5Text >= 1)
+            if (heading5Text.Count >= 1)
             {
                 env.Width = groupDescriptionWidth;//Set width
             }
