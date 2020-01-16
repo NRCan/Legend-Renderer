@@ -760,15 +760,15 @@ namespace GSC_Legend_Renderer
                                     heading5Text = heading5Text + 1;
                                 }
 
-                                //Add Description to text - Only for heading 3 in theory
-                                if (!IsTextEmpty(currentDescription))
-                                {
-                                    //Add header if needed
-                                    if (!IsTextEmpty(currentHeading))
-                                    {
-                                        currentHeading = currentHeading + currentDescription;
-                                    }
-                                }
+                                ////Add Description to text - Only for heading 3 in theory
+                                //if (!IsTextEmpty(currentDescription))
+                                //{
+                                //    //Add header if needed
+                                //    if (!IsTextEmpty(currentHeading))
+                                //    {
+                                //        currentHeading = currentHeading + currentDescription;
+                                //    }
+                                //}
 
                                 tElement.Text = currentHeading;
 
