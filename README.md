@@ -30,7 +30,7 @@ User guide's complete example set.
 The addin itself can be retrieved here  > https://gccode.ssc-spc.gc.ca/GSC-GDF/GSC-Legend-Renderer/blob/master/bin/Debug/GSC_Legend_Renderer.esriAddIn
 
 # Current version
-1.1 - 2020/01/06
+1.1.1 - 2020/01/06
 
 # Current set of results
 
