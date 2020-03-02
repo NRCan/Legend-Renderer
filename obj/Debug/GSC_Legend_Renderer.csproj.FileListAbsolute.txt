@@ -194,4 +194,5 @@ D:\GMF\GSC-Legend-Renderer\obj\Debug\fr\GSC_Legend_Renderer.resources.dll
 D:\GMF\GSC-Legend-Renderer\obj\Debug\GSC_Legend_Renderer.csproj.CopyComplete
 D:\GMF\GSC-Legend-Renderer\obj\Debug\GSC_Legend_Renderer.dll
 D:\GMF\GSC-Legend-Renderer\obj\Debug\GSC_Legend_Renderer.pdb
+D:\GMF\GSC-Legend-Renderer\obj\Debug\GSC_Legend_Renderer.csprojAssemblyReference.cache
 D:\GMF\GSC-Legend-Renderer\bin\Debug\GSC_Legend_Renderer.esriAddIn

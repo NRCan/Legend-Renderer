@@ -573,7 +573,7 @@ namespace GSC_Legend_Renderer
                         
 
                         //Manage null order
-                        if (legendRow.Value[orderFieldIndex].ToString() == string.Empty || legendRow.Value[orderFieldIndex].ToString() == "<Null>" || legendRow.Value[orderFieldIndex] == null || legendRow.Value[orderFieldIndex] == DBNull.Value)
+                        if (legendRow.Value[orderFieldIndex].ToString() == string.Empty || legendRow.Value[orderFieldIndex].ToString() == "<Null>" || legendRow.Value[orderFieldIndex] == null)
                         {
                             if (!nullOrderBreaker)
                             {
