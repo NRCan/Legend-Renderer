@@ -564,6 +564,13 @@ namespace GSC_Legend_Renderer
                         string currentLabel1Style = legendRow.Value[label1StyleFieldIndex].ToString();
                         string currentLabel2Style = legendRow.Value[label2StyleFieldIndex].ToString();
 
+                        //Clean and replace < characters from description
+                        if (currentDescription != string.Empty && currentHeading != string.Empty)
+                        {
+                            currentDescription = currentDescription.Replace("<", "&lt;");
+                        }
+
+
                         //Get related graphic, if exists
                         IElement currentElementObject = null;
                         if (templateGraphicDico.ContainsKey(currentElement))
@@ -1340,13 +1347,17 @@ namespace GSC_Legend_Renderer
                                         if (currentStyle2 != string.Empty && currentStyle2 != " " && currentStyle2 != null)
                                         {
                                             // For double line, two style might be used if it's not inside a double line flow symbol
-                                            currentShapeElement.Symbol = Services.ObjectManagement.CopyInputObject(lineSymbolDico[currentStyle2]) as ILineSymbol;
-
-                                            if (lineSymbolDico.ContainsKey(currentStyle2) && currentElement == Constants.Graphics.lineDoubleFLow)
+                                            if (lineSymbolDico.ContainsKey(currentStyle2))
                                             {
-                                                //For double line flow symbol keep bottom line just like the top one and take style2 field for the flow symbol
-                                                currentShapeElement.Symbol = Services.ObjectManagement.CopyInputObject(lineSymbolDico[currentStyle1]) as ILineSymbol;
+                                                currentShapeElement.Symbol = Services.ObjectManagement.CopyInputObject(lineSymbolDico[currentStyle2]) as ILineSymbol;
+
+                                                if (currentElement == Constants.Graphics.lineDoubleFLow)
+                                                {
+                                                    //For double line flow symbol keep bottom line just like the top one and take style2 field for the flow symbol
+                                                    currentShapeElement.Symbol = Services.ObjectManagement.CopyInputObject(lineSymbolDico[currentStyle1]) as ILineSymbol;
+                                                }
                                             }
+
                                         }
                                         else
                                         {
