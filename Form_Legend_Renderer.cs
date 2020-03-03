@@ -110,6 +110,7 @@ namespace GSC_Legend_Renderer
         public double descriptionWidth { get; set; }
         public double columnColumnGapWidth { get; set; }
         public double smallDescriptionHeight { get; set; }
+        public double smallDescriptionHeightLine { get; set; }
         public double groupDescriptionWidth { get; set; }
         public List<string> heading5Text { get; set; } //Will be used to detect heading 5 elements, which will see their description made italic and indented of 10 points
 
@@ -688,6 +689,7 @@ namespace GSC_Legend_Renderer
                                 descriptionWidth = GetXSpacing(Constants.Graphics.descriptionWidth);
                                 columnColumnGapWidth = GetXSpacing(Constants.Graphics.columnColumnGapWidth);
                                 smallDescriptionHeight = Constants.YSpacings.smallDescriptionHeightLimit;
+                                smallDescriptionHeightLine = Constants.YSpacings.smallDescriptionHeightLimitLines;
                                 groupDescriptionWidth = GetXSpacing(Constants.Graphics.groupDescriptionWidth);
 
                                 xSpacing = GetXSpacing(currentElement);
@@ -948,9 +950,10 @@ namespace GSC_Legend_Renderer
                                 if (currentColumn != 0)
                                 {
                                     anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - descriptionHeight); //New anchor point with proper move inside it
-                                                                                                                                       //Keep name
+                                                                                                                                       
                                 }
 
+                                //Keep name
                                 lastElement = newDescriptionElement;
                                 lastElementType = Constants.Graphics.description;
 
@@ -1273,13 +1276,21 @@ namespace GSC_Legend_Renderer
                             legendElementList.Add(lastElement);
 
                             //Add Description
-                            IElement newDescriptionElement = AddDescription(currentDescription, pointElement, currentDoc, anchorPoint, lastElementType);
+                            IElement newDescriptionElement = AddDescription(currentDescription, pointElement, currentDoc, anchorPoint, lastElementType, true);
                             double descriptionHeight = newDescriptionElement.Geometry.Envelope.Height;
-                            if (descriptionHeight > smallDescriptionHeight)
+                            if (descriptionHeight > smallDescriptionHeightLine)
                             {
                                 //Reset anchor point for next element
-                                anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - descriptionHeight); //New anchor point with proper move inside it
-                                                                                                                                   //Keep name
+                                IElementProperties3 pointPropElement = pointElement as IElementProperties3;
+                                esriAnchorPointEnum currentAnchorPointType = pointPropElement.AnchorPoint;
+                                //double descriptionAdjustement = descriptionHeight;
+                                double descriptionAdjustement = descriptionHeight - Constants.YSpacings.markerMeanHeight;
+
+                                anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - descriptionAdjustement); //New anchor point with proper move inside it
+
+                                //anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - descriptionHeight);
+
+                                //Keep name
                                 lastElement = newDescriptionElement;
                                 lastElementType = Constants.Graphics.description;
 
@@ -1417,13 +1428,25 @@ namespace GSC_Legend_Renderer
                             legendElementList.Add(lastElement);
 
                             //Add Description
-                            IElement newDescriptionElement = AddDescription(currentDescription, lineElement, currentDoc, anchorPoint, originalElementName);
+                            //NOTES: Usually lines have anchors in the center, that needs special attention
+                            IElement newDescriptionElement = AddDescription(currentDescription, lineElement, currentDoc, anchorPoint, originalElementName, true);
                             double descriptionHeight = newDescriptionElement.Geometry.Envelope.Height;
-                            if (descriptionHeight > smallDescriptionHeight)
+                            if (descriptionHeight >= smallDescriptionHeightLine)
                             {
+                                double descriptionAdjustement = descriptionHeight;
+                                if (lineElement.Geometry.Envelope.Height == 0)
+                                {
+                                    descriptionAdjustement = descriptionAdjustement - Constants.YSpacings.lineHeight0DescriptionHeightAdjustement;
+                                }
+                                else
+                                {
+                                    descriptionAdjustement = descriptionAdjustement - (lineElement.Geometry.Envelope.Height / 2.0);
+                                }
+
                                 //Reset anchor point for next element
-                                anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - descriptionHeight); //New anchor point with proper move inside it
-                                                                                                                                   //Keep name
+                                anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - descriptionAdjustement); //New anchor point with proper move inside it
+
+                                //Keep name
                                 lastElement = newDescriptionElement;
                                 lastElementType = Constants.Graphics.description;
 
@@ -2671,7 +2694,7 @@ namespace GSC_Legend_Renderer
                         {
                             if (ySpacings[fromElementType][toElementName].Contains(Constants.Graphics.anchorLowerLeft))
                             {
-                                y = (fromElement.Geometry.Envelope.YMin - lastYSpacing) + Convert.ToDouble(ySpacings[fromElementType][toElementName].Split(' ')[0], CultureInfo.InvariantCulture);
+                                y = Math.Abs((fromElement.Geometry.Envelope.YMin - lastYSpacing)) + Convert.ToDouble(ySpacings[fromElementType][toElementName].Split(' ')[0], CultureInfo.InvariantCulture);
                             }
                         }
 
@@ -2901,7 +2924,7 @@ namespace GSC_Legend_Renderer
         /// <param name="inDocument"></param>
         /// <param name="inAnchor"></param>
         /// <returns> Description height for validation purposes</returns>
-        private IElement AddDescription(string inDescription, IElement parentElem, IMxDocument inDocument, Tuple<double, double> inAnchor, string parentElemType)
+        private IElement AddDescription(string inDescription, IElement parentElem, IMxDocument inDocument, Tuple<double, double> inAnchor, string parentElemType, bool isLineOrPoint = false)
         {
             //Get appropriate element
             IElement descriptionElement = Services.ObjectManagement.CopyInputObject(templateGraphicDico[Constants.Graphics.description]) as IElement;
@@ -2939,7 +2962,7 @@ namespace GSC_Legend_Renderer
             legendElementList.Add(descriptionElement as IElement);
             currentDoc.ActiveView.GraphicsContainer.AddElement(descriptionElement as IElement, 0);
 
-            return AddDescriptionFromElement(descriptionElement, parentElem, inDocument, inAnchor, parentElemType);
+            return AddDescriptionFromElement(descriptionElement, parentElem, inDocument, inAnchor, parentElemType, isLineOrPoint);
         }
 
         /// <summary>
@@ -2951,7 +2974,7 @@ namespace GSC_Legend_Renderer
         /// <param name="inAnchor"></param>
         /// <param name="parentElemType"></param>
         /// <returns></returns>
-        private IElement AddDescriptionFromElement(IElement descriptionElement, IElement parentElem, IMxDocument inDocument, Tuple<double, double> inAnchor, string parentElemType)
+        private IElement AddDescriptionFromElement(IElement descriptionElement, IElement parentElem, IMxDocument inDocument, Tuple<double, double> inAnchor, string parentElemType, bool isLineOrPoint = false)
         {
 
             //Create new text graphic with default style
@@ -2961,9 +2984,15 @@ namespace GSC_Legend_Renderer
             double wantedTextHeight = GetTextHeight(dtElement.Text, descriptionWidth);
             IElementProperties3 parentProperties = parentElem as IElementProperties3;
 
-
             IElementProperties3 dtElementPro = dtElement as IElementProperties3;
             dtElementPro.Name = parentProperties.Name + "_description";
+
+            //Min height setting
+            double smallDescHeight = smallDescriptionHeight;
+            if (isLineOrPoint)
+            {
+                smallDescHeight = smallDescriptionHeightLine;
+            }
 
             //Get width and height of parent
             IGeometry parentGeom = parentElem.Geometry;
@@ -2980,6 +3009,17 @@ namespace GSC_Legend_Renderer
             {
 
             }
+
+            //Parent height setting based on anchor position
+            //double parentHeightCalculated = parentHeight;
+            //if (parentProperties.AnchorPoint == esriAnchorPointEnum.esriCenterPoint || parentProperties.AnchorPoint == esriAnchorPointEnum.esriLeftMidPoint || parentProperties.AnchorPoint == esriAnchorPointEnum.esriRightMidPoint)
+            //{
+            //    parentHeightCalculated = parentHeightCalculated / 2.0;
+            //}
+            ////else if (parentProperties.AnchorPoint == esriAnchorPointEnum.esriBottomLeftCorner || parentProperties.AnchorPoint == esriAnchorPointEnum.esriBottomMidPoint || parentProperties.AnchorPoint == esriAnchorPointEnum.esriBottomRightCorner)
+            ////{
+            ////    parentHeightCalculated
+            ////}
 
             //Set width and height and manage group description for heading 5
             IEnvelope env = descriptionElement.Geometry.Envelope;
@@ -3010,10 +3050,10 @@ namespace GSC_Legend_Renderer
             //Move based on different length of description
             ITransform2D transElement = descriptionElement as ITransform2D;
 
-            if (wantedTextHeight <= smallDescriptionHeight)
+            if (wantedTextHeight <= smallDescHeight)
             {
                 //When description height is less then align its center on parent center
-                if (wantedTextHeight <= parentHeight)
+                if (wantedTextHeight <= parentHeight || parentHeight <= 1.0)
                 {
                     if (!IsElementAllNonFlatLines(parentElem) && !parentProperties.Name.Contains(Constants.Graphics.blob))
                     {
@@ -3028,13 +3068,30 @@ namespace GSC_Legend_Renderer
                 }
                 else
                 {
-                    transElement.Move(elementDescriptGapWidth + parentWidth, +wantedTextHeight / 2.0);
+                    transElement.Move(elementDescriptGapWidth + parentWidth, wantedTextHeight / 2.0);
                 }
 
             }
             else
             {
-                transElement.Move(elementDescriptGapWidth + parentWidth, 0); // Anchor is upper left and needs to be horizontally aligned with it
+                if (isLineOrPoint)
+                {
+                    if (parentHeight <= 1.0)
+                    {
+                        transElement.Move(elementDescriptGapWidth + parentWidth, (parentHeight /2.0) + Constants.YSpacings.lineHeight0DescriptionHeightAdjustement);
+                    }
+                    else
+                    {
+                        transElement.Move(elementDescriptGapWidth + parentWidth, (parentHeight / 2.0) + Constants.YSpacings.lineDescriptionHeightAdjustement);
+                    }
+
+                }
+                else
+                {
+                    transElement.Move(elementDescriptGapWidth + parentWidth, 0); // Anchor is upper left and needs to be horizontally aligned with it
+                }
+                
+
             }
 
             //Add to legend list
