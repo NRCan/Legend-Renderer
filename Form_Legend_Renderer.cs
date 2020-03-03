@@ -591,60 +591,6 @@ namespace GSC_Legend_Renderer
                             
                         }
 
-                        //Manage columns
-                        if (!this.checkBox_autoCalculateColumns.Checked)
-                        {
-                            //Track column number change in table
-                            if (int.TryParse(legendRow.Value[columnFieldIndex].ToString(), out currentColumn))
-                            {
-                                currentColumn = Convert.ToInt32(legendRow.Value[columnFieldIndex]);
-                            }
-                        }
-                        else
-                        {
-                            //Track column change with auto-calculate
-                            if (legendYLowerBound != 0.0)
-                            {
-                                if ((anchorPoint.Item2 - ySpacing - currentElementObject.Geometry.Envelope.Height) < legendYLowerBound)
-                                {
-                                    currentColumn++;
-                                }
-                            }
-                        }
-
-                        if (currentColumn > 1 && lastColumn != currentColumn)
-                        {
-                            //Get x spacing based on how many brackets were found in previous column
-                            double rightBracketSpacing = 0;
-                            if (howManyRightBrackets > 0)
-                            {
-                                rightBracketSpacing = (descriptionWidth + elementDescriptGapWidth + elementWidth + GetXSpacing(Constants.Graphics.bracketRightCenter) + GetXSpacing(Constants.Graphics.unitBoxBracket));
-                            }
-
-                            //Move to right and reset Y.
-                            ySpacing = 0; //Reset y spacing so it appears at the top of the page 
-                            anchorPoint = new Tuple<double, double>(anchorPoint.Item1 + columnWidth + columnColumnGapWidth + rightBracketSpacing, originalYSpacing);
-
-                            //Adjust  anchorpoint in case current element as an inner centered y anchor (CC, CL and CR)
-                            if (templateGraphicDico.ContainsKey(currentElement))
-                            {
-                                IElement newColumnFirstElement = Services.ObjectManagement.CopyInputObject(templateGraphicDico[currentElement]) as IElement;
-                                //Get anchor type
-                                IElementProperties3 newColumnProp = newColumnFirstElement as IElementProperties3;
-                                esriAnchorPointEnum currentAnchorPointType = newColumnProp.AnchorPoint;
-
-                                if (currentAnchorPointType == esriAnchorPointEnum.esriCenterPoint || currentAnchorPointType == esriAnchorPointEnum.esriLeftMidPoint || currentAnchorPointType == esriAnchorPointEnum.esriRightMidPoint)
-                                {
-                                    ySpacing = (newColumnFirstElement.Geometry.Envelope.Height / 2.0);
-                                }
-                            }
-                            lastColumn = currentColumn;
-
-                            //Reset right bracket number
-                            howManyRightBrackets = 0;
-
-                        }
-
                         //Set heading5 trigger for special style symbols
                         ///Two case, either user repeats heading5 text in wanted embedded symbols, or
                         ///uses the latest element named HEADING5_END without duplicating heading5 text in all symbols
@@ -697,6 +643,60 @@ namespace GSC_Legend_Renderer
 
 
                             firstIterationBreaker = false;
+                        }
+
+                        //Manage columns
+                        if (!this.checkBox_autoCalculateColumns.Checked)
+                        {
+                            //Track column number change in table
+                            if (int.TryParse(legendRow.Value[columnFieldIndex].ToString(), out currentColumn))
+                            {
+                                currentColumn = Convert.ToInt32(legendRow.Value[columnFieldIndex]);
+                            }
+                        }
+                        else
+                        {
+                            //Track column change with auto-calculate
+                            if (legendYLowerBound != 0.0)
+                            {
+                                if ((anchorPoint.Item2 - ySpacing - currentElementObject.Geometry.Envelope.Height) < legendYLowerBound)
+                                {
+                                    currentColumn++;
+                                }
+                            }
+                        }
+
+                        if (currentColumn > 1 && lastColumn != currentColumn)
+                        {
+                            //Get x spacing based on how many brackets were found in previous column
+                            double rightBracketSpacing = 0;
+                            if (howManyRightBrackets > 0)
+                            {
+                                rightBracketSpacing = (descriptionWidth + elementDescriptGapWidth + elementWidth + GetXSpacing(Constants.Graphics.bracketRightCenter) + GetXSpacing(Constants.Graphics.unitBoxBracket));
+                            }
+
+                            //Move to right and reset Y.
+                            ySpacing = 0; //Reset y spacing so it appears at the top of the page 
+                            anchorPoint = new Tuple<double, double>(anchorPoint.Item1 + columnWidth + columnColumnGapWidth + rightBracketSpacing, originalYSpacing);
+
+                            //Adjust  anchorpoint in case current element as an inner centered y anchor (CC, CL and CR)
+                            if (templateGraphicDico.ContainsKey(currentElement))
+                            {
+                                IElement newColumnFirstElement = Services.ObjectManagement.CopyInputObject(templateGraphicDico[currentElement]) as IElement;
+                                //Get anchor type
+                                IElementProperties3 newColumnProp = newColumnFirstElement as IElementProperties3;
+                                esriAnchorPointEnum currentAnchorPointType = newColumnProp.AnchorPoint;
+
+                                if (currentAnchorPointType == esriAnchorPointEnum.esriCenterPoint || currentAnchorPointType == esriAnchorPointEnum.esriLeftMidPoint || currentAnchorPointType == esriAnchorPointEnum.esriRightMidPoint)
+                                {
+                                    ySpacing = (newColumnFirstElement.Geometry.Envelope.Height / 2.0);
+                                }
+                            }
+                            lastColumn = currentColumn;
+
+                            //Reset right bracket number
+                            howManyRightBrackets = 0;
+
                         }
 
                         #region HEADINGS
