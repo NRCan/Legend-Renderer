@@ -4,33 +4,14 @@ This tool was develop to assist any user creating a standard Canadian Geoscience
 
 # Requirements
 
-The tools were developed on ArcGIS Desktop version 10.6.
-
-# User Guide
-
-Original user guide is available on GCDoc for:
-
-*  Edition: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll/open/31349011
-*  Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=31349011&objAction=download
-
-Start-up Excel Sheet (contains users guide's complete example set)
-
-* Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=36882192&objAction=download
-
-User guide's complete example set.
-
-*  Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=36398434&objAction=download
-  
-# Poster (pptx)
-
-* Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=39129695&objAction=download 
+The tools were developed on ArcGIS Desktop version 10.7.
 
 # ESRI Addin
 
 The addin itself can be retrieved here  > https://gccode.ssc-spc.gc.ca/GSC-GDF/GSC-Legend-Renderer/blob/master/bin/Debug/GSC_Legend_Renderer.esriAddIn
 
 # Current version
-1.1.1 - 2020/01/06
+1.2 - 2020/03/04
 
 # Current set of results
 
@@ -46,6 +27,29 @@ CGM XXX (MaryRiver) --> File geodatabase (.gdb) with examples of UNIT_SPLIT.
 Surficial Complete Legend (Model 2.3)--> Excel sheet with output pdf.
 *  Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=36987544&objAction=download
 
-# Documentation
+# File Geodatabase legend table and domain  
 
 Please see the [Legend Renderer Wiki](https://gccode.ssc-spc.gc.ca/GSC-GDF/GSC-Legend-Renderer/wikis/Legend-Renderer).
+
+# Documentation
+
+Please see the [Legend Renderer Wiki Schema](https://gccode.ssc-spc.gc.ca/GSC-GDF/GSC-Legend-Renderer/-/wikis/Legend-Table-Schema---File-Geodatabase).
+
+## User Guide
+
+Original user guide is available on GCDoc for:
+
+*  Edition: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll/open/31349011
+*  Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=31349011&objAction=download
+
+Start-up Excel Sheet (contains users guide's complete example set)
+
+* Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=36882192&objAction=download
+
+User guide's complete example set.
+
+*  Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=36398434&objAction=download
+  
+## Poster (pptx)
+
+* Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=39129695&objAction=download 
