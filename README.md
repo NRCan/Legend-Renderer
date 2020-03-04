@@ -29,11 +29,11 @@ Surficial Complete Legend (Model 2.3)--> Excel sheet with output pdf.
 
 # File Geodatabase legend table and domain  
 
-Please see the [Legend Renderer Wiki](https://gccode.ssc-spc.gc.ca/GSC-GDF/GSC-Legend-Renderer/wikis/Legend-Renderer).
+Please see the [Legend Renderer Wiki Schema](https://gccode.ssc-spc.gc.ca/GSC-GDF/GSC-Legend-Renderer/-/wikis/Legend-Table-Schema---File-Geodatabase).
 
 # Documentation
 
-Please see the [Legend Renderer Wiki Schema](https://gccode.ssc-spc.gc.ca/GSC-GDF/GSC-Legend-Renderer/-/wikis/Legend-Table-Schema---File-Geodatabase).
+Please see the [Legend Renderer Wiki](https://gccode.ssc-spc.gc.ca/GSC-GDF/GSC-Legend-Renderer/wikis/Legend-Renderer).
 
 ## User Guide
 
