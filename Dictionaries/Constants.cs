@@ -202,7 +202,11 @@ namespace GSC_Legend_Renderer.Dictionaries
         public static class YSpacings
         {
             public const double smallDescriptionHeightLimit = 10.0; //Beyond this, it is a long description
+            public const double smallDescriptionHeightLimitLines = 6.56; //Beyond this, it is a long description for a line symbol.
             public const double legendEnd_Citation = 15.0; //This include a bufer of 10 for a better fit. Used to calculate number of columns
+            public const double lineDescriptionHeightAdjustement = 0.5; //Aligning lines with long description with their top introduces a small gap because text as some slight margin at the top
+            public const double lineHeight0DescriptionHeightAdjustement = 1.5; //Flat lines symbols have a height of 0, take this instead when a height is needed.
+            public const double markerMeanHeight = 2.5; //Used to position subsequent element after a long marker description
         }
 
         public static class TextConfiguration

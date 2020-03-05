@@ -6,6 +6,7 @@ using ESRI.ArcGIS.ArcMapUI;
 using ESRI.ArcGIS.Carto;
 using ESRI.ArcGIS.esriSystem;
 using ESRI.ArcGIS.Framework;
+using ESRI.ArcGIS.SystemUI;
 
 namespace GSC_Legend_Renderer
 {
