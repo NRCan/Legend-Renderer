@@ -1,55 +1,85 @@
-# Main purpose
+# Legend Renderer
+([Français](#Rendu-de-légende))
 
 This tool was develop to assist any user creating a standard Canadian Geoscience Map (CGM) legend. By reading the data from an input legend table, the tool will be able to add proper graphic elements inside an ArcMapTM layout view. The legend will be fully compliant with standard procedure, from element ordering, text, description, labels, spacing between elements, and so on. Using a tool like this one can be a real time saver in which cartography workflow will be speed-up. It also offers flexibility whenever updates needs to be conducted on the legend without forcing cartographer to manually do the edits. The tool only needs to be run again.
 
-# Requirements
+## Requirements
 
 The tools were developed on ArcGIS Desktop version 10.7.
 
-# ESRI Addin
+## Installation
+Please refer to the original ESRI method for pluggin installation:
+[Installation](https://desktop.arcgis.com/en/arcmap/latest/analyze/python-addins/sharing-and-installing-add-ins.htm)
 
-The addin itself can be retrieved here  > https://gccode.ssc-spc.gc.ca/GSC-GDF/GSC-Legend-Renderer/blob/master/bin/Debug/GSC_Legend_Renderer.esriAddIn
 
-# Current version
-1.3 - 2021/09/23
+## Latest Version
 
-# Current set of results
+Please download the latest version from the [Release page](https://github.com/NRCan/Legend-Renderer).
 
-CGM 348 --> File geodatabase (.gdb) with examples of UNIT_PARENT, UNIT_CHILD_LINE and UNIT_CHILD; PNT_CC_45 and PNT_LC_45, and GSCGeology2015 font.
-*  Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=33213794&objAction=download
+## Wiki
 
-CGM 393 --> MS Excel (.xlsx) file with examples of OVERLAY
-*  Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=36397247&objAction=download
+The [Github Wiki](https://github.com/NRCan/Legend-Renderer/wiki) has helpful documentation and videos for your use including a [technical video](https://www.youtube.com/watch?v=bpSkPNBQ3gg).
 
-CGM XXX (MaryRiver) --> File geodatabase (.gdb) with examples of UNIT_SPLIT.
-*  Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=36396628&objAction=download
-  
-Surficial Complete Legend (Model 2.3)--> Excel sheet with output pdf.
-*  Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=36987544&objAction=download
+## Data Format
 
-# File Geodatabase legend table and domain  
+The current tool supports multiple format, like Excel (.xlsx), File Geodatabase (.gbd), Comma seperated values (.csv), etc.
 
-Please see the [Legend Renderer Wiki Schema](https://gccode.ssc-spc.gc.ca/GSC-GDF/GSC-Legend-Renderer/-/wikis/Legend-Table-Schema---File-Geodatabase).
 
-# Documentation
+## Contacts
 
-Please see the [Legend Renderer Wiki](https://gccode.ssc-spc.gc.ca/GSC-GDF/GSC-Legend-Renderer/wikis/Legend-Renderer).
+Gabriel Huot-Vézina: gabriel.huot-vezina@nrcan-rncan.gc.ca
 
-## User Guide
+### How to Contribute
 
-Original user guide is available on GCDoc for:
+See [CONTRIBUTING.md](CONTRIBUTING.md)
 
-*  Edition: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll/open/31349011
-*  Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=31349011&objAction=download
+### License
+<a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribution-NonCommercial 4.0 International License</a>.
 
-Start-up Excel Sheet (contains users guide's complete example set)
+[Licence document](LIC-4026-Legend-Renderer-CC-BY-NC-English.docx)
 
-* Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=36882192&objAction=download
+The Canada wordmark and related graphics associated with this distribution are protected under trademark law and copyright law. No permission is granted to use them outside the parameters of the Government of Canada's corporate identity program. For more information, see [Federal identity requirements](https://www.canada.ca/en/treasury-board-secretariat/topics/government-communications/federal-identity-requirements.html).
 
-User guide's complete example set.
+______________________
 
-*  Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=36398434&objAction=download
-  
-## Poster (pptx)
+# Rendu de légende
+([English](#Legend-Renderer))
 
-* Download: https://gcdocs.gc.ca/nrcan-rncan/llisapi.dll?func=ll&objId=39129695&objAction=download 
+Cet outil a été dévelopé afin d'assiter à la création d'une légende standard d'une Carte Géoscientifique Canadienne. En interprétant les données d'entrée dans une table de légende, cet outil créera des éléments graphiques à l'intérieux d'une vue de d'habillage de carte dans ArcMapTM. La légende ainsi créée sera compatible avec les procédure standard d'alignement, de texte, de description d'unités géologiques, d'étiquette et d'espacement entre les graphiques. Utiliser un tel outil permet de gagner en efficacité et en temps lors d'un travail de cartographie. Puisque la légende se construit à partir d'une table, un effort d'édition manuelle des éléments graphiques et requis au cartographe.
+
+## Pré-requis
+
+Cet outil a été developé et testé sous ArcGIS Desktop TM version 10.7.
+
+## Installation
+
+Veuillez-vous référer au document d'origine d'ESRI en ce qui concerne l'installation des .esriaddin:
+[Installation](https://desktop.arcgis.com/en/arcmap/latest/analyze/python-addins/sharing-and-installing-add-ins.htm)
+
+
+## Dernière version
+
+Veuillez télécharger la dernière version depuis la [page des versions](https://github.com/NRCan/Legend-Renderer).
+
+## Wiki
+
+Le [Github Wiki](https://github.com/NRCan/Legend-Renderer/wiki) contient une documentation et des vidéos utiles, notamment une [une vidéo technique](https://www.youtube.com/watch?v=bpSkPNBQ3gg) de l'application de terrain du CGS.
+
+## Format des données
+
+L'outil supporte plusieurs format d'entrée tel que les fichiers Excel (.xlsx), File Geodatabase (.gdb), Comma seperated values (.csv), etc.
+
+## Contacts
+
+Gabriel Huot-Vézina: gabriel.huot-vezina@nrcan-rncan.gc.ca
+
+### Comment contribuer
+
+See [CONTRIBUTING.md](CONTRIBUTING.md)
+
+### License
+<a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribution-NonCommercial 4.0 International License</a>.
+
+[Document de licence](LIC-4026-Legend-Renderer-CC-BY-NC-French.docx)
+
+Le mot-symbole « Canada » et les éléments graphiques connexes liés à cette distribution sont protégés en vertu des lois portant sur les marques de commerce et le droit d'auteur. Aucune autorisation n'est accordée pour leur utilisation à l'extérieur des paramètres du programme de coordination de l'image de marque du gouvernement du Canada. Pour obtenir davantage de renseignements à ce sujet, veuillez consulter les [Exigences pour l'image de marque](https://www.canada.ca/fr/secretariat-conseil-tresor/sujets/communications-gouvernementales/exigences-image-marque.html).
