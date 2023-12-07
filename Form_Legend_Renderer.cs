@@ -1518,10 +1518,22 @@ namespace GSC_Legend_Renderer
                                     IMultiLayerMarkerSymbol mlCharacterElement = saMarkerElement.Symbol as IMultiLayerMarkerSymbol;
                                     ICharacterMarkerSymbol saCharacterElement = Services.ObjectManagement.CopyInputObject(mlCharacterElement.Layer[0]) as ICharacterMarkerSymbol;
 
+
                                     int labelCharset = 0;
                                     if (int.TryParse(currentLabel1, out labelCharset))
                                     {
                                         saCharacterElement.CharacterIndex = Convert.ToInt16(currentLabel1);
+
+                                        //Make sure needed style font style is copied over new annotation, else leave default
+                                        if (textSymbolDico.ContainsKey(currentLabel1Style))
+                                        {
+                                            ISimpleTextSymbol inStyleSymbol = textSymbolDico[currentLabel1Style] as ISimpleTextSymbol;
+                                            IFontDisp saFontDisp = saCharacterElement.Font;
+                                            IFontDisp inFontDisp = inStyleSymbol.Font;
+                                            saFontDisp.Name = inFontDisp.Name; //Only change font name, leave other as is
+                                            saCharacterElement.Font = saFontDisp;
+                                        }
+
                                     }
                                     else
                                     {
