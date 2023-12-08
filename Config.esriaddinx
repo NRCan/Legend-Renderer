@@ -2,11 +2,11 @@
   <Name>GSC_Legend_Renderer</Name>
   <AddInID>{13156a20-24c7-4fe5-bee4-9a02843d1d62}</AddInID>
   <Description>Legend Renderer is a specialized tool that will produce a graphic legend from an input legend table.</Description>
-  <Version>1.3</Version>
+  <Version>1.3.1</Version>
   <Image>Images\GSCLogo.png</Image>
   <Author>Geological Survey Canada</Author>
   <Company>Natural Resources Canada</Company>
-  <Date>2021-09-17</Date>
+  <Date>2023-12-08</Date>
   <Targets>
     <Target name="Desktop" version="10.7" />
   </Targets>
