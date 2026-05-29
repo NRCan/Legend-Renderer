@@ -1,0 +1,67 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--Warning: Margin setting in here doesn't work-->
+    <!--Warning: VertocalContentAlignment setting in here doesn't work-->
+    <!--Warning: Foreground color setting in here doesn't work-->
+    <!--Warning: Fontweight color setting in here doesn't work-->
+    
+    <!--TIP: ESRI left alignment of labels and controls needs margin="-5,0,0,0"-->
+    <!--TIP: ESRI Controls height is 22-->
+    
+    <!--Custom styles for LegendEditorPro-->
+    <Style x:Key="LegendTextboxInputs" TargetType="TextBox">
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="Height" Value="22"/>
+    </Style>
+
+    <Style x:Key="LegendGrid" TargetType="Grid">
+        <!--Need to be added in xaml, doesn't work from style file-->
+        <!--<Setter Property="Margin" Value="10,10,10,10"/>-->
+    </Style>
+
+    <Style x:Key="LegendButtonSave" TargetType="Button">
+        <Setter Property="Width" Value="100" />
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="VerticalAlignment" Value="Stretch"/>
+    </Style>
+
+    <Style x:Key="LegendButtonCancel" TargetType="Button">
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="Margin" Value="110,0,10,0"/>
+        <Setter Property="Width" Value="100" />
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="VerticalAlignment" Value="Stretch"/>
+    </Style>
+
+    <Style x:Key="LegendButtonLabel" TargetType="Label">
+        <Setter Property="Margin" Value="0"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="LegendWarningLabel" TargetType="Label">
+        <Setter Property="Margin" Value="0"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Foreground" Value="Red"/>
+    </Style>
+
+    <Style x:Key="ButtonRadioButtonStyle" TargetType="{x:Type RadioButton}" BasedOn="{StaticResource {x:Type ToggleButton}}">
+        <Style.Triggers>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+            </Trigger>
+            <Trigger Property="IsChecked" Value="False">
+                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+            </Trigger>
+            <Trigger Property="IsChecked" Value="True">
+                <Setter Property="Background" Value="#FF2F2FEA" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+</ResourceDictionary>
