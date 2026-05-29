@@ -1,22 +1,72 @@
-﻿<controls:ProWindow x:Class="GSCLegendRendererPro.Form_Legend_Renderer"
+﻿<controls:ProWindow x:Class="GSCLegendRendererPro.ProWindows.Form_Legend_Renderer"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:controls="clr-namespace:ArcGIS.Desktop.Framework.Controls;assembly=ArcGIS.Desktop.Framework"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:GSCLegendRendererPro.Properties"
         xmlns:extensions="clr-namespace:ArcGIS.Desktop.Extensions;assembly=ArcGIS.Desktop.Extensions"
+        xmlns:layerControls="clr-namespace:ArcGIS.Desktop.Internal.Mapping.CommonControls.LayerControls;assembly=ArcGIS.Desktop.Mapping"
         mc:Ignorable="d"
-        Title="Form_Legend_Renderer" Height="300" Width="300"
-        WindowStartupLocation="CenterOwner"
-    >
+        ResizeMode="NoResize" 
+        Title="{x:Static local:Resources.FormRendererTitle}" Height="750" Width="450"
+        WindowStartupLocation="CenterOwner">
+
     <controls:ProWindow.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <extensions:DesignOnlyResourceDictionary Source="pack://application:,,,/ArcGIS.Desktop.Framework;component\Themes\Default.xaml"/>
+                <extensions:DesignOnlyResourceDictionary Source="/GSCLegendRendererPro;component/LegendUIStyle.xaml"/>
+                <extensions:DesignOnlyResourceDictionary Source="pack://application:,,,/ArcGIS.Desktop.Framework;component/XamlImages.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </controls:ProWindow.Resources>
-    <Grid>
+
+    <Grid Style="{DynamicResource LegendGrid}" Margin="10" VerticalAlignment="Top">
+
+        <Grid.RowDefinitions>
+            <!--Select legend table-->
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="5"/>
+            
+            <!--Field selection-->
+            <RowDefinition Height="550"/>
+            <RowDefinition Height="5"/>
+            
+        </Grid.RowDefinitions>
+        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+
+        <!--Select legend table-->
+        <Label Grid.Row="0" Margin="-5,0,0,-5"  Content="{x:Static local:Resources.FormRendererSelectLegendTable}" Style="{DynamicResource LegendButtonLabel}"/>
+        <ComboBox x:Name="LegendLayerCombobox" Grid.Row="1" Margin="0,0,0,-5" Height="22" VerticalContentAlignment="Center" 
+                  ItemsSource="{Binding Path=LegendLayers}" SelectedIndex="{Binding Path=LegendSelectedLayerIndex}">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="{Binding Icon}" Width="15" Height="15" Margin="0,0,5,0" />
+                        <TextBlock Text="{Binding Name}" />
+                    </StackPanel>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+
+        <!--Field selection-->
+        <GroupBox Grid.Row="3" Header="{x:Static local:Resources.FormRendererGroupFields}" Margin="0">
+            <StackPanel>
+                <Label Margin="-5,0,0,-5" Content="{x:Static local:Resources.FormRendererFieldOrder}" Style="{DynamicResource LegendButtonLabel}"/>
+                <ComboBox Margin="0,0,0,-5" Height="22" VerticalContentAlignment="Center"
+                  ItemsSource="{Binding Path=LegendOrder}" DisplayMemberPath="Name" SelectedValuePath="Value" 
+                  SelectedItem="{Binding LegendSelectedOrder}">
+
+                </ComboBox>
+            </StackPanel>
+
+        </GroupBox>
 
     </Grid>
 </controls:ProWindow>

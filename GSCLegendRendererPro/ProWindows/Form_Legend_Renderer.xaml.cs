@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace GSCLegendRendererPro
+namespace GSCLegendRendererPro.ProWindows
 {
     /// <summary>
     /// Interaction logic for Form_Legend_Renderer.xaml
@@ -23,6 +23,8 @@ namespace GSCLegendRendererPro
         public Form_Legend_Renderer()
         {
             InitializeComponent();
+
+            this.DataContext = new Form_Legend_RendererViewModel(this);
         }
     }
 }

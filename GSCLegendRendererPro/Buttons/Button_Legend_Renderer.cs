@@ -18,7 +18,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GSCLegendRendererPro
+using GSCLegendRendererPro.ProWindows;
+
+namespace GSCLegendRendererPro.Buttons
 {
     internal class Button_Legend_Renderer : Button
     {
