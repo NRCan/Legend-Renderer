@@ -61,11 +61,119 @@ namespace GSCLegendRendererPro.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Auto-calculate number of columns (CGM only)..
+        /// </summary>
+        public static string FormRendererFieldAutoCalculateColumn {
+            get {
+                return ResourceManager.GetString("FormRendererFieldAutoCalculateColumn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Column.
+        /// </summary>
+        public static string FormRendererFieldColumn {
+            get {
+                return ResourceManager.GetString("FormRendererFieldColumn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to DEM images in unit boxes..
+        /// </summary>
+        public static string FormRendererFieldDEM {
+            get {
+                return ResourceManager.GetString("FormRendererFieldDEM", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Description.
+        /// </summary>
+        public static string FormRendererFieldDescription {
+            get {
+                return ResourceManager.GetString("FormRendererFieldDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Element.
+        /// </summary>
+        public static string FormRendererFieldElement {
+            get {
+                return ResourceManager.GetString("FormRendererFieldElement", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Heading.
+        /// </summary>
+        public static string FormRendererFieldHeading {
+            get {
+                return ResourceManager.GetString("FormRendererFieldHeading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Label 1.
+        /// </summary>
+        public static string FormRendererFieldLabel1 {
+            get {
+                return ResourceManager.GetString("FormRendererFieldLabel1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Label 1 Style.
+        /// </summary>
+        public static string FormRendererFieldLabel1Style {
+            get {
+                return ResourceManager.GetString("FormRendererFieldLabel1Style", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Label 2.
+        /// </summary>
+        public static string FormRendererFieldLabel2 {
+            get {
+                return ResourceManager.GetString("FormRendererFieldLabel2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Label 2 Style.
+        /// </summary>
+        public static string FormRendererFieldLabel2Style {
+            get {
+                return ResourceManager.GetString("FormRendererFieldLabel2Style", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Order.
         /// </summary>
         public static string FormRendererFieldOrder {
             get {
                 return ResourceManager.GetString("FormRendererFieldOrder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Style 1.
+        /// </summary>
+        public static string FormRendererFieldStyle1 {
+            get {
+                return ResourceManager.GetString("FormRendererFieldStyle1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Style 2.
+        /// </summary>
+        public static string FormRendererFieldStyle2 {
+            get {
+                return ResourceManager.GetString("FormRendererFieldStyle2", resourceCulture);
             }
         }
         

@@ -28,11 +28,11 @@
       </groups>
       <controls>
         <!-- add your controls here -->
-        <button id="GSCLegendRendererPro_Button_Legend_Renderer" keytip="Layout" caption="Create Legend" className="Button_Legend_Renderer" loadOnClick="true" smallImage="Legend16" largeImage="Legend32">
+        <button id="GSCLegendRendererPro_Button_Legend_Renderer" keytip="Layout" caption="Create Legend" className="Buttons.Button_Legend_Renderer" loadOnClick="true" smallImage="Legend16" largeImage="Legend32">
           <tooltip heading="Legend">
 				Specialized tool that will produce a graphic legend from an input legend table.<disabledText /></tooltip>
         </button>
-        <button id="GSCLegendRendererPro_Button_Help" keytip="Help, about and more online resources" caption="About" className="Button_Help" loadOnClick="true" smallImage="pack://application:,,,/GSCLegendRendererPro;component/Images/Hammer16.png" largeImage="pack://application:,,,/GSCLegendRendererPro;component/Images/Hammer32.png">
+        <button id="GSCLegendRendererPro_Button_Help" keytip="Help, about and more online resources" caption="About" className="Buttons.Button_Help" loadOnClick="true" smallImage="pack://application:,,,/GSCLegendRendererPro;component/Images/Hammer16.png" largeImage="pack://application:,,,/GSCLegendRendererPro;component/Images/Hammer32.png">
           <tooltip heading="Help">
 				Help, about and more online resources<disabledText /></tooltip>
         </button>

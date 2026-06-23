@@ -117,8 +117,17 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="FormRendererFieldColumn" xml:space="preserve">
+    <value>Colonne</value>
+  </data>
+  <data name="FormRendererFieldElement" xml:space="preserve">
+    <value>Élément</value>
+  </data>
   <data name="FormRendererFieldOrder" xml:space="preserve">
     <value>Ordre</value>
+  </data>
+  <data name="FormRendererFieldStyle1" xml:space="preserve">
+    <value>Style 1</value>
   </data>
   <data name="FormRendererGroupFields" xml:space="preserve">
     <value>Champs</value>
@@ -155,5 +164,32 @@
   </data>
   <data name="GenericWarningTitle" xml:space="preserve">
     <value>Attention</value>
+  </data>
+  <data name="FormRendererFieldLabel1" xml:space="preserve">
+    <value>Étiquette 1</value>
+  </data>
+  <data name="FormRendererFieldStyle2" xml:space="preserve">
+    <value>Style 2</value>
+  </data>
+  <data name="FormRendererFieldLabel1Style" xml:space="preserve">
+    <value>Étiquette 1 Style</value>
+  </data>
+  <data name="FormRendererFieldLabel2" xml:space="preserve">
+    <value>Étiquette 2</value>
+  </data>
+  <data name="FormRendererFieldLabel2Style" xml:space="preserve">
+    <value>Étiquette 2 Style</value>
+  </data>
+  <data name="FormRendererFieldHeading" xml:space="preserve">
+    <value>En-tête</value>
+  </data>
+  <data name="FormRendererFieldDescription" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="FormRendererFieldDEM" xml:space="preserve">
+    <value>Image MNE dans les boîtes d'unités.</value>
+  </data>
+  <data name="FormRendererFieldAutoCalculateColumn" xml:space="preserve">
+    <value>Calcule automatique du nombre de colonne (Carte CGM seulement).</value>
   </data>
 </root>
