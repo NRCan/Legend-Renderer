@@ -192,4 +192,10 @@
   <data name="FormRendererFieldAutoCalculateColumn" xml:space="preserve">
     <value>Calcule automatique du nombre de colonne (Carte CGM seulement).</value>
   </data>
+  <data name="ErrorWrongData" xml:space="preserve">
+    <value>Impossible de lire la source de la table sélectionnée.</value>
+  </data>
+  <data name="ErrorNoFields" xml:space="preserve">
+    <value>La table sélectionnée ne possède pas de champs valides.</value>
+  </data>
 </root>

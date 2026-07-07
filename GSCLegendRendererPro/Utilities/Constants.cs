@@ -3,880 +3,149 @@
 namespace GSCLegendRendererPro.Utilities
 {
     public class Constants
-    {
-        #region Project Database related constants
-
-        public class Database
+    {        /// <summary>
+             /// Mandatory field names found in the legend table
+             /// </summary>
+        public static class LegendTable
         {
+            public const string legendOrderField = "ELEMENT_ORDER";
+            public const string legendColumnField = "ELEMENT_COLUMN";
+            public const string legendElementField = "ELEMENT";
+            public const string legendStyle1Field = "STYLE1";
+            public const string legendStyle2Field = "STYLE2";
+            public const string legendLabel1Field = "LABEL1";
+            public const string legendLabel1StyleField = "LABEL1STYLE";
+            public const string legendLabel2Field = "LABEL2";
+            public const string legendLabel2StyleField = "LABEL2STYLE";
+            public const string legendHeadingField = "HEADING";
+            public const string legendDescriptionField = "DESCRIPTION";
+        }
 
-            public const double CurrentDBVersion = 4.0; //Update this when DB schema is changed
-            public const double DBVersion_300 = 3.0; //Never implemented, skipped from 2.10 to 4.0 to align with software versioning
-            public const double DBVersion_210 = 2.10; 
+        /// <summary>
+        /// Graphic names found in template.mxd and values for field ELEMENT
+        /// </summary>
+        public static class Graphics
+        {
+            public const string unitBox = "UNIT_BOX";
 
-            //Tables
-            public const string TParticipant = "P_PARTICIPANT";
-            public const string TPerson = "P_PERSON";
-            public const string TLegendDescription = "P_LEGEND_DESCRIPTION"; //Deprecated table
-            public const string TStudyAreaIndex = "P_STUDY_AREA_INDEX"; //Deprecated table
-            public const string TSource = "P_SOURCE";
-            public const string TOrganisation = "P_ORGANIZATION";
-            public const string TLegendGene = "P_LEGEND";
-            public const string TLegendTree = "P_LEGEND_INDEX"; //Deprecated table
+            public const string unitSplit = "UNIT_SPLIT";
+            public const string subUnitSplit1 = "UNIT_SPLIT1";
+            public const string subUnitSplit2 = "UNIT_SPLIT2";
 
-            public const string TProject = "M_PROJECT";
-            public const string TMActivity = "M_ACTIVITY";
-            public const string TMetadata = "M_METADATA";
-            public const string TSActivity = "M_SUB_ACTIVITY";
+            public const string unitLine = "UNIT_LINE";
+            public const string subUnitLine = "LINEUNIT_LINE";
 
-            public const string TGeolineSymbol = "SYMBOL_GEOLINES";
-            public const string TGeopointSymbol = "SYMBOL_GEOPOINTS";
+            public const string unitParent = "UNIT_PARENT";
+            public const string subUnitParentChild = "UNIT_CHILD";
+            public const string subUnitParentChildLine = "UNIT_CHILD_LINE";
 
-            public const string TExtenAttrb = "CARTOGRAPHIC_";//Last part will depend on user choice of theme name
+            public const string unitindent1 = "UNIT_INDENT";
+            public const string unitindent2 = "UNIT_INDENT2";
 
-            public const string TDomainAssigned = "DOMAINS_ASSIGNED";//Deprecated table
-            public const string TDomainDID = "DOMAINS_DID"; //Deprecated table
-            public const string TDomainPID = "DOMAINS_PID";//Deprecated table
-            public const string TDomainSID = "DOMAINS_SID";//Deprecated table
-            public const string TSubtypes = "M_SUBTYPES";//Deprecated table
+            public const string lineDouble = "TWOSIDE";
+            public const string lineDoubleFlip = "TWOSIDE_FLIP";
+            public const string subLineDoubleTop = "TWOSIDE_TOP";
+            public const string subLineDoubleBottom = "TWOSIDE_BOTTOM";
 
-            public const string TGeoEvent = "P_GEO_EVENT";
+            public const string lineDoubleFLow = "TWOSIDE_FLOW";
+            public const string subLineDoubleFLowTop = "TWOSIDE_TOP";
+            public const string subLineDoubleFLowMiddle = "TWOSIDE_FLOW_MIDDLE";
+            public const string subLineDoubleFLowBottom = "TWOSIDE_BOTTOM";
 
-            //Features
-            public const string FGeoline = "GEO_LINES";
-            public const string FLabel = "LABELS";
-            public const string FGeopoly = "GEO_POLYS";
-            public const string FStation = "F_STATION";//Deprecated table
-            public const string FStudyArea = "P_STUDY_AREA";
-            public const string FStudyAreaAlias = "Study Areas"; //GIS display of feature class name
-            public const string FCGMIndex = "P_CGM";
-            public const string FGeopoint = "GEO_POINTS";
-            public const string FCartoPoint = "CARTOGRAPHIC_POINTS";
+            public const string bracketLeftLower = "L_BRACKET_L";
+            public const string bracketLeftCenter = "L_BRACKET_C";
+            public const string bracketLeftUpper = "L_BRACKET_U";
+            public const string bracketRightLower = "R_BRACKET_L";
+            public const string bracketRightCenter = "R_BRACKET_C";
+            public const string bracketRightUpper = "R_BRACKET_U";
+            public const string bracketSpine = "BRACKET_SPINE";
+            //public const string bracketLeftStart = "L_BRACKET_START";
+            //public const string bracketLeftEnd = "L_BRACKET_END";
+            //public const string bracketRightStart = "R_BRACKET_START";
+            //public const string bracketRightEnd = "R_BRACKET_END";
 
-            //Feature datasets
-            public const string FDField = "FIELD_OBS"; //Ganfeld
-            public const string FDGeo = "GEO";
+            public const string overlay = "OVERLAY";
+            public const string breakLine = "BREAK";
+            public const string point = "POINT_CC";
+            public const string pointAngle = "POINT_CC_45";
+            public const string pointAngleLine = "POINT_LC_45";
+            public const string wave = "WAVE";
+            public const string line = "LINE";
+            public const string blob = "BLOB";
+            public const string landslide = "LANDSLIDE";
+            public const string beach = "BEACH";
+            public const string dunes = "DUNES";
+            public const string moraines = "MORAINES";
+            public const string annotationBreak = "ANNO_BREAK";
+            public const string legendBoxDEM = "LegendBoxDEM";
 
-            //Topographic database
-            public const string topoDBName = "Project_Elements";
+            public const string topNote = "TOP_NOTE";
+            public const string note = "NOTE";
 
-            //Ganfeld tables
-            public const string gEarthMath = "F_EARTHMAT";//Deprecated table
-            public const string gMA = "F_MA";//Deprecated table
-            public const string gMetadata = "F_METADATA";//Deprecated table
-            public const string gMineral = "F_MINERAL";//Deprecated table
-            public const string gSample = "F_SAMPLE";//Deprecated table
-            public const string gStruc = "F_STRUC";//Deprecated table
-            public const string gPhoto = "F_PHOTO";//Deprecated table
-            public const string gEnviron = "F_ENVIRON";//Deprecated table
-            public const string gPFlow = "F_PFLOW";//Deprecated table
-            public const string gSoil = "F_SOILPRO";//Deprecated table
-            public const string gBiogeo = "F_BIOGEO";//Deprecated table
+            public const string unitLabel = "UNIT_LABEL"; //Added by GHV
+            public const string heading1 = "HEADING1"; //Added by GHV
+            public const string heading2 = "HEADING2"; //Added by GHV
+            public const string heading3 = "HEADING3"; //Added by GHV
+            public const string heading4 = "HEADING4"; //Added by GHV
+            public const string heading5 = "HEADING5"; //Added by GHV
+            public const string heading5_end = "HEADING5_END"; //Added by GHV
+            public const string annoBracket = "ANNO_BRACKET"; //Added by GHV
+            public const string description = "DESCRIPTION"; //Added by GHV
+            public const string description_indent = "DESCRIPTION_INDENT";//Added by GHV
+            public const string description_indent2 = "DESCRIPTION_INDENT2";//Added by GHV
+            public const string heading5Description = "GROUP_DESCRIPTION";
 
-            //Ganfeld feature
-            public const string gFCLinework = "F_LINEWORK";//Deprecated table
-            public const string gFCStation = "F_STATION";//Deprecated table
-            public const string gFCTraverses = "F_TRAVERSE";//Deprecated table
+            //Other element names
+            public const string columnWidth = "COLUMN_WIDTH";
+            public const string elementWidth = "ELEMENT_WIDTH";
+            public const string elementDescriptionGapWidth = "ELEMENT_DESCRIPTION_GAP_WIDTH"; //Added by GHV
+            public const string descriptionWidth = "DESCRIPTION_WIDTH";
+            public const string columnColumnGapWidth = "COLUMN_COLUMN_GAP_WIDTH"; //Added by GHV
+            public const string bracketLeftGap = "L_BRACKET_GAP"; //Added by GHV
+            public const string bracketRightGap = "R_BRACKET_GAP"; //Added by GHV
+            public const string unitBoxBracket = "UNIT_BOX_R_BRACKET_GAP"; //Added by GHV
+            public const string measurementLabel = "MEASUREMENT_LABEL"; //Added by GHV
+            public const string generationLabel = "GENERATION_LABEL"; //Added by GHV
+            public const string defaultpointLabel = "DEFAULT_POINT_LABEL"; //Added by GHV
+            public const string bracketLeftColumnGap = "L_BRACKET_COLUMN_GAP"; //Added by GHV
+            public const string annotationBlob = "ANNO_BLOB"; //Added by GHV
+            public const string groupDescriptionWidth = "GROUP_DESCRIPTION_WIDTH"; //Added by GHV
 
-            //Old names (to be kept for legacy between DB versions)
-            public const string TOrganisation_160915 = "P_ORGANISATION";
-            public const string TGeoEvent_160915 = "GEO_EVENT";
-            public const string TSActivity_141003 = "S_ACTIVITY";
-            public const string FLabel_141003 = "P_LABELS";
-            public const string TExtenAttrb_141003 = "EXTENDED_ATTRIBUTES";
-            public const string TExtenAttrb_160322 = "CARTOGRAPHIC_ATTRIBUTES";
-            public const string TGeolineSymbol_141003 = "GEOLINE_SYMBOLS";
-            public const string TGeopointSymbol_141003 = "GEOPOINT_SYMBOLS";
-            public const string TLegendTree_141003 = "LEGEND_TREETABLE";
-            public const string TLegendGene_160411 = "P_LEGEND_GENERATOR";
-            public const string TLegendTree_160411 = "P_LEGEND_TREETABLE";
-            public const string FCGMIndex_160411 = "P_CGM_INDEXMAP";
+            public const string anchorCenterCenter = "CC";
+            public const string anchorUupperLeft = "UL";
+            public const string anchorCenterLeft = "CL";
+            public const string anchorLowerCenter = "LC";
+            public const string anchorUpperCenter = "UC";
+            public const string anchorLowerLeft = "LL";
+            public const string anchorCenterRight = "CR";
+            public const string anchorLowerRight = "LR";
+            public const string anchorUpperRight = "UR";
 
-            //Topology
-            public const string Topology = "GEO_TOPO";
+            public const string defaultStartEmplacement = "";
 
-            //Temporary names for features and tables
-            public const string tLegendGeneratorTemp = "P_LEGEND_VIEW";
-            public const string tLegendGeneratorTemp191224 = "P_LEGEND_GENERATOR";
-            //Relationship
-            public const string rel_tLegend_fGeopoly = "Rel_LegendGenerator_GeoPolys";
-            public const string rel_prefix_CartoPnt = "Rel_CartoPnt_";
+            public const string keywordBracket = "BRACKET";
+            public const string keywordEnd = "END"; //Will be used for column auto-calculate
+
+            public enum UnitBoxType { normal, split1, split2, parent, child, line, child_line }; //Will be used to correctly place label inside unit boxes
+
+            //CGM template elements
+            public const string cgmLegendElement = "Legend";
+            public const string cgmCitation = "Citation";
+            public const string cgmDetectorKeyword = "CGM";
 
         }
 
-        public static class DatabaseFields
+        /// <summary>
+        /// Asset file names.
+        /// </summary>
+        public static class Assets
         {
-            //Main
-            public const string ObjectID = "OBJECTID";
-            public const string SourceID = "SOURCEID";
-
-            #region TABLES 
-
-            #region Participant Table
-            public const string ParticipantRoleDesc = "ROLEDESC";
-            public const string ParticipantPersonID = "PERSONID";
-            //public const string ParticipantActivityID = "ACTIVITYID";
-            public const string ParticipantRole = "PARTROLE";
-            public const string ParticipantGeolCode = "GEOLCODE";
-            public const string ParticipantStartDate = "STARTDATE";
-            public const string ParticipantRemarks = "REMARKS";
-            public const string ParticipantMetaID = "METAID";
-            public const string ParticipantEndDate = "ENDDATE";
-            public const string ParticipantMActID = "M_ACTIVITYID";
-            public const string ParticipantSActID = "S_ACTIVITYID";
-            public const string ParticipantID = "PARTICIPANTID";
-
-            #endregion
-
-            #region Person table
-            public const string PersonFirstName = "FNAME";
-            public const string PersonMiddleName = "MNAME";
-            public const string PersonLastName = "LNAME";
-            public const string PersonAbbr = "ABBREVNAME";
-            public const string PersonPhone = "PHONE";
-            public const string PersonEmail = "EMAIL";
-            public const string PersonOrg = "ORGID";
-            public const string PersonID = "PERSONID";
-            public const string PersonAlias = "ALIAS";
-            #endregion
-
-            #region Sub Activity table
-            public const string SubActivityName = "S_ACTIVITYNAME";
-            public const string SubActivityID = "S_ACTIVITYID";
-            public const string SubActivityMainID = "M_ACTIVITYID";
-            public const string SubActivityAbbr = "ABBREVIATION";
-            public const string SubActivityStart = "STARTDATE";
-            public const string SubActivityEnd = "ENDDATE";
-            public const string SubActivityDesc = "DESCRIPTION";
-            #endregion
-
-            #region Main Activity table
-            public const string MainActivityName = "M_ACTIVITYNAME";
-            public const string MainActID = "M_ACTIVITYID";
-            public const string MainActProjectID = "PROJECTID";
-            public const string MainActAbbr = "ABBREVIATION";
-            public const string MainActStart = "STARTDATE";
-            public const string MainActEnd = "ENDDATE";
-            public const string MainActDesc = "DESCRIPTION";
-            #endregion
-
-            #region Organisation table
-            public const string OrganisationName = "ORGNAME";
-            public const string OrganisationID = "ORGID";
-            public const string OrganisationAddress = "ORGADD";
-            public const string OrganisationPhone = "ORGPHONE";
-            public const string OrganisationEmail = "ORGEMAIL";
-            public const string OrganisationWeb = "ORGWWW";
-            public const string OrganisationAbbr = "ORGABBREV";
-            #endregion
-
-            #region Project table
-            public const string ProjectID = "PROJECTID";
-            public const string ProjectName = "PROJECTNAME";
-            public const string ProjectNom = "PROJECTNOM";
-            public const string ProjectAbbr = "PROJECTABBREV";
-            public const string ProjectStart = "STARTDATE";
-            public const string ProjectEnd = "ENDDATE";
-            public const string ProjectRemarks = "REMARKS";
-            public const string ProjectWebLink = "WEBLINK";
-            public const string ProjectCode = "PROJECTCODE";
-            #endregion
-
-            #region Master Geoline Symbols
-            public const string MGeolineSelectCode = "SelectCode"; //Used to get symbols into templates within Arc Map
-            public const string MGeolineLegendDescription = "Legend_Description";
-
-            public const string MGeolineID = "GEOLINEID";
-            public const string MGeolineFGDC = "GSC_SYMBOL";
-            #endregion
-
-            #region Legend generator table
-            public const string LegendLabelID = "LEGENDITEMID";
-            public const string LegendGISDisplay = "GIS_DISPLAY_NAME";
-            public const string LegendItemType = "ELEMENT"; //Version 4.0
-            public const string LegendSymbol = "STYLE1"; //Version 4.0
-            public const string LegendSymbol2 = "STYLE2"; //Version 4.0
-            public const string LegendLabel1 = "LABEL1"; //Version 4.0
-            public const string LegendLabel1Style = "LABEL1STYLE"; //Version 4.0
-            public const string LegendLabel2 = "LABEL2"; //Version 4.0
-            public const string LegendLabel2Style = "LABEL2STYLE"; //Version 4.0
-            public const string LegendHeading = "HEADING"; //Version 4.0
-            public const string LegendColumn = "ELEMENT_COLUMN"; //Version 4.0
-            public const string LegendOrder = "ELEMENT_ORDER"; //Version 4.0
-            public const string LegendDescription = "DESCRIPTION"; //Version 4.0
-            public const string LegendGeolRank = "GEOLRANK";
-            public const string LegendOverprint = "OVERPRINT"; //Version 4.0
-
-            public const string LegendSymbol_190101 = "GSC_SYMBOL"; //Version 2.10
-            public const string LegendSymType_190101 = "SYM_TYPE"; //Version 2.10
-            public const string LegendLabelName_190101 = "NAME"; //Version 2.10
-            public const string LegendMapUnit_190101 = "MAPUNIT"; //Version 2.10
-            public const string LegendAnnotation_190101 = "ANNOTATION"; //Version 2.10
-            public const string LegendOrder_190101 = "LEGEND_ORD"; //Version 2.10
-            public const string LegendIndentation_190101 = "INDENT"; //Version 2.10
-            public const string LegendItemType_190101 = "LEGEND_ITEMTYPE"; //Version 2.10
-            #endregion
-
-            #region Legend description table
-            public const string LegendDescription_190101 = "DESCRIPTION"; //Version 2.10
-            public const string LegendDescriptionID_190101 = "LEGDESCRIPTIONID"; //Version 2.10
-            #endregion
-
-            #region Legend tree table
-            public const string LegendTreeDescID = "LEGDESCRIPTIONID";
-            public const string LegendTreeCGM = "CGM_MAPID";
-            public const string LegendTreeItemID = "LEGENDITEMID";
-            #endregion
-
-            #region Table M_METADATA
-            public const string MetadataPurposeFr = "PURPOSE_FR";
-            public const string MetadataPurpose = "PURPOSE";
-            public const string MetadataNAP = "NAP_METAID";
-            #endregion
-
-            #region Table study area index
-            public const string TStudyAreaName = "TABLENAME";
-            public const string TStudyAreaRowID = "TABLE_RELATEDID";
-            public const string TStudyAreaFC = "FC_NAME";
-            #endregion
-
-            #region Table P_SOURCE
-            public const string TSourceID = "SOURCEID";
-            public const string TsourceName = "SOURCENAME";
-            public const string TSourceRemarks = "REMARKS";
-            public const string TSourceDOI = "DOI";
-            public const string TSourceAbbr = "ABBREVIATION";
-            public const string TSourceFilePath = "FILEPATH";
-            public const string TSourceExtended = "EXTENDED_SOURCE";
-            #endregion
-
-            #region Table Geopoint_symbol
-            public const string TGeopointID = "GEOPOINTID";
-            public const string TGeopointLegendDesc = "Legend_Description";
-            public const string TGeopointFGDC = "GSC_SYMBOL";
-            public const string TGeopointSelectCode = "SelectCode";
-            #endregion
-
-            #region GEO_EVENT
-
-            public const string TGeoEventID = "GEOEVENT_ID";
-            public const string TGeoEventName = "GEOEVENT_NAME";
-            public const string TGeoEventAgeMinPrefix = "AGEMIN_PREFIX";
-            public const string TGeoEventAgeMinTimescale = "AGEMIN_TIMESCALE";
-            public const string TGeoEventAgeMinValue = "AGEMIN_VALUE";
-            public const string TGeoEventAgeMinCertainty = "AGEMIN_CERTAINTY";
-
-            public const string TGeoEventAgeMaxPrefix = "AGEMAX_PREFIX";
-            public const string TGeoEventAgeMaxTimescale = "AGEMAX_TIMESCALE";
-            public const string TGeoEventAgeMaxValue = "AGEMAX_VALUE";
-            public const string TGeoEventAgeMaxCertainty = "AGEMAX_CERTAINTY";
-
-            public const string TGeoEventSourceID = "SOURCEID";
-
-            #endregion
-
-            #endregion
-
-            #region FEATURES
-
-            #region Feature Label
-            public const string FLabelID = "LABELID";
-            public const string FLabelIDAlias = "Label";
-            public const string FLabelGeoEventID = "GEOEVENT_ID";
-            public const string FLabelSymbol = "GSC_SYMBOL";
-            #endregion
-
-            #region Feature Geoline
-            public const string FGeolineSubtype = "GEOLINETYPE";
-            public const string FGeolineQualif = "QUALIFIER";
-            public const string FGeolineConf = "CONFIDENCE";
-            public const string FGeolineAtt = "ATTITUDE";
-            public const string FGeolineGeneration = "GENERATION";
-            public const string FGeolineFGDC = "GSC_SYMBOL";
-            public const string FGeolineID = "GEOLINEID";
-            public const string FGeolineBoundary = "ISBOUNDARY";
-            public const string FGeolineMovement = "MOVEMENT";
-            public const string FGeolineHangwall = "HWALLDIR";
-            public const string FGeolineFoldTrend = "FOLDTREND";
-            public const string FGeolineArrowDir = "ARROWDIR";
-            public const string FGeolineDisplayPub = "DISPLAYPUB";
-            public const string FGeolineGeoEventID = "GEOEVENT_ID";
-            public const string FGeolineName = "NAME";
-            public const string FGeolineOriginalCode = "ORIGCODE";
-            public const string FGeolineRemarks = "REMARKS";
-            public const string FGeolineRemarksEdit = "EDITREMARKS";
-            #endregion
-
-            #region Feature Geopolys
-            public const string FGeopolyLabel = "LABELID";
-            public const string FGeopolyRemark = "REMARKS";
-            public const string FGeopolyFGDC = "GSC_SYMBOL";
-            #endregion
-
-            #region Feature Study area
-            public const string FStudyAreaAbbr = "ABBREVIATION";
-            public const string FStudyAreaRemarks = "REMARKS";
-            public const string FStudyAreaEast = "EAST_EXTENT_COORD";
-            public const string FStudyAreaWest = "WEST_EXTENT_COORD";
-            public const string FStudyAreaNorth = "NORTH_EXTENT_COORD";
-            public const string FStudyAreaSouth = "SOUTH_EXTENT_COORD";
-            public const string FStudyAreaRelatedID = "TABLE_RELATEDID";
-            #endregion
-
-            #region Feature CGM maps
-            public const string FCGM_ID = "CGM_MAPID";
-            public const string FCGM_Name = "MAPNAME";
-            public const string FCGM_Abstract = "ABSTRACT";
-            public const string FCGM_Resume = "RESUME";
-            public const string FCGM_DescNote = "DESCNOTE";
-            public const string FCGM_NapID = "NAP_METAID";
-            public const string FCGM_RelatedID = "TABLE_RELATEDID";
-            public const string FCGM_East = "EAST_EXTENT_COORD";
-            public const string FCGM_West = "WEST_EXTENT_COORD";
-            public const string FCGM_North = "NORTH_EXTENT_COORD";
-            public const string FCGM_South = "SOUTH_EXTENT_COORD";
-            public const string FCGM_Remarks = "REMARKS";
-            //public const string FCGM_Abbr = "ABBREVIATION";
-            #endregion
-
-            #region Feature F_STATION
-            public const string FStationEasting = "EASTING";
-            public const string FStationNorthing = "NORTHING";
-            public const string FStationLat = "LATITUDE";
-            public const string FStationLong = "LONGITUDE";
-            public const string FStationID = "STATIONID";
-            public const string FStationObjectID = "OBJECTID";
-            #endregion
-
-            #region Feature geopoint
-            public const string FGeopointID = "GEOPOINTID";
-            public const string FGeopointType = "GEOPOINTTYPE";
-            public const string FGeopointSubset = "GEOPOINTSUBSET";
-            public const string FGeopointStrucAtt = "STRUCATTITUDE";
-            public const string FGeopointStrucGene = "STRUCGENERATION";
-            public const string FGeopointStrucYoung = "STRUCYOUNGING";
-            public const string FGeopointStrucMethod = "STRUCMETHOD";
-            public const string FGeopointFGDC = "GSC_SYMBOL";
-            public const string FGeopointAzimuth = "AZIMUTH";
-            public const string FGeopointFlat = "FLATTENING";
-            public const string FGeopointStrain = "STRAIN";
-            public const string FGeopointDipPlunge = "DIPPLUNGE";
-            public const string FGeopointRelatedStruc = "RELATEDSTRUC";
-            public const string FGeopointStrucID = "F_STRUCID";
-            public const string FGeopointSenseEvid = "SENSE_EVID";
-            public const string FGeopointRemark = "REMARKS";
-            public const string FGeopointDipDescription = "DIPDESC";
-            public const string FGeopointOriginalCode = "ORIGCODE";
-            public const string FGeopointEditRemarks = "EDITREMARKS";
-            public const string FGeopointDisplayFrom = "DISPLAY_FROM";
-            public const string FGeopointDisplayTo = "DISPLAY_TO";
-            public const string FGeopointDisplayPub= "DISPLAYPUB";
-
-            #endregion
-
-            #region Carto Points
-
-            public const string FCartoPointID = "POINTID";
-            public const string FCartoPointDisplayFrom = "DISPLAY_FROM";
-            public const string FCartoPointSymbol = "SYMBOL";
-            public const string FCartoPointAngle = "SYM_ANGLE";
-            public const string FCartoPointEasting = "EASTING";
-            public const string FCartoPointNorthing = "NORTHING";
-            public const string FCartoPointLongitude = "LONGITUDE";
-            public const string FCartoPointLatitude = "LATITUDE";
-            public const string FCartoPointDatumZone = "DATUMZONE";
-            public const string FCartoPointSourceID = "SOURCEID";
-            public const string FCartoPointAltitude = "ALTITUDE";
-            public const string FCartoPointTheme = "THEME";
-            public const string FCartoPointLegendID = "LEGENDITEMID"; //Version 2.8
-
-            #endregion
-
-            #endregion
-
-            #region Editor tracking related fields
-            public const string ETCreatorID = "CREATORID";
-            public const string ETEditorID = "EDITORID";
-            public const string ETCreateDate = "CREATEDATE";
-            public const string ETEditDate = "EDITDATE";
-            #endregion
-
-            #region Map Specific legends NOT IN DEFAULT DB SCHEMA
-            public const string LegendTempIsVisible = "IS_INSIDE";
-            public const string LegendTempIsVisibleAlias = "Is Inside Map";
-            #endregion
-
-            #region Old names (to be kept for legacy between DB versions)
-            public const string FGeolineFGDC_151001 = "FGDC_SYMBOL";
-            public const string LegendSymbol_151001 = "SYMBOL";
-            public const string FGeopointFGDC_151001 = "FGDC_Symbol";
-            public const string FGeopointFGDC_151015 = "FGDC_SYMBOL";
-            public const string LegendEon_160330 = "EON";
-            public const string LegendEra_160330 = "ERA";
-            public const string LegendPeriod_160330 = "PERIOD";
-            public const string FGeolineMinAge_160101 = "MINAGE";
-            public const string FGeolineMaxAge_160101 = "MAXAGE";
-            #endregion
-        }
-
-        public static class DatabaseDomains
-        {
-            //Participant role
-            public const string ActivityRole = "ActivityRole_DID";
-
-            //Boolean yes or no
-            public const string BoolYesNo = "BooleanTruth_DID";
-
-            //Map units
-            //public const string Eon = "Eon_DID"; //Removed in version 2.7 of the schema
-            //public const string Era = "Era_DID"; //Removed in version 2.7 of the schema
-            //public const string Period = "Period_DID"; //Removed in version 2.7 of the schema
-            public const string MapUnit = "MapUnit_PID";
-
-            //Source
-            public const string Source = "SourceRef_PID";
-
-            //Organisation
-            //public const string Org = "Organisation_PID"; //Removed in version 2.6 of the schema
-
-            //Boundary for geolines
-            public const string Bound = "Boundary_DID";
-
-            //Geological rank
-            public const string geolRank = "RankTerm_DID";
-
-            //Geoline movement
-            public const string geolMovement = "Fault_move_SID";
-
-            //Participant 
-            public const string participant = "Participant_PID";
-
-            //Keyworks
-            public const string projectKeyword = "PID";
-
-            //Legend
-            public const string legendSymbolType = "LegendSymbolType_DID";
-            public const string legendSymbolTheme = "LegendItemTheme_PID";
-            public const string legendOverprint = "OverprintLevel_DID";
-
-            //Age
-            public const string ageDesignator = "AgeDesignator_DID";
-            public const string agePrefix = "AgePrefix_DID";
-
-            //Carto theme
-            public const string cartoTheme = "CartoTheme_PID";
-
-            //Other
-            public const string qualifLimitSID = "Qualif_limit_SID";
-            public const string qualifFaultSID = "Qualif_fault_SID";
-            public const string qualifOverprintSID = "Qualif_overprint_SID";
-            public const string qualifShearSID = "Qualif_shear_SID";
-            public const string qualifContactSID = "Qualif_contact_SID";
-            public const string qualifConstructSID = "Qualif_construct_SID";
-            public const string subsetLinearSID = "Subset_Linear_SID";
-            public const string subsetPlanarSID = "Subset_Planar_SID";
-            public const string strucGenerationSID = "Struc_Generation_SID";
-            public const string strucAttitudeLinear = "Struc_Attitude_Linear_SID";
-            public const string genUndefinedSID = "Gen_undefined_SID";
-            public const string qualifLineamSID = "Qualif_lineam_SID";
-
-
-        }
-
-        public static class DatabaseDomainsValues
-        {
-            //BooleanTruth
-            public const string BoolYes = "1";
-            public const string BoolNo = "0";
-
-            //Boundary for geolines
-            public const string BoundYes = "02";
-            public const string BoundNo = "01";
-
-            //Confidence for geolines
-            public const string ConfDef = "01";
-            public const string ConfAprox = "02";
-            public const string ConfInf = "03";
-            public const string ConfConcealed = "04";
-            public const string ConfNotApp = "99";
-
-            //Symbol type
-            public const string SymTypeFill = "F";
-            public const string SymTypeLine = "L";
-            public const string SymTypePoint = "M";
-            public const string SymTypeHeader1 = "H1";
-            public const string SymTypeHeader2 = "H2";
-            public const string SymTypeHeader3 = "H3";
-
-            //Legend item type
-            public const string legendItemMapUnit = "mapUnit";
-            public const string legendItemGeoline = "geoline";
-            public const string legendItemGeopoint = "geopoint";
-            public const string legendItemHeader = "header";
-            public const string legendItemField = "fieldPoint";
-            public const string legendItemCartoPoint = "cartographicPoint";
-
-            //geoline types
-            public const string GeolineContacts = "10";
-            public const string GeolineFaults = "11";
-            public const string GeolineStructureLineaments = "13";
-            public const string GeolineTrace = "17";
-
-            //geoline qualifier
-            public const string geolineDefineUnconformable = "1004";
-            public const string geolineFaultNormal = "2001";
-
-            //Geoline movement
-            public const string geolineMovementN = "01";
-            public const string geolineMovementNE = "02";
-            public const string geolineMovementE = "03";
-            public const string geolineMovementSE = "04";
-            public const string geolineMovementS = "05";
-            public const string geolineMovementSW = "06";
-            public const string geolineMovementW = "07";
-            public const string geolineMovementNW = "08";
-            public const string geolineMovementUndef = "88";
-            public const string geolineMovementNA = "99";
-
-            //Geoline hangwall codes
-            public const string geolineHgwallN = "01";
-            public const string geolineHgwallNE = "02";
-            public const string geolineHgwallE = "03";
-            public const string geolineHgwallSE = "04";
-            public const string geolineHgwallS = "05";
-            public const string geolineHgwallSW = "06";
-            public const string geolineHgwallW = "07";
-            public const string geolineHgwallNW = "08";
-            public const string geolineHgwallUndef = "88";
-            public const string geolineHgwallNA = "99";
-
-            //Geopoint subtype class
-            public const int geopointPlanar = 1;
-            public const int geopointLinear = 2;
-
-            //Geopoint attitude 
-            public const string geopointAttHoriUp = "07";
-            public const string geopointAttInclinedUp = "01";
-            public const string geopointAttHoriOverturned = "08";
-            public const string geopointAttInclinedOverLess180 = "02";
-            public const string geopointAttInclinedOverHigher180 = "03";
-            public const string geopointAttUndef = "88";
-            public const string geopointAttLinearPlunging = "10";
-            public const string geopointAttLinearHori = "05";
-            public const string geopointAttVerti = "04";
-
-            //Not applicable
-            public const string notAppicable = "99";
-
-            //Carto Point themes
-            public const string cartoPointThemeField = "fieldLegacy";
-
-            //Eon values
-            public const string eonPhanerozoic = "phanerozoic";
-
-        }
-
-        public static class DatabaseSubtypes
-        {
-            //Subtype codes For GEO_LINES
-            public const string FGeolineSubContact = "10";
-            public const string FGeolineSubThinUnit = "15";
-            public const string FGeolineSubUnitConstruct = "16";
-            public const string FGeolineSubFault = "11";
-            public const string FGeolineSubOverprint = "19";
-        }
-
-        #endregion
-
-        #region Project related constants
-
-        public static class ProjectLayers
-        {
-            //Relative paths
-            public const string MapUnitLayerRelPath = "\\Data\\LYR\\BEDROCK\\INTERPRETATION_MapUnits.lyr";
-
-            //Default layer names
-            public const string geoline = "Geolines";
-            public const string fStation = "F_STATION";
-            public const string cgmMapIndex = "CGM Map Index";
-            public const string geopoint = "GeoPoints";
-            public const string geopoly = "Map Units";
-            public const string label = "Labels";
-            public const string geolineTopology = "Geolines Topology";
-
-            //Field layer names
-            public const string earthmatDetail = "EARTHMAT_DETAIL";
-            public const string earthmatGroup = "EARTHMAT_GROUP";
-            public const string earthmatType = "EARTHMAT_TYPE";
-            public const string sampleGeochemistry = "SAMPLE_Geochemistry";
-            public const string sampleGeochrone = "SAMPLE_Geochronology";
-            public const string sampleMineralogy = "SAMPLE_Mineralogy";
-            public const string samplePT = "SAMPLE_PT_estimate";
-            public const string sampleRepLitho = "SAMPLE_Representative_Lithology";
-            public const string sampleThinSection = "SAMPLE_thin_section";
-            public const string sampleAll = "SAMPLES_ALL";
-            public const string sampleOther = "SAMPLE_Other";
-            public const string photoAll = "PHOTOS_ALL";
-            public const string strucAll = "STRUC_ALL";
-            public const string strucLinearAll = "STRUC_LINEAR_ALL";
-            public const string strucPlanDip_0 = "STRUC_PLAN_DIP_0";
-            public const string strucPlanDip_0_90 = "STRUC_PLAN_DIP_0_90";
-            public const string strucPlanDip_90 = "STRUC_PLAN_DIP_90";
-            public const string interpretationGeoline = "INTERPRETATION_Geolines";
-
-
-            //Name for theme layer
-            public const string overprintThematic = "Overprints";
-            public const string noOverprintThematic = "No Overprints";
-
-            //New names for temp layers
-            public const string Keyword = "Validation"; //Will also be used to find layers or not find layers in TOC.
-
-            //Labels
-            public const string labelLayerQC_RedMultipleLabel = "Labels " + Keyword + ": Problematic labels in same map units";
-
-            //Map units 
-            public const string MapUnitLayerQC_Red = "Map Unit " + Keyword + ": Adjacent polygons";
-            public const string MapUnitLayerQC_Yellow = "Map Unit " + Keyword + ": Isolated polygons";
-            public const string MapUnitLayerQC_RedMultipleLabel = "Map Unit " + Keyword + ": Contains different labels";
-            public const string MapUnitLayerQC_YellowMultipleLabel = "Map Unit " + Keyword + ": Contains no labels";
-            public const string MapUnitLayerQC_YellowSmallFeature1 = "Map Unit " + Keyword + ": Small features (Between 1 and 1.5 mm on paper map)";
-            public const string MapUnitLayerQC_YellowSmallFeature2 = "Map Unit " + Keyword + ": Small features (Less than 1 mm on paper map)";
-            public const string MapUnitLayerQC_YellowSmallFeature3 = "Map Unit " + Keyword + ": Small features without any label, less than 1.5 mm";
-
-            //Geoline
-            public const string GeolineLayerQC_BlueIsBoundary = "Geolines " + Keyword + ": IsBoundary = Yes";
-            public const string GeolineLayerQC_PinkIsBoundary = "Geolines " + Keyword + ": IsBoundary = No";
-            public const string GeolineLayerQC_DefinedConfidence = "Geolines " + Keyword + ": Confidence = Defined";
-            public const string GeolineLayerQC_ApproxConfidence = "Geolines " + Keyword + ": Confidence = Approximate";
-            public const string GeolineLayerQC_InferredConfidence = "Geolines " + Keyword + ": Confidence = Inferred";
-            public const string GeolineLayerQC_ConcealeadConfidence = "Geolines " + Keyword + ": Confidence = Concealed";
-            public const string GeolineLayerQC_NotApplicableConfidence = "Geolines " + Keyword + ": Confidence = Not Applicable";
-            public const string GeolineLayerQC_ContactAgeMustBeFlip = "Geolines " + Keyword + ": Contact vs Age = Must be flip";
-            public const string GeolineLayerQC_ContactAgeNoNeighbour = "Geolines " + Keyword + ": Contact vs Age = No neighbors or Undefined Legend Order";
-            public const string GeolineLayerQC_MovementFaultFlip = "Geolines " + Keyword + ": Hangwall value should be flipped";
-            public const string GeolineLayerQC_MovementFaultCode01 = "Geolines " + Keyword + ": Hangwall code value should be ";
-            public const string GeolineLayerQC_MovementFaultCode02 = "Geolines " + Keyword + ": Hangwall code value should be ";
-            public const string GeolineLayerQC_MovementFaultCode03 = "Geolines " + Keyword + ": Hangwall code value should be ";
-            public const string GeolineLayerQC_MovementFaultCode04 = "Geolines " + Keyword + ": Hangwall code value should be ";
-            public const string GeolineLayerQC_MovementFaultCode05 = "Geolines " + Keyword + ": Hangwall code value should be ";
-            public const string GeolineLayerQC_MovementFaultCode06 = "Geolines " + Keyword + ": Hangwall code value should be ";
-            public const string GeolineLayerQC_MovementFaultCode07 = "Geolines " + Keyword + ": Hangwall code value should be ";
-            public const string GeolineLayerQC_MovementFaultCode08 = "Geolines " + Keyword + ": Hangwall code value should be ";
-            public const string GeolineLayerQC_MovementFaultMissing = "Geolines " + Keyword + ": Movement is either 'Undefined' or 'Not Applicable' (" + DatabaseDomainsValues.geolineMovementUndef + ", " + DatabaseDomainsValues.geolineMovementNA + ")";
-            public const string GeolineLayerQC_MovementFaultChangeSym = "Geolines " + Keyword + ": Verify symbol code";
-            public const string GeolineLayerQC_ConcealedOverprintFullyInside = "Geolines " + Keyword + ": Concealed lines fully underneath overprints";
-            public const string GeolineLayerQC_ConcealedOverprintTouches = "Geolines " + Keyword + ": Concealed lines that touches overprints";
-
-            //Field Station
-            public const string FStationLayerQC_BadEastNorth = "Field Station " + Keyword + ": Easting/Northing Mismatch";
-            public const string FStationLayerQC_BadLatLong = "Field Station " + Keyword + ": Latitude/Longitude Mismatch";
-
-            //Group layers
-            public const string GroupInterpretation = "INTERPRETATION";
-
-            //Group layer CGM
-            public const string CGMGeologyBedrock = "BEDROCK";
-            public const string CGMGeopoint = "GEOLOGY POINTS";
-            public const string CGMGeoline = "GEOLOGY LINES";
-            public const string CGMGeopoly = "GEOLOGY POLYGONS";
-            public const string CGMOverprint = "GEOLOGY OVERPRINTS";
-            public const string CGMGeologyType = "<GEOLOGY TYPE>";
-            public const string CGMLimit = "CGM MAP LIMIT";
-
-            //Default layer names CGM
-
-
-        }
-
-        public static class Symbol4Layers
-        {
-            //Label name for symbols
-            public const string geolineLabelFieldName = "Legend Description";
-            public const string geopolyLabelFieldName = "Legend Description";
-            public const string geopointLabelFieldName = "Legend Description";
-
-            //Default color if user hasn't entered any for map units
-            public const string mapUnitDefaultColor = "2.04.01.011";
-
-            //Field delimeter for multiple field symbolization
-            public const string fieldDelimeter = ", ";
-
-        }
-
-        public static class Folders
-        {
-            //A list of folder to be created within a project main working folder
-            public const string imageryFolder = "Imagery";
-            public const string sourceFolder = "Source";
-            public const string fieldDataFolder = "FieldData";
-            public const string mxdFolder = "Templates";
-            public const string styleFolder = "Style";
-
-            //For publication
-            public const string publicationFolder = "Dissemination"; //Parent
-            public const string publicationDataFolder = "Data";
-            public const string publicationShapeFolder = "SHP";
-            public const string publicationBedrockFolder = "Bedrock";
-            public const string publicationSurficialFolder = "Surficial";
-            public const string publicationCartoElementsFolder = "CartoElements";
-            public const string publicationDBFolder = "GDB";
-            public const string publicatonXMLFolder = "XML";
-            public const string publicationDataModelInfoFolder = "DataModelInfo";
-            public const string publicationAdditionalInfoFolder = "AdditionalInformation";
-            public const string publicationXLSFolder = "XLS";
-            public const string publicationPhotoFolder = "Photos";
-            public const string publicationReportsFolder = "Reports";
-            public const string publicationFiguresFolder = "Figures";
-            public const string publicationStylesFonts = "StyleFonts";
-
-            //For legacy
-            public const string mxdFolder_160415 = "MXD_Template";
-
-        }
-
-        public static class Styles
-        {
-
-            //Category names, used in style to find symbols
-            public const string MapUnitCategory = "GSC-ArcGIS Shadeset";
-
-            public const string DefaultLine_FGDC = "31.10"; //Will be used to get rid of <null> symbol values inside geoline
-            public const string InvalidLine_FGDC = "19.01.06"; //Will be used to show invalid symbol selected by user, probably with manual edit of attribute table
-            public const string InvalidPoint_FGDC = "18.67"; //Will be used to show invalid symbol selected by user, probably with manual edit of attribute table.
-            public const string DefaultColorScheme = "Greens"; //A default value used to create UniqueValueRenderer, or else update method on symbols could crash of nothing is set.
-
-            //Style files - Standard
-            public const string DefaultStyleFileName = "GSC_SymbolStandard.style"; 
-
-            //Embedded ressources
-            public const string styleEmbeddedFolder = "Styles";
-        }
-
-        public static class Environment
-        {
-
-            #region New method using a database
-
-            //Environment container name
-            public const string containerName = "GSC_Project_Editor";
-            public const string envRelPath = "\\ArcGIS\\";
-
-            //Table names
-            public const string envTable = "Environment";
-            public const string qcNumData = "QC_NumericalDataReportTable";
-
-            //Field names
-            public const string envFolderPath = "PROJECT_WORKSPACE_PATH";
-            public const string envCurrentDBPath = "PROJECT_DATABASE_PATH";
-            public const string envCurrentDBName = "PROJECT_DATABASE_NAME";
-            public const string envProjectScale = "PROJECT_SCALE";
-            public const string envMapScale = "MAP_SCALE";
-            public const string envLanguage = "LANGUAGE";
-            public const string envProject = "PROJECT_NAME";
-            public const string envActive = "IS_ACTIVE";
-            public const string envReportType = "REPORT_TYPE";
-            public const string envStyleMarkerField = "PROJECT_STYLE_MARKER_PATH";
-            public const string envStyleLineField = "PROJECT_STYLE_LINE_PATH";
-            public const string envStyleFillField = "PROJECT_STYLE_FILL_PATH";
-            public const string envFieldControl = envFolderPath; ///UPDATE THIS VALUE IF WORKING ENV. DATABASE HAS CHANGED, THIS WILL BE USED AS A CONTROLLER TO DETECT NEW VERSIONS
-
-            public const string qcNumData_DSName = "DATASET_NAME";
-            public const string qcNumData_FName = "FIELD_NAME";
-            public const string qcNumData_FType = "FIELD_TYPE";
-            public const string qcNumData_FMin = "FIELD_MIN";
-            public const string qcNumData_FMax = "FIELD_MAX";
-            public const string qcNumData_FAvg = "FIELD_AVG";
-            public const string qcNumData_FStrd = "FIELD_STD";
-            public const string qcNumData_FCount = "FIELD_COUNT";
-
-            #endregion
-
-        }
-
-        public static class Reports
-        {
-            //Path 
-            public const string MetadataRelPath = "\\Style\\ReportMetadata.rlf";
-        }
-
-        public static class FieldDefaults
-        {
-            //Legend generator table
-            public const string LegendSymbolType = "H2";
-
-            //General
-            public const string NotAvailable = "N.A.";
-
-            //GeolineID
-            public const string invalidGeolineIDValue = "000000000000";
-
-            //GeopointID
-            public const string invalidGeopointIDValue = "0000000000000";
-        }
-
-        public static class FieldValues
-        {
-            //Environment table field default
-            public const int envActiveTrue = 1;
-            public const int envActiveFalse = 0;
-        }
-
-        public static class ProjectOtherDatabase
-        {
-            public const string dbSuffix = "_RelatedData";
-            public const string dbType = ".gdb";
-        }
-
-        public static class ProjectDatabaseType
-        {
-            public const string bedrockDB = "Bedrock";
-            public const string surficialDB = "Surficial";
-            public const string marineDB = "Marine";
-        }
-
-        public static class Fonts
-        {
-            #region BEDROCK
-            public const string fgdcFont1 = "FGDCGeoSym01";
-            public const string fgdcFont2 = "FGDCGeoSym02";
-            public const string fgdcFont3 = "FGDCGeoSym03";
-            public const string fgdcFont4 = "FGDCGeoSym04";
-            public const string fgdcFont5 = "FGDCGeoSym05";
-
-            public const string gscFont1 = "gsc1";
-            public const string gscFont2 = "gsc2";
-            public const string gscFont3 = "gsc3";
-            public const string gscFont4 = "gsc4";
-            public const string gscFont5 = "gsc5";
-
-            public const string gscSymbolStandard1 = "GSCSymbolStandard1";
-
-            public const string gscGeology = "gscGeology";
-            #endregion
-
-        }
-
-        #endregion
-
-        #region Other (Prog, math, etc.) related constants
-
-        public static class ValueKeywords
-        {
-            public const string labelOverprint = "_OP";
-            public const string GetUniqueFieldValuesMain = "Main";
-            public const string FullProjectLegendSuffix = "Full_Project";
-            //ESRI
-            public const string esriInMemory = "GPInMemoryWorkspace";
-
-            
-        }
-
-        public static class MathConstants
-        {
-            //Smallest area factor
-            public const double smallAreaFactorClass1 = 1.5; //refers to 1.5mm on a paper map.
-            public const double smallAreaFactorClass2 = 1;
-
+            public const string AssetFolder = "Assets";
+            public const string mxdEmbeddedFile = "LegendRendererTemplate.mxd";
+            public const string jsonYSpacingEmbeddedFile = "Configuration_Y_Spacings.json";
+            public const string jsonXSpacingEmbeddedFile = "Configuration_X_Spacings.json";
+            public const string jsonStyleFontsOtherEmbeddedFile = "Configuration_Other.json";
+            public const string demPicture = "LegendBoxDEM.png";
         }
 
         public static class Debug
@@ -916,7 +185,92 @@ namespace GSCLegendRendererPro.Utilities
 
             public const string defaultArcGISFolderName = "ArcGIS";
         }
-        #endregion
+
+        public static class Namespaces
+        {
+            public const string mainNamespace = "GSC_Legend_Renderer";
+        }
+
+        public static class Styles
+        {
+            //public const string styleName = "GSC_SymbolStandard"; //Moved to JSON file
+            public const string styleNameJSON = "GEOLOGY_STYLE_NAME";
+            public const string styleExtension = ".style";
+            public const string styleFillClass = "Fill Symbols";
+            public const string styleMarkerClass = "Marker Symbols";
+            public const string styleLineClass = "Line Symbols";
+            //public const string styleRepresentationMarkerClass = "Representation Markers";
+            public const string styleTextClass = "Text Symbols";
+
+            /// <summary>
+            /// A list of possible position of label surrounding marker points.
+            /// </summary>
+            public enum MarkerLabelPositioning { FromCenterToUpperLeft, FromCenterToUpperRight, RightAboveCenter, FromCenterToUpperRightTight }
+        }
+
+        /// <summary>
+        /// Some hardcoded values for Y spacings
+        /// </summary>
+        public static class YSpacings
+        {
+            public const double smallDescriptionHeightLimit = 10.0; //Beyond this, it is a long description
+            public const double smallDescriptionHeightLimitLines = 6.56; //Beyond this, it is a long description for a line symbol.
+            public const double legendEnd_Citation = 15.0; //This include a bufer of 10 for a better fit. Used to calculate number of columns
+            public const double lineDescriptionHeightAdjustement = 0.5; //Aligning lines with long description with their top introduces a small gap because text as some slight margin at the top
+            public const double lineHeight0DescriptionHeightAdjustement = 1.5; //Flat lines symbols have a height of 0, take this instead when a height is needed.
+            public const double markerMeanHeight = 2.5; //Used to position subsequent element after a long marker description
+        }
+
+        public static class TextConfiguration
+        {
+            public const int charactersPerLine = 76;
+            public const double lineHeight = 3.28; //mm, used to calculate text box height approx.
+            public const double header3LineHeight = 3.66; //mm, used to calculate header 3 text box height approx.
+            //HTML related tags
+            public const string tagBold = "<bol>";
+            public const string endTagBold = "</bol>";
+            public const string tagAllCaps = "<ACP>";
+            public const string endTagAllCaps = "</ACP>";
+            public const string tagItalic = "<ITA>";
+            public const string endTagItalic = "</ITA>";
+            public const string tagFont = "<FNT name = ";
+            public const string endTagFont = "</FNT>";
+            //Missing terms
+            public const string missingText = "Missing";
+            public const string NullLiteral = "<Null>";
+            //Defaults
+            public const double defaultUnitBoxLabelFontSize = 8.0; //Mainly used for labels that see their font size change when using a new style.
+            public const double tooLongLabelUnitBoxLabelFontSize = 7.5; //Mainly used for labels that see their font size change when using a new style.
+        }
+
+        public static class ImageConfiguration
+        {
+            //public const int demTransparency = 178; // 178/255 --> 70% opaque which is 30% transparent.
+            public const string demTransparencyNameJSON = "DEM_OPACITY_PERCENT";
+            public const string monoColoredImageNamePrefix = "Mono_";
+        }
+
+        public static class GraphicConfiguration
+        {
+            public const double outlineWidth = 0.43;
+        }
+
+        public static class Fonts
+        {
+            public const string geologytFontNameJSON = "GEOLOGY_FONT_NAME";
+            public const double geologyFontHeightAjustement = 0.4; //Add 0.4 mm so it widens the box.
+        }
+
+        public static class ObjectNames
+        {
+            public const string fillTypeSimple = "ISimpleFillSymbol";
+            public const string fillTypeGradient = "IGradientFillSymbol";
+            public const string fillTypeLine = "ILineFillSymbol";
+            public const string fillTypeMarker = "IMarkerFillSymbol";
+            public const string fillTypePicture = "IPictureFillSymbol";
+            public const string fillTypeMultilayer = "IMultiLayerFillSymbol";
+
+        }
 
     }
 }

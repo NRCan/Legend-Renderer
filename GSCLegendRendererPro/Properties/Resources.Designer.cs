@@ -61,6 +61,24 @@ namespace GSCLegendRendererPro.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Selected table has no valid fields..
+        /// </summary>
+        public static string ErrorNoFields {
+            get {
+                return ResourceManager.GetString("ErrorNoFields", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t read table data source..
+        /// </summary>
+        public static string ErrorWrongData {
+            get {
+                return ResourceManager.GetString("ErrorWrongData", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Auto-calculate number of columns (CGM only)..
         /// </summary>
         public static string FormRendererFieldAutoCalculateColumn {

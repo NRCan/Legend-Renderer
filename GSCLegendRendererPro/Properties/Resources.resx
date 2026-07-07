@@ -196,4 +196,10 @@
   <data name="FormRendererFieldAutoCalculateColumn" xml:space="preserve">
     <value>Auto-calculate number of columns (CGM only).</value>
   </data>
+  <data name="ErrorWrongData" xml:space="preserve">
+    <value>Can't read table data source.</value>
+  </data>
+  <data name="ErrorNoFields" xml:space="preserve">
+    <value>Selected table has no valid fields.</value>
+  </data>
 </root>

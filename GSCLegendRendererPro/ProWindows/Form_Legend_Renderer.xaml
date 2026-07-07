@@ -8,8 +8,8 @@
         xmlns:extensions="clr-namespace:ArcGIS.Desktop.Extensions;assembly=ArcGIS.Desktop.Extensions"
         xmlns:layerControls="clr-namespace:ArcGIS.Desktop.Internal.Mapping.CommonControls.LayerControls;assembly=ArcGIS.Desktop.Mapping"
         mc:Ignorable="d"
-        ResizeMode="CanResize" 
-        Title="{x:Static local:Resources.FormRendererTitle}"  Width="450"
+        ResizeMode="NoResize"
+        Title="{x:Static local:Resources.FormRendererTitle}"  Width="400" Height="745"
         WindowStartupLocation="CenterOwner">
 
     <controls:ProWindow.Resources>
@@ -22,7 +22,7 @@
         </ResourceDictionary>
     </controls:ProWindow.Resources>
 
-    <Grid Style="{DynamicResource LegendGrid}" Margin="10" VerticalAlignment="Top">
+    <Grid Style="{DynamicResource LegendGrid}" Margin="10,10,10,0" VerticalAlignment="Top">
 
         <Grid.RowDefinitions>
             <!--Select legend table-->
@@ -31,7 +31,7 @@
             <RowDefinition Height="5"/>
             
             <!--Field selection-->
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="525"/>
             <RowDefinition Height="5"/>
 
             <!--Extra options-->
@@ -40,6 +40,7 @@
             <RowDefinition Height="5"/>
 
             <RowDefinition Height="*"/>
+            <RowDefinition Height="25"/>
             
         </Grid.RowDefinitions>
         
@@ -49,7 +50,7 @@
 
 
         <!--Select legend table-->
-        <Label Grid.Row="0" Margin="-5,0,0,-5"  Content="{x:Static local:Resources.FormRendererSelectLegendTable}" Style="{DynamicResource LegendButtonLabel}"/>
+        <Label Grid.Row="0" Margin="-5,0,0,-10"  Content="{x:Static local:Resources.FormRendererSelectLegendTable}" Style="{DynamicResource LegendButtonLabel}"/>
         <ComboBox x:Name="LegendLayerCombobox" Grid.Row="1" Margin="0,0,0,-5" Height="22" VerticalContentAlignment="Center" 
                   ItemsSource="{Binding Path=LegendLayers}" SelectedIndex="{Binding Path=LegendSelectedLayerIndex}">
             <ComboBox.ItemTemplate>
@@ -63,85 +64,85 @@
         </ComboBox>
 
         <!--Field selection-->
-        <GroupBox Grid.Row="3" Header="{x:Static local:Resources.FormRendererGroupFields}" Margin="0,10,0,10">
+        <GroupBox Grid.Row="3" Header="{x:Static local:Resources.FormRendererGroupFields}" Margin="0,5,0,10">
             <StackPanel>
                 
                 <!--Order-->
                 <Label Margin="-5,0,0,-5" Content="{x:Static local:Resources.FormRendererFieldOrder}" Style="{DynamicResource LegendButtonLabel}"/>
-                <ComboBox Margin="0,0,0,-5" Height="22" VerticalContentAlignment="Center"
+                <ComboBox Margin="0" Height="22" VerticalContentAlignment="Center"
                   ItemsSource="{Binding Path=LegendOrder}" DisplayMemberPath="Name" SelectedValuePath="Value" 
-                  SelectedItem="{Binding LegendSelectedOrder}"/>
+                  SelectedIndex="{Binding LegendSelectedOrderIndex}"/>
 
                 <!--Column-->
                 <Label Margin="-5,0,0,-5" Content="{x:Static local:Resources.FormRendererFieldColumn}" Style="{DynamicResource LegendButtonLabel}"/>
-                <ComboBox Margin="0,0,0,-5" Height="22" VerticalContentAlignment="Center"
+                <ComboBox Margin="0" Height="22" VerticalContentAlignment="Center"
                   ItemsSource="{Binding Path=LegendColumn}" DisplayMemberPath="Name" SelectedValuePath="Value" 
-                  SelectedItem="{Binding LegendSelectedColumn}"/>
+                  SelectedIndex="{Binding LegendSelectedColumnIndex}"/>
 
                 <!--Element-->
                 <Label Margin="-5,0,0,-5" Content="{x:Static local:Resources.FormRendererFieldElement}" Style="{DynamicResource LegendButtonLabel}"/>
-                <ComboBox Margin="0,0,0,-5" Height="22" VerticalContentAlignment="Center"
+                <ComboBox Margin="0" Height="22" VerticalContentAlignment="Center"
                   ItemsSource="{Binding Path=LegendElement}" DisplayMemberPath="Name" SelectedValuePath="Value" 
-                  SelectedItem="{Binding LegendSelectedElement}"/>
+                  SelectedIndex="{Binding LegendSelectedElementIndex}"/>
 
                 <!--Style1-->
                 <Label Margin="-5,0,0,-5" Content="{x:Static local:Resources.FormRendererFieldStyle1}" Style="{DynamicResource LegendButtonLabel}"/>
-                <ComboBox Margin="0,0,0,-5" Height="22" VerticalContentAlignment="Center"
+                <ComboBox Margin="0" Height="22" VerticalContentAlignment="Center"
                   ItemsSource="{Binding Path=LegendStyle1}" DisplayMemberPath="Name" SelectedValuePath="Value" 
-                  SelectedItem="{Binding LegendSelectedStyle1}"/>
+                  SelectedIndex="{Binding LegendSelectedStyle1Index}"/>
 
                 <!--Style2-->
                 <Label Margin="-5,0,0,-5" Content="{x:Static local:Resources.FormRendererFieldStyle2}" Style="{DynamicResource LegendButtonLabel}"/>
-                <ComboBox Margin="0,0,0,-5" Height="22" VerticalContentAlignment="Center"
+                <ComboBox Margin="0" Height="22" VerticalContentAlignment="Center"
                   ItemsSource="{Binding Path=LegendStyle2}" DisplayMemberPath="Name" SelectedValuePath="Value" 
-                  SelectedItem="{Binding LegendSelectedStyle2}"/>
+                  SelectedIndex="{Binding LegendSelectedStyle2Index}"/>
 
                 <!--Label1-->
                 <Label Margin="-5,0,0,-5" Content="{x:Static local:Resources.FormRendererFieldLabel1}" Style="{DynamicResource LegendButtonLabel}"/>
-                <ComboBox Margin="0,0,0,-5" Height="22" VerticalContentAlignment="Center"
+                <ComboBox Margin="0" Height="22" VerticalContentAlignment="Center"
                   ItemsSource="{Binding Path=LegendLabel1}" DisplayMemberPath="Name" SelectedValuePath="Value" 
-                  SelectedItem="{Binding LegendSelectedLabel1}"/>
+                  SelectedIndex="{Binding LegendSelectedLabel1Index}"/>
 
                 <!--Label1Style-->
                 <Label Margin="-5,0,0,-5" Content="{x:Static local:Resources.FormRendererFieldLabel1Style}" Style="{DynamicResource LegendButtonLabel}"/>
-                <ComboBox Margin="0,0,0,-5" Height="22" VerticalContentAlignment="Center"
+                <ComboBox Margin="0" Height="22" VerticalContentAlignment="Center"
                   ItemsSource="{Binding Path=LegendLabel1Style}" DisplayMemberPath="Name" SelectedValuePath="Value" 
-                  SelectedItem="{Binding LegendSelectedLabel1Style}"/>
+                  SelectedIndex="{Binding LegendSelectedLabel1StyleIndex}"/>
 
                 <!--Label2-->
                 <Label Margin="-5,0,0,-5" Content="{x:Static local:Resources.FormRendererFieldLabel2}" Style="{DynamicResource LegendButtonLabel}"/>
-                <ComboBox Margin="0,0,0,-5" Height="22" VerticalContentAlignment="Center"
+                <ComboBox Margin="0" Height="22" VerticalContentAlignment="Center"
                   ItemsSource="{Binding Path=LegendLabel2}" DisplayMemberPath="Name" SelectedValuePath="Value" 
-                  SelectedItem="{Binding LegendSelectedLabel2}"/>
+                  SelectedIndex="{Binding LegendSelectedLabel2Index}"/>
 
                 <!--Label2Style-->
                 <Label Margin="-5,0,0,-5" Content="{x:Static local:Resources.FormRendererFieldLabel2Style}" Style="{DynamicResource LegendButtonLabel}"/>
-                <ComboBox Margin="0,0,0,-5" Height="22" VerticalContentAlignment="Center"
+                <ComboBox Margin="0" Height="22" VerticalContentAlignment="Center"
                   ItemsSource="{Binding Path=LegendLabel2Style}" DisplayMemberPath="Name" SelectedValuePath="Value" 
-                  SelectedItem="{Binding LegendSelectedLabel2Style}"/>
+                  SelectedIndex="{Binding LegendSelectedLabel2StyleIndex}"/>
 
                 <!--Heading-->
                 <Label Margin="-5,0,0,-5" Content="{x:Static local:Resources.FormRendererFieldHeading}" Style="{DynamicResource LegendButtonLabel}"/>
-                <ComboBox Margin="0,0,0,-5" Height="22" VerticalContentAlignment="Center"
+                <ComboBox Margin="0" Height="22" VerticalContentAlignment="Center"
                   ItemsSource="{Binding Path=LegendHeading}" DisplayMemberPath="Name" SelectedValuePath="Value" 
-                  SelectedItem="{Binding LegendSelectedHeading}"/>
+                  SelectedIndex="{Binding LegendSelectedHeadingIndex}"/>
 
                 <!--Description-->
                 <Label Margin="-5,0,0,-5" Content="{x:Static local:Resources.FormRendererFieldDescription}" Style="{DynamicResource LegendButtonLabel}"/>
-                <ComboBox Margin="0,0,0,10" Height="22" VerticalContentAlignment="Center"
+                <ComboBox Margin="0" Height="22" VerticalContentAlignment="Center"
                   ItemsSource="{Binding Path=LegendDescription}" DisplayMemberPath="Name" SelectedValuePath="Value" 
-                  SelectedItem="{Binding LegendSelectedDescription}"/>
+                  SelectedIndex="{Binding LegendSelectedDescriptionIndex}"/>
 
             </StackPanel>
 
         </GroupBox>
 
-        <CheckBox Grid.Row="5" Margin="-5,0,0,-5" IsChecked="{Binding Path=LegendDEM}" Content="{x:Static local:Resources.FormRendererFieldDEM}" HorizontalAlignment="Left" />
+        <CheckBox Grid.Row="5" Margin="0,0,0,0" IsChecked="{Binding Path=LegendDEM}" Content="{x:Static local:Resources.FormRendererFieldDEM}" HorizontalAlignment="Left" />
 
-        <CheckBox Grid.Row="6" Margin="-5,0,0,-5" IsChecked="{Binding Path=LegendAutoCalculateColumn}" Content="{x:Static local:Resources.FormRendererFieldAutoCalculateColumn}" HorizontalAlignment="Left" />
+        <CheckBox Grid.Row="6" Margin="0,0,0,0" IsChecked="{Binding Path=LegendAutoCalculateColumn}" Content="{x:Static local:Resources.FormRendererFieldAutoCalculateColumn}" HorizontalAlignment="Left" />
 
         <!--Run-->
-        <Button Grid.Row="8" Margin="0,20,0,0"
+        <Button Grid.Row="8" Margin="0,15,0,0"
             Style="{DynamicResource Esri_Button}" HorizontalAlignment="Left" Width="75"
             Command="{Binding RunTool}">
             <Button.Content>
@@ -153,6 +154,10 @@
                 </Border>
             </Button.Content>
         </Button>
+
+        <!--Warnings-->
+        <Label Grid.Row="9" Margin="-5" Foreground="Red" Content="{Binding Path=WarningMessage, Mode=TwoWay}" Style="{DynamicResource LegendWarningLabel}"/>
+
 
     </Grid>
 </controls:ProWindow>
