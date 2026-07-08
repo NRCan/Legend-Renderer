@@ -2,62 +2,89 @@
 using GSCLegendRendererPro.Models;
 using GSCLegendRendererPro.Utilities;
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace BedrockEditorPro.Services
+namespace GSCLegendRendererPro.Services
 {
     public class UserConfigurationService: UserConfiguration
     {
         public UserConfigurationService() { }
 
-        public static async Task<UserConfiguration> GetUserConfigurationAsync()
+        /// <summary>
+        /// Will validate json configuration files and style file, if it doesn't exist a copy will be made inside My Document\Arc GIS folder
+        /// </summary>
+        /// <returns>Will return output folder path</returns>
+        public static async Task ValidateAssetsExistance()
         {
-
             UserConfigurationSetup _userConfigurationSetup = new UserConfigurationSetup();
 
             //Make sure the directory exists
-            if (!Directory.Exists(Path.GetDirectoryName(_userConfigurationSetup.DefaultPath)))
+            if (!Directory.Exists(_userConfigurationSetup.DefaultPath))
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(_userConfigurationSetup.DefaultPath));
+                Directory.CreateDirectory(_userConfigurationSetup.DefaultPath);
             }
 
-            //If the file exists, read it
-            if (File.Exists(_userConfigurationSetup.DefaultPath))
+            string jsonYSpacingFilePath = System.IO.Path.Combine(_userConfigurationSetup.DefaultPath, Constants.Assets.jsonYSpacingEmbeddedFile);
+            byte[] jsonYBytes = Properties.Resources.Configuration_Y_Spacings;
+            if (!System.IO.File.Exists(jsonYSpacingFilePath))
             {
-                
-                using (FileStream openStream = File.OpenRead(_userConfigurationSetup.DefaultPath))
-                {
-                    // Enable support
-                    var options = new JsonSerializerOptions { IncludeFields = true };
-
-                    _userConfigurationSetup.UserConfiguration = await JsonSerializer.DeserializeAsync<UserConfiguration>(openStream, options);
-
-                    openStream.Close();
-                    openStream.Dispose();
-                }
-
-            }
-            else
-            {
-                //else write it
-
-                //Manage default symbol style file
-                string stylePath = Symbols.ManageStyleFile();
-                _userConfigurationSetup.UserConfiguration.StyleFilePath = stylePath;
-
-                await using FileStream fStream = File.Create(_userConfigurationSetup.DefaultPath);
-                await JsonSerializer.SerializeAsync(fStream, _userConfigurationSetup.UserConfiguration);
-                fStream.Close();
-
+                Services.FileService.WriteStreamResource(jsonYBytes, jsonYSpacingFilePath);
             }
 
-            return _userConfigurationSetup.UserConfiguration;
+            string jsonXSpacingFilePath = System.IO.Path.Combine(_userConfigurationSetup.DefaultPath, Constants.Assets.jsonXSpacingEmbeddedFile);
+            byte[] jsonXBytes = Properties.Resources.Configuration_X_Spacings;
+            if (!System.IO.File.Exists(jsonXSpacingFilePath))
+            {
+                Services.FileService.WriteStreamResource(jsonXBytes, jsonXSpacingFilePath);
+            }
+
+            string jsonOtherFilePath = System.IO.Path.Combine(_userConfigurationSetup.DefaultPath, Constants.Assets.jsonStyleFontsOtherEmbeddedFile);
+            byte[] jsonOtherBytes = Properties.Resources.Configuration_Other;
+            if (!System.IO.File.Exists(jsonOtherFilePath))
+            {
+                Services.FileService.WriteStreamResource(jsonOtherBytes, jsonOtherFilePath);
+            }
+
+            string styleFilePath = System.IO.Path.Combine(_userConfigurationSetup.DefaultPath, Constants.Assets.gscSymbolStandardStyle);
+            byte[] styleBytes = Properties.Resources.GSC_SymbolStandard;
+            if (!System.IO.File.Exists(styleFilePath))
+            {
+                Services.FileService.WriteStreamResource(styleBytes, styleFilePath);
+            }
+
+        }
+
+        /// <summary>
+        /// Will deserialize a json file and return the object
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        /// <exception cref="FileNotFoundException"></exception>
+        public static async Task<T> DeserializeJsonFile<T>(string filePath)
+        {
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException(string.Format(Properties.Resources.ErrorFileNotFound, filePath));
+            }
+
+            using (FileStream openStream = File.OpenRead(filePath))
+            {
+                // Enable support 
+                JsonSerializerOptions options = new JsonSerializerOptions { IncludeFields = true, NumberHandling = JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString};
+                T deserializedObject = await JsonSerializer.DeserializeAsync<T>(openStream, options);
+                openStream.Close();
+                openStream.Dispose();
+                return deserializedObject;
+            }
+
         }
     }
 }

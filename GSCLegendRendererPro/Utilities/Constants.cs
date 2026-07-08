@@ -146,6 +146,7 @@ namespace GSCLegendRendererPro.Utilities
             public const string jsonXSpacingEmbeddedFile = "Configuration_X_Spacings.json";
             public const string jsonStyleFontsOtherEmbeddedFile = "Configuration_Other.json";
             public const string demPicture = "LegendBoxDEM.png";
+            public const string gscSymbolStandardStyle = "GSC_SymbolStandard.stylx";
         }
 
         public static class Debug

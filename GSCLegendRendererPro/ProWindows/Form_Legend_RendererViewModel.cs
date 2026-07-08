@@ -2,10 +2,13 @@
 using ArcGIS.Core.Data;
 using ArcGIS.Core.Data.DDL;
 using ArcGIS.Core.Internal.CIM;
+using ArcGIS.Desktop.Core;
 using ArcGIS.Desktop.Framework;
 using ArcGIS.Desktop.Framework.Contracts;
 using ArcGIS.Desktop.Framework.Threading.Tasks;
 using ArcGIS.Desktop.Mapping;
+using GSCLegendRendererPro.Models;
+using GSCLegendRendererPro.Services;
 using GSCLegendRendererPro.Utilities;
 using System;
 using System.Collections.Generic;
@@ -24,9 +27,18 @@ namespace GSCLegendRendererPro.ProWindows
     {
         #region INIT
 
+        //UI
         private Form_Legend_Renderer _view = null;
         private object _lock = new(); //For locking the threads to update obs. collection
         private Uri _legendTableWorkspaceUri = null;
+
+        //JSON
+        public Configuration_Y_Spacings ySpacings { get; set; }
+        public Configuration_X_Spacings xSpacings { get; set; }
+        public Configuration_Other otherComponents { get; set; }
+
+        //STYLING
+        public StyleProjectItem gscStyle { get; set; }
 
         #endregion
 
@@ -522,11 +534,31 @@ namespace GSCLegendRendererPro.ProWindows
         /// <summary>
         /// Will create the legend
         /// </summary>
-        private void CreateLegend()
+        private async void CreateLegend()
         {
             try
             {
+                if (_legendSelectedLayerIndex != -1)
+                {
+                    await QueuedTask.Run(async () =>
+                    {
+                        bool validated = await ValidationRound();
+                        if (validated)
+                        {
 
+                        }
+                        else
+                        {
+                            throw new Exception(Properties.Resources.ErrorValidationFailed);
+                        }
+                    });
+
+                }
+                else
+                {
+                    _warningMessage = Properties.Resources.ErrorMissingTable;
+                    NotifyPropertyChanged(nameof(WarningMessage));
+                }
             }
             catch (Exception CreateLegendException)
             {
@@ -534,8 +566,52 @@ namespace GSCLegendRendererPro.ProWindows
             }
         }
 
+        /// <summary>
+        /// Will initiate a validation round of some configuration files, style file, and deserialize them.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> ValidationRound()
+        {
+            try
+            {
+                //Validate configuration files and default style file
+                await UserConfigurationService.ValidateAssetsExistance();
+
+                //Deserialize the configuration files
+                ySpacings = await UserConfigurationService.DeserializeJsonFile<Configuration_Y_Spacings>(System.IO.Path.Combine(Properties.Settings.Default.WorkingEnvironmentPath, Constants.Assets.jsonYSpacingEmbeddedFile));
+                xSpacings = await UserConfigurationService.DeserializeJsonFile<Configuration_X_Spacings>(System.IO.Path.Combine(Properties.Settings.Default.WorkingEnvironmentPath, Constants.Assets.jsonXSpacingEmbeddedFile));
+                otherComponents = await UserConfigurationService.DeserializeJsonFile<Configuration_Other>(System.IO.Path.Combine(Properties.Settings.Default.WorkingEnvironmentPath, Constants.Assets.jsonStyleFontsOtherEmbeddedFile));
+
+                //Validate the style file loaded in map
+                if (otherComponents != null)
+                {
+                    List<StyleProjectItem> styleItems = Project.Current.GetItems<StyleProjectItem>().Where(x => x.Name == otherComponents.GEOLOGY_STYLE_NAME).ToList();
+                    if (styleItems == null || styleItems.Count() == 0)
+                    {
+                        //Load up the style coming from the default setup
+                        string defaultStylePath = System.IO.Path.Combine(Properties.Settings.Default.WorkingEnvironmentPath, otherComponents.GEOLOGY_STYLE_NAME);
+                        Project.Current.AddStyle(defaultStylePath);
+                    }
+                    gscStyle = Project.Current.GetItems<StyleProjectItem>().Where(x => x.Name == otherComponents.GEOLOGY_STYLE_NAME).FirstOrDefault();
+
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+
+            }
+
+            catch (Exception ValidationRoundException)
+            {
+                new ErrorService(ValidationRoundException).WriteToFile();
+                return false;
+            }
+
+        
+        }
+
         #endregion
-
-
     }
 }

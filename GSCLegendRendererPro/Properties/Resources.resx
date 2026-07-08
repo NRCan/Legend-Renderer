@@ -202,4 +202,25 @@
   <data name="ErrorNoFields" xml:space="preserve">
     <value>Selected table has no valid fields.</value>
   </data>
+  <data name="ErrorMissingTable" xml:space="preserve">
+    <value>Please select a table first.</value>
+  </data>
+  <data name="Configuration_Other" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Assets\Configuration_Other.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Configuration_X_Spacings" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Assets\Configuration_X_Spacings.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Configuration_Y_Spacings" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Assets\Configuration_Y_Spacings.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="LegendBoxDEM" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Assets\LegendBoxDEM.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="ErrorFileNotFound" xml:space="preserve">
+    <value>File not found {0}.</value>
+  </data>
+  <data name="ErrorValidationFailed" xml:space="preserve">
+    <value>Something happened during a preparation phase.</value>
+  </data>
 </root>

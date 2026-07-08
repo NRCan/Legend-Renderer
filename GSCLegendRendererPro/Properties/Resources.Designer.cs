@@ -61,11 +61,68 @@ namespace GSCLegendRendererPro.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] Configuration_Other {
+            get {
+                object obj = ResourceManager.GetObject("Configuration_Other", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] Configuration_X_Spacings {
+            get {
+                object obj = ResourceManager.GetObject("Configuration_X_Spacings", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] Configuration_Y_Spacings {
+            get {
+                object obj = ResourceManager.GetObject("Configuration_Y_Spacings", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File not found {0}..
+        /// </summary>
+        public static string ErrorFileNotFound {
+            get {
+                return ResourceManager.GetString("ErrorFileNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please select a table first..
+        /// </summary>
+        public static string ErrorMissingTable {
+            get {
+                return ResourceManager.GetString("ErrorMissingTable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Selected table has no valid fields..
         /// </summary>
         public static string ErrorNoFields {
             get {
                 return ResourceManager.GetString("ErrorNoFields", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Something happened during a preparation phase..
+        /// </summary>
+        public static string ErrorValidationFailed {
+            get {
+                return ResourceManager.GetString("ErrorValidationFailed", resourceCulture);
             }
         }
         
@@ -309,6 +366,16 @@ namespace GSCLegendRendererPro.Properties {
         public static byte[] GSC_SymbolStandard {
             get {
                 object obj = ResourceManager.GetObject("GSC_SymbolStandard", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] LegendBoxDEM {
+            get {
+                object obj = ResourceManager.GetObject("LegendBoxDEM", resourceCulture);
                 return ((byte[])(obj));
             }
         }

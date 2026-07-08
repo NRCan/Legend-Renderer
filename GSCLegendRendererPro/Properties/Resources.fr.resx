@@ -198,4 +198,10 @@
   <data name="ErrorNoFields" xml:space="preserve">
     <value>La table sélectionnée ne possède pas de champs valides.</value>
   </data>
+  <data name="ErrorMissingTable" xml:space="preserve">
+    <value>Veuillez sélectionner une table.</value>
+  </data>
+  <data name="ErrorValidationFailed" xml:space="preserve">
+    <value>Une erreur est survenue durant une ronde de validation.</value>
+  </data>
 </root>
