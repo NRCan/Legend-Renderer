@@ -202,6 +202,18 @@
     <value>Veuillez sélectionner une table.</value>
   </data>
   <data name="ErrorValidationFailed" xml:space="preserve">
-    <value>Une erreur est survenue durant une ronde de validation.</value>
+    <value>Une erreur est survenue durant une ronde de configuration.</value>
+  </data>
+  <data name="FormRendererMovingToLayout" xml:space="preserve">
+    <value>Changement de la vue en mode gabarit de carte.</value>
+  </data>
+  <data name="FormRendererNewLayoutName" xml:space="preserve">
+    <value>Gabarit de légende</value>
+  </data>
+  <data name="FormRendererPageUnitsWarning" xml:space="preserve">
+    <value>Unités de page en millimètre  seulement. Les unités de la page actuel seront automatiquement changés.</value>
+  </data>
+  <data name="ErrorLayoutLoading" xml:space="preserve">
+    <value>Une erreur est survenue lors de l'ouverture du gabarit d'habillage de carte.</value>
   </data>
 </root>

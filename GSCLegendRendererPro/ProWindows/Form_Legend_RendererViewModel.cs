@@ -1,11 +1,13 @@
 ﻿using ArcGIS.Core.CIM;
 using ArcGIS.Core.Data;
 using ArcGIS.Core.Data.DDL;
+using ArcGIS.Core.Geometry;
 using ArcGIS.Core.Internal.CIM;
 using ArcGIS.Desktop.Core;
 using ArcGIS.Desktop.Framework;
 using ArcGIS.Desktop.Framework.Contracts;
 using ArcGIS.Desktop.Framework.Threading.Tasks;
+using ArcGIS.Desktop.Layouts;
 using ArcGIS.Desktop.Mapping;
 using GSCLegendRendererPro.Models;
 using GSCLegendRendererPro.Services;
@@ -16,10 +18,14 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Media;
 using static GSCLegendRendererPro.Utilities.Layers;
 using Field = ArcGIS.Core.Data.Field;
+using LinearUnit = ArcGIS.Core.Geometry.LinearUnit;
 
 namespace GSCLegendRendererPro.ProWindows
 {
@@ -39,6 +45,40 @@ namespace GSCLegendRendererPro.ProWindows
 
         //STYLING
         public StyleProjectItem gscStyle { get; set; }
+
+        //FONT
+        public Dictionary<int, double> arialCharactersWidth { get; set; } //Will be used to calculate text box height based on total lenght of characters
+
+        //LAYOUT
+        Layout pPage = null;
+        LayoutView pLayoutView = null;
+
+        //GRAPHICS PROCESSING
+        public Dictionary<string, IElement> templateGraphicDico { get; set; }
+
+        public Element parentElement = null; //Will be used to keep parent element that has embedded children
+        public double originalYSpacing = 0;
+        public double ySpacing = 0;//Keep track of Y spacing
+        public double xSpacing = 0; //Keep track of X spacing
+        public bool firstIterationBreaker = true;
+        public Element lastElement = null;
+        public string lastElementType = string.Empty;
+        public int lastColumn = 1;
+        public Element waitingLeftBracket = null; //Will be used to move in Y axis an added left bracket that needs to know ySpacing for it's horizontal brother element.
+        public Element upLeftBracket = null; //Will be used to complete left bracket when end-point is reached
+        public Element waitingCenterLeftBracket = null; //Will be used to move bracket annotation when full bracket has been completed.
+        public Element annotationBracket = null; //Will be used to set text first and then move it.
+        public Element waitingRightBracket = null; //Will be used to move in XY axis an added right bracket
+        public Element upRightBracket = null; //Will be used to complete right bracket when end-point is reached.
+        public Element waitingCenterRightBracket = null; //Wil be used to move bracket associated map unit when full bracket has been completed
+        public int howManyRightBrackets = 0; //Will be used to recalculate x spacing in case more columns are asked by user and that some right brackets are also found
+        public Tuple<Element, Element, Element, Element> bracketMapUnit = new Tuple<Element, Element, Element, Element>(null, null, null, null); //Will be used to keep unit box for bracket and replace it at the right anchor when bracket is done drawing.
+        //public Tuple<double, double> anchorPoint = GetAnchorPointStart(); //TODO Find if mxd is a CGM one or not.
+        //public originalYSpacing = anchorPoint.Item2; //Synchronise with initial calculate anchor.
+        public Tuple<double, double> anchorPointParent = new Tuple<double, double>(0, 0);
+        public List<string> heading5Text = new List<string>(); //Init
+        public double currentIteration = 0.0; //Will be used if user has forgot to enter an order.
+        public bool nullOrderBreaker = false; //Will be used to show error message to user if null values are found, but only once.
 
         #endregion
 
@@ -540,19 +580,25 @@ namespace GSCLegendRendererPro.ProWindows
             {
                 if (_legendSelectedLayerIndex != -1)
                 {
-                    await QueuedTask.Run(async () =>
+                    //Setup prcedures
+                    bool setupAddinCleared = await SetupAddinEnvironment();
+                    bool setupLayoutCleared = await SetupLayoutAndGraphics();
+
+                    if (setupAddinCleared && setupLayoutCleared)
                     {
-                        bool validated = await ValidationRound();
-                        if (validated)
-                        {
 
-                        }
-                        else
-                        {
-                            throw new Exception(Properties.Resources.ErrorValidationFailed);
-                        }
-                    });
 
+                        //Show notication success
+                        FrameworkApplication.AddNotification(new Notification()
+                        {
+                            Title = Properties.Resources.FormRendererTitle,
+                            Message = Properties.Resources.GenericMessageCompleted,
+                            ImageSource = System.Windows.Application.Current.Resources["Success_Toast48"] as ImageSource
+                        });
+                    }
+
+                    //Close window
+                    _view.Close();
                 }
                 else
                 {
@@ -567,10 +613,11 @@ namespace GSCLegendRendererPro.ProWindows
         }
 
         /// <summary>
-        /// Will initiate a validation round of some configuration files, style file, and deserialize them.
+        /// Will initiate a setup procedure regarding the addin and its environment of work, asset files existing and copied locally,
+        /// user or default style file loaded and json configurations deserialized and loaded in their proper models.
         /// </summary>
         /// <returns></returns>
-        public async Task<bool> ValidationRound()
+        public async Task<bool> SetupAddinEnvironment()
         {
             try
             {
@@ -585,14 +632,18 @@ namespace GSCLegendRendererPro.ProWindows
                 //Validate the style file loaded in map
                 if (otherComponents != null)
                 {
-                    List<StyleProjectItem> styleItems = Project.Current.GetItems<StyleProjectItem>().Where(x => x.Name == otherComponents.GEOLOGY_STYLE_NAME).ToList();
-                    if (styleItems == null || styleItems.Count() == 0)
+                    await QueuedTask.Run(async () =>
                     {
-                        //Load up the style coming from the default setup
-                        string defaultStylePath = System.IO.Path.Combine(Properties.Settings.Default.WorkingEnvironmentPath, otherComponents.GEOLOGY_STYLE_NAME);
-                        Project.Current.AddStyle(defaultStylePath);
-                    }
-                    gscStyle = Project.Current.GetItems<StyleProjectItem>().Where(x => x.Name == otherComponents.GEOLOGY_STYLE_NAME).FirstOrDefault();
+                        List<StyleProjectItem> styleItems = Project.Current.GetItems<StyleProjectItem>().Where(x => x.Name == otherComponents.GEOLOGY_STYLE_NAME).ToList();
+                        if (styleItems == null || styleItems.Count() == 0)
+                        {
+                            //Load up the style coming from the default setup
+                            string defaultStylePath = System.IO.Path.Combine(Properties.Settings.Default.WorkingEnvironmentPath, otherComponents.GEOLOGY_STYLE_NAME);
+                            Project.Current.AddStyle(defaultStylePath);
+                        }
+                        gscStyle = Project.Current.GetItems<StyleProjectItem>().Where(x => x.Name == otherComponents.GEOLOGY_STYLE_NAME).FirstOrDefault();
+                    });
+
 
                     return true;
                 }
@@ -612,6 +663,391 @@ namespace GSCLegendRendererPro.ProWindows
         
         }
 
+        /// <summary>
+        /// Will initialized the layout page and set a couple of things like units and character widths
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> SetupLayoutAndGraphics()
+        {
+            try
+            {
+                //Navigate to a layout view
+                await NavigateToLayoutViewAsync();
+
+                //Get arial character widths
+                arialCharactersWidth = GetArialCharacterWidth();
+
+                //Set document units, else if it's not in mm the legend will be looking bad...
+                SetPageUnits();
+
+                //Force delay update
+                //TODO: didn't find equivalent under ArcPro
+                //currentDoc.DelayUpdateContents = true;
+
+                //Get template graphics
+                await GetTemplateGraphicList();
+
+                return true;
+            }
+            catch (Exception SetupLayoutAndGraphicsException)
+            {
+                new ErrorService(SetupLayoutAndGraphicsException).WriteToFile();
+                return false;
+            }
+
+        }
+
+        /// <summary>
+        /// Will output a dictionnary containing width in points for all arial character
+        /// </summary>
+        /// <returns></returns>
+        public Dictionary<int, double> GetArialCharacterWidth()
+        {
+            Dictionary<int, double> arialCharacterWidth = new Dictionary<int, double>();
+
+            for (int i = 32; i <= 127; i++)
+            {
+                switch (i)
+                {
+                    case 39:
+                    case 106:
+                    case 108:
+                        arialCharacterWidth[i] = 0.1902;
+                        break;
+                    case 105:
+                    case 116:
+                        arialCharacterWidth[i] = 0.2526;
+                        break;
+                    case 32:
+                    case 33:
+                    case 44:
+                    case 46:
+                    case 47:
+                    case 58:
+                    case 59:
+                    case 73:
+                    case 91:
+                    case 92:
+                    case 93:
+                    case 102:
+                    case 124:
+                        arialCharacterWidth[i] = 0.3144;
+                        break;
+                    case 34:
+                    case 40:
+                    case 41:
+                    case 45:
+                    case 96:
+                    case 114:
+                    case 123:
+                    case 125:
+                        arialCharacterWidth[i] = 0.3768;
+                        break;
+                    case 42:
+                    case 94:
+                    case 118:
+                    case 120:
+                        arialCharacterWidth[i] = 0.4392;
+                        break;
+                    case 107:
+                    case 115:
+                    case 122:
+                        arialCharacterWidth[i] = 0.501;
+                        break;
+                    case 35:
+                    case 36:
+                    case 48:
+                    case 49:
+                    case 50:
+                    case 51:
+                    case 52:
+                    case 53:
+                    case 54:
+                    case 55:
+                    case 56:
+                    case 57:
+                    case 63:
+                    case 74:
+                    case 76:
+                    case 84:
+                    case 90:
+                    case 95:
+                    case 97:
+                    case 98:
+                    case 99:
+                    case 100:
+                    case 101:
+                    case 103:
+                    case 104:
+                    case 110:
+                    case 111:
+                    case 112:
+                    case 113:
+                    case 117:
+                    case 121:
+                        arialCharacterWidth[i] = 0.5634;
+                        break;
+                    case 43:
+                    case 60:
+                    case 61:
+                    case 62:
+                    case 70:
+                    case 126:
+                        arialCharacterWidth[i] = 0.6252;
+                        break;
+                    case 38:
+                    case 65:
+                    case 66:
+                    case 69:
+                    case 72:
+                    case 75:
+                    case 78:
+                    case 80:
+                    case 82:
+                    case 83:
+                    case 85:
+                    case 86:
+                    case 88:
+                    case 89:
+                    case 119:
+                        arialCharacterWidth[i] = 0.6876;
+                        break;
+                    case 67:
+                    case 68:
+                    case 71:
+                    case 79:
+                    case 81:
+                        arialCharacterWidth[i] = 0.7494;
+                        break;
+                    case 77:
+                    case 109:
+                    case 127:
+                        arialCharacterWidth[i] = 0.8118;
+                        break;
+                    case 37:
+                        arialCharacterWidth[i] = 0.936;
+                        break;
+                    case 64:
+                    case 87:
+                        arialCharacterWidth[i] = 1.0602;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return arialCharacterWidth;
+        }
+
+        /// <summary>
+        /// If user is not already in a layout view, the tool will navigate to the first one in the available list
+        /// As opposed to ArcMap, Pro allows multiple layouts per project, this method will just open the first one found
+        /// </summary>
+        public async Task<bool> NavigateToLayoutViewAsync()
+        {
+            try
+            {
+                bool paneFoundAndActivated = false;
+                Pane currentActivePane = ProApp.Panes.ActivePane;
+                if (currentActivePane != null)
+                {
+                    ILayoutPane layoutPane = currentActivePane as ILayoutPane;
+
+                    if (layoutPane == null)
+                    {
+                        MessageBoxResult msgBoxResult = MessageBox.Show(Properties.Resources.FormRendererMovingToLayout, Properties.Resources.GenericWarningTitle, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Exclamation);
+                        if (msgBoxResult == MessageBoxResult.OK)
+                        {
+
+                            //First case - Layout already activated
+                            PaneCollection panes = ProApp.Panes;
+                            foreach (Pane pane in panes)
+                            {
+                                ILayoutPane lPane = pane as ILayoutPane;
+                                if (lPane != null)
+                                {
+
+                                    //Keep for later use
+                                    pPage = lPane.LayoutView.Layout;
+                                    pLayoutView = lPane.LayoutView;
+
+                                    //Activate
+                                    pane.Activate();
+
+                                    paneFoundAndActivated = true;
+
+                                    break;
+                                }
+                            }
+
+                            //Second case - check within project layouts and open first one
+                            if (!paneFoundAndActivated)
+                            {
+                                List<LayoutProjectItem> layouts = Project.Current.GetItems<LayoutProjectItem>().ToList();
+                                if (layouts != null && layouts.Count() > 0)
+                                {
+                                    Layout firstFoundLayout = await QueuedTask.Run(() => {
+
+                                        LayoutProjectItem firstLayoutItem = layouts.First();
+                                        return firstLayoutItem.GetLayout();
+
+                                    });
+
+                                    if (firstFoundLayout != null)
+                                    {
+                                        //Keep for later use
+                                        pPage = firstFoundLayout;
+
+                                        //Load it up
+                                        ILayoutPane pPane = await ProApp.Panes.CreateLayoutPaneAsync(firstFoundLayout);
+                                        pLayoutView = pPane.LayoutView;
+                                        paneFoundAndActivated = true;
+                                    }
+
+                                }
+                            }
+
+
+                            //Third case - Create a new default one
+                            if (!paneFoundAndActivated)
+                            {
+                                //Create new layout on UI thread.
+                                //Can't use QueuedTask on the whole method since the layout pane build needs to run on another
+                                Layout lyt = await QueuedTask.Run(() =>
+                                {
+                                    //Default size to A2
+                                    Layout newLayout = LayoutFactory.Instance.CreateLayout(420, 594, ArcGIS.Core.Geometry.LinearUnit.Millimeters);
+                                    newLayout.SetName(Properties.Resources.FormRendererNewLayoutName);
+                                    return newLayout;
+                                });
+
+                                //Keep for later use
+                                pPage = lyt;
+
+                                //Build the layout pane
+                                ILayoutPane pPane = await ProApp.Panes.CreateLayoutPaneAsync(lyt);
+                                pLayoutView = pPane.LayoutView;
+                                paneFoundAndActivated = true;
+                            }
+
+                        }
+                    }
+                    else
+                    {
+                        paneFoundAndActivated = true;
+
+                        //Keep for later use
+                        pPage = layoutPane.LayoutView.Layout;
+                        pLayoutView = layoutPane.LayoutView;
+                    }
+                }
+                else
+                {
+                    paneFoundAndActivated = false;
+                }
+
+                return paneFoundAndActivated;
+            }
+            catch (Exception panelLayoutException)
+            {
+                new ErrorService(panelLayoutException).WriteToFile();
+                _view.Close();
+                return false;
+            }
+
+
+        }
+
+        /// <summary>
+        /// Checks that page units are only in mm. All spacings between graphics within the configuration files are in mm.
+        /// in the tool internal settings
+        /// </summary>
+        public void SetPageUnits()
+        {
+            try
+            {
+                QueuedTask.Run(() =>
+                {
+                    if (pPage != null)
+                    {
+
+                        CIMPage cIMPage = pPage.GetPage();
+                        if (cIMPage != null)
+                        {
+                            if (cIMPage.Units.Name != LinearUnit.Millimeters.Name)
+                            {
+                                MessageBoxResult msgBoxResult = MessageBox.Show(Properties.Resources.FormRendererPageUnitsWarning, Properties.Resources.GenericWarningTitle, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Exclamation);
+                                if (msgBoxResult == MessageBoxResult.OK)
+                                {
+                                    //Enforce centimeters
+                                    cIMPage.Units = LinearUnit.Millimeters;
+                                    pPage.SetPage(cIMPage);
+
+                                }
+                            }
+                        }
+                    }
+
+                }).Wait();
+            }
+            catch (Exception setPageUnitsException)
+            {
+                new ErrorService(setPageUnitsException).WriteToFile();
+                _view.Close();
+            }
+        }
+
+        /// <summary>
+        /// Will take from template mxd a set of graphics to use in the legend
+        /// </summary>
+        public async Task GetTemplateGraphicList()
+        {
+            try
+            {
+                //Validate if template mxd is available, else send copy resource to local folder
+                string templateLayoutPath = System.IO.Path.Combine(Properties.Settings.Default.WorkingEnvironmentPath, Constants.Assets.pageLayoutTemplateFile);
+                templateGraphicDico = new Dictionary<string, IElement>();
+
+                await QueuedTask.Run(async () =>
+                {
+                    //Check if template layout already exist somewhere in the project
+                    LayoutProjectItem templateLayoutItem = Project.Current.GetItems<LayoutProjectItem>().Where(x => x.Name.Contains(Constants.Assets.pageLayoutTemplateFile.Split(".")[0])).FirstOrDefault();
+
+                    if (templateLayoutItem == null)
+                    {
+                        //Add it
+                        IProjectItem templateProjectItem = ItemFactory.Instance.Create(templateLayoutPath) as IProjectItem;
+                        bool addedTemplateLayout = Project.Current.AddItem(templateProjectItem);
+                        templateLayoutItem = Project.Current.GetItems<LayoutProjectItem>().Where(x => x.Name.Contains(Constants.Assets.pageLayoutTemplateFile.Split(".")[0])).FirstOrDefault();
+                    }
+
+
+                    if (templateLayoutItem != null)
+                    {
+                        Layout templateLayout = templateLayoutItem.GetLayout();
+
+                        if (templateLayout != null && templateLayout.Elements != null && templateLayout.Elements.Count() > 0)
+                        {
+                            foreach (Element templateElements in templateLayout.Elements)
+                            {
+                                templateGraphicDico.Add(templateElements.Name, templateElements);
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception(Properties.Resources.ErrorLayoutLoading);
+                        }
+                    }
+
+                });
+
+            }
+            catch (Exception GetTemplateGraphicListException)
+            {
+                new ErrorService(GetTemplateGraphicListException).WriteToFile();
+            }
+
+        }
         #endregion
     }
 }

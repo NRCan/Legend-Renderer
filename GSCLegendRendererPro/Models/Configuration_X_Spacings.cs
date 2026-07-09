@@ -8,7 +8,7 @@ namespace GSCLegendRendererPro.Models
 {
     /// <summary>
     /// Class to keep track of X spacings between graphics and the left part of the left, 
-    /// mostly a left margin value
+    /// mostly a left margin value, in millimeters
     /// </summary>
     public class Configuration_X_Spacings
     {

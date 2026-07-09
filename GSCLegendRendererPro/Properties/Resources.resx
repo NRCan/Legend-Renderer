@@ -221,6 +221,21 @@
     <value>File not found {0}.</value>
   </data>
   <data name="ErrorValidationFailed" xml:space="preserve">
-    <value>Something happened during a preparation phase.</value>
+    <value>Something happened during a setup phase.</value>
+  </data>
+  <data name="FormRendererMovingToLayout" xml:space="preserve">
+    <value>Changing view to layout mode.</value>
+  </data>
+  <data name="FormRendererNewLayoutName" xml:space="preserve">
+    <value>Legend Layout</value>
+  </data>
+  <data name="FormRendererPageUnitsWarning" xml:space="preserve">
+    <value>Page units can only be millimeters. Will automatically set current page units to it.</value>
+  </data>
+  <data name="LegendRendererTemplate" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Assets\LegendRendererTemplate.pagx;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="ErrorLayoutLoading" xml:space="preserve">
+    <value>An error occured during the loading of the template layout.</value>
   </data>
 </root>

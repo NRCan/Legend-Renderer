@@ -60,6 +60,13 @@ namespace GSCLegendRendererPro.Services
                 Services.FileService.WriteStreamResource(styleBytes, styleFilePath);
             }
 
+            string templateFilePath = System.IO.Path.Combine(_userConfigurationSetup.DefaultPath, Constants.Assets.pageLayoutTemplateFile);
+            byte[] templateBytes = Properties.Resources.LegendRendererTemplate;
+            if (!System.IO.File.Exists(templateFilePath))
+            {
+                Services.FileService.WriteStreamResource(templateBytes, templateFilePath);
+            }
+
         }
 
         /// <summary>

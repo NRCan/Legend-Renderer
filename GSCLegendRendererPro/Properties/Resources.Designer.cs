@@ -100,6 +100,15 @@ namespace GSCLegendRendererPro.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to An error occured during the loading of the template layout..
+        /// </summary>
+        public static string ErrorLayoutLoading {
+            get {
+                return ResourceManager.GetString("ErrorLayoutLoading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Please select a table first..
         /// </summary>
         public static string ErrorMissingTable {
@@ -118,7 +127,7 @@ namespace GSCLegendRendererPro.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Something happened during a preparation phase..
+        ///   Looks up a localized string similar to Something happened during a setup phase..
         /// </summary>
         public static string ErrorValidationFailed {
             get {
@@ -262,6 +271,33 @@ namespace GSCLegendRendererPro.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Changing view to layout mode..
+        /// </summary>
+        public static string FormRendererMovingToLayout {
+            get {
+                return ResourceManager.GetString("FormRendererMovingToLayout", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Legend Layout.
+        /// </summary>
+        public static string FormRendererNewLayoutName {
+            get {
+                return ResourceManager.GetString("FormRendererNewLayoutName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Page units can only be millimeters. Will automatically set current page units to it..
+        /// </summary>
+        public static string FormRendererPageUnitsWarning {
+            get {
+                return ResourceManager.GetString("FormRendererPageUnitsWarning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Select Legend Table.
         /// </summary>
         public static string FormRendererSelectLegendTable {
@@ -376,6 +412,16 @@ namespace GSCLegendRendererPro.Properties {
         public static byte[] LegendBoxDEM {
             get {
                 object obj = ResourceManager.GetObject("LegendBoxDEM", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] LegendRendererTemplate {
+            get {
+                object obj = ResourceManager.GetObject("LegendRendererTemplate", resourceCulture);
                 return ((byte[])(obj));
             }
         }

@@ -8,7 +8,8 @@ namespace GSCLegendRendererPro.Models
 {
     /// <summary>
     /// Base class that will hold all Y spacing values as string, because the position could be added to the float value 
-    /// like "5.0 from LL"
+    /// like "5.0 from LL".
+    /// In millimeters
     /// </summary>
     public class ConfigurationBase
     {
@@ -48,6 +49,7 @@ namespace GSCLegendRendererPro.Models
     /// A class that will track Y spacing between graphics. 
     /// Example: Heading 1 below another Heading 1, Y spacing is = to 8.0,
     /// Heading 1 below a description, Y spacing is 5.0
+    /// In millimeters
     /// </summary>
     public class Configuration_Y_Spacings
     {

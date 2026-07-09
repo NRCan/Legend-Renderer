@@ -141,7 +141,7 @@ namespace GSCLegendRendererPro.Utilities
         public static class Assets
         {
             public const string AssetFolder = "Assets";
-            public const string mxdEmbeddedFile = "LegendRendererTemplate.mxd";
+            public const string pageLayoutTemplateFile = "LegendRendererTemplate.pagx";
             public const string jsonYSpacingEmbeddedFile = "Configuration_Y_Spacings.json";
             public const string jsonXSpacingEmbeddedFile = "Configuration_X_Spacings.json";
             public const string jsonStyleFontsOtherEmbeddedFile = "Configuration_Other.json";

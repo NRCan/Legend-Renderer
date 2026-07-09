@@ -13,6 +13,7 @@
     <None Remove="Assets\Configuration_Y_Spacings.json" />
     <None Remove="Assets\GSC_SymbolStandard.stylx" />
     <None Remove="Assets\LegendBoxDEM.png" />
+    <None Remove="Assets\LegendRendererTemplate.pagx" />
     <None Remove="Config.daml" />
     <None Remove="Images\Hammer16.png" />
     <None Remove="Images\Hammer32.png" />
@@ -30,6 +31,7 @@
     <EmbeddedResource Include="Assets\Configuration_Y_Spacings.json" />
     <EmbeddedResource Include="Assets\GSC_SymbolStandard.stylx" />
     <EmbeddedResource Include="Assets\LegendBoxDEM.png" />
+    <EmbeddedResource Include="Assets\LegendRendererTemplate.pagx" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Properties\launchSettings.json" />
