@@ -238,4 +238,7 @@
   <data name="ErrorLayoutLoading" xml:space="preserve">
     <value>An error occured during the loading of the template layout.</value>
   </data>
+  <data name="ErrorStyleNotFound" xml:space="preserve">
+    <value>Referenced style, in configuration, couldn't be found in project.</value>
+  </data>
 </root>

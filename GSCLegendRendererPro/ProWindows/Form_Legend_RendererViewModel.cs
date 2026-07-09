@@ -45,6 +45,10 @@ namespace GSCLegendRendererPro.ProWindows
 
         //STYLING
         public StyleProjectItem gscStyle { get; set; }
+        public Dictionary<string, SymbolStyleItem> fillSymbolDico { get; set; } //Will hold symbol name (01.01.0l) and it's associate style object
+        public Dictionary<string, SymbolStyleItem> lineSymbolDico { get; set; } //Will hold symbol name (01.01.0l) and it's associate style object
+        public Dictionary<string, SymbolStyleItem> markerSymbolDico { get; set; } //Will hold symbol name (01.01.0l) and it's associate style object
+        public Dictionary<string, SymbolStyleItem> textSymbolDico { get; set; } //Will hold symbol name and style object
 
         //FONT
         public Dictionary<int, double> arialCharactersWidth { get; set; } //Will be used to calculate text box height based on total lenght of characters
@@ -55,7 +59,6 @@ namespace GSCLegendRendererPro.ProWindows
 
         //GRAPHICS PROCESSING
         public Dictionary<string, IElement> templateGraphicDico { get; set; }
-
         public Element parentElement = null; //Will be used to keep parent element that has embedded children
         public double originalYSpacing = 0;
         public double ySpacing = 0;//Keep track of Y spacing
@@ -584,9 +587,35 @@ namespace GSCLegendRendererPro.ProWindows
                     bool setupAddinCleared = await SetupAddinEnvironment();
                     bool setupLayoutCleared = await SetupLayoutAndGraphics();
 
-                    if (setupAddinCleared && setupLayoutCleared)
+                    if (setupAddinCleared && setupLayoutCleared && _legendLayers[_legendSelectedLayerIndex].STable != null)
                     {
+                        await QueuedTask.Run(() =>
+                        {
+                            //Prepare legend table and query filter to sort it on user predefined order
+                            using (Table legendTable = _legendLayers[_legendSelectedLayerIndex].STable.GetTable())
+                            {
+                                ArcGIS.Core.Data.QueryFilter itemFilter = new ArcGIS.Core.Data.QueryFilter();
+                                if (_legendSelectedOrderIndex != -1)
+                                {
+                                    itemFilter = new ArcGIS.Core.Data.QueryFilter
+                                    {
+                                        PostfixClause = $"ORDER BY {_legendOrder[_legendSelectedOrderIndex].Value} ASC"
+                                    };
+                                }
 
+                                using (RowCursor legendCursor = legendTable.Search(itemFilter, true))
+                                {
+                                    while (legendCursor.MoveNext())
+                                    {
+                                        using (Row legendRpw = legendCursor.Current)
+                                        {
+
+                                        }
+                                    }
+                                }
+
+                            }
+                        });
 
                         //Show notication success
                         FrameworkApplication.AddNotification(new Notification()
@@ -635,13 +664,20 @@ namespace GSCLegendRendererPro.ProWindows
                     await QueuedTask.Run(async () =>
                     {
                         List<StyleProjectItem> styleItems = Project.Current.GetItems<StyleProjectItem>().Where(x => x.Name == otherComponents.GEOLOGY_STYLE_NAME).ToList();
-                        if (styleItems == null || styleItems.Count() == 0)
+
+                        //Add embeded style if user hasn't got it already loaded in the project
+                        if ((styleItems == null || styleItems.Count() == 0 ) && otherComponents.GEOLOGY_STYLE_NAME == Constants.Assets.gscSymbolStandardStyle.Split(".")[0])
                         {
                             //Load up the style coming from the default setup
-                            string defaultStylePath = System.IO.Path.Combine(Properties.Settings.Default.WorkingEnvironmentPath, otherComponents.GEOLOGY_STYLE_NAME);
+                            string defaultStylePath = System.IO.Path.Combine(Properties.Settings.Default.WorkingEnvironmentPath, otherComponents.GEOLOGY_STYLE_NAME + ".stylx");
                             Project.Current.AddStyle(defaultStylePath);
                         }
                         gscStyle = Project.Current.GetItems<StyleProjectItem>().Where(x => x.Name == otherComponents.GEOLOGY_STYLE_NAME).FirstOrDefault();
+
+                        if (gscStyle == null)
+                        {
+                            throw new Exception(Properties.Resources.ErrorStyleNotFound);
+                        }
                     });
 
 
@@ -686,6 +722,9 @@ namespace GSCLegendRendererPro.ProWindows
 
                 //Get template graphics
                 await GetTemplateGraphicList();
+
+                //Get all symbols from style and keep them in a dictionary for later use
+                await GetAllSymbols();
 
                 return true;
             }
@@ -1048,6 +1087,51 @@ namespace GSCLegendRendererPro.ProWindows
             }
 
         }
+
+        /// <summary>
+        /// Will fill in the appropriate symbol dictionary from a needed style class from user loaded style
+        /// </summary>
+        public async Task GetAllSymbols()
+        {
+            try
+            {
+                await QueuedTask.Run(() =>
+                {
+                    if (gscStyle != null)
+                    {
+                        fillSymbolDico = GetSymbols(gscStyle, StyleItemType.PolygonSymbol);
+                        lineSymbolDico = GetSymbols(gscStyle, StyleItemType.LineSymbol);
+                        textSymbolDico = GetSymbols(gscStyle, StyleItemType.TextSymbol);
+                        markerSymbolDico = GetSymbols(gscStyle, StyleItemType.PointSymbol);
+                    }
+                });
+            }
+            catch (Exception GetAllSymbolsException)
+            {
+                new ErrorService(GetAllSymbolsException).WriteToFile();
+            }
+        }
+
+        /// <summary>
+        /// Will fill out a dictionary based on a symbol type and a style project item
+        /// </summary>
+        /// <param name="symbolDictionary"></param>
+        /// <param name="styleProjectItem"></param>
+        public Dictionary<string, SymbolStyleItem> GetSymbols(StyleProjectItem styleProjectItem, StyleItemType styleItemType)
+        {
+            Dictionary<string, SymbolStyleItem> symbolDictionary = new Dictionary<string, SymbolStyleItem>();
+            List<SymbolStyleItem> symbolList = styleProjectItem.SearchSymbols(styleItemType, null).ToList();
+            if (symbolList != null && symbolList.Count() > 0)
+            {
+                foreach (SymbolStyleItem ssi in symbolList)
+                {
+                    symbolDictionary.Add(ssi.Name, ssi);
+                }
+            }
+
+            return symbolDictionary;
+        }
+
         #endregion
     }
 }

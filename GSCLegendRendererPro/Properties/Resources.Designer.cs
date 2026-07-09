@@ -127,6 +127,15 @@ namespace GSCLegendRendererPro.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Referenced style, in configuration, couldn&apos;t be found in project..
+        /// </summary>
+        public static string ErrorStyleNotFound {
+            get {
+                return ResourceManager.GetString("ErrorStyleNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Something happened during a setup phase..
         /// </summary>
         public static string ErrorValidationFailed {
