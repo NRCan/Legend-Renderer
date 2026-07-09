@@ -241,4 +241,7 @@
   <data name="ErrorStyleNotFound" xml:space="preserve">
     <value>Referenced style, in configuration, couldn't be found in project.</value>
   </data>
+  <data name="ErrorInvalidControls" xml:space="preserve">
+    <value>Not all controls are filled with a value.</value>
+  </data>
 </root>

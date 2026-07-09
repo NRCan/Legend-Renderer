@@ -100,6 +100,15 @@ namespace GSCLegendRendererPro.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Not all controls are filled with a value..
+        /// </summary>
+        public static string ErrorInvalidControls {
+            get {
+                return ResourceManager.GetString("ErrorInvalidControls", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to An error occured during the loading of the template layout..
         /// </summary>
         public static string ErrorLayoutLoading {

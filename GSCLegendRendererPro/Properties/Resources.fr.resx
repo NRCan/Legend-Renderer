@@ -219,4 +219,7 @@
   <data name="ErrorStyleNotFound" xml:space="preserve">
     <value>Le style, tel que mentionné dans la configuration, n'a pas pu être localisé dans le projet.</value>
   </data>
+  <data name="ErrorInvalidControls" xml:space="preserve">
+    <value>Certaines options n'ont pas été remplie.</value>
+  </data>
 </root>

@@ -82,9 +82,23 @@ namespace GSCLegendRendererPro.ProWindows
         public List<string> heading5Text = new List<string>(); //Init
         public double currentIteration = 0.0; //Will be used if user has forgot to enter an order.
         public bool nullOrderBreaker = false; //Will be used to show error message to user if null values are found, but only once.
+        public double legendYLowerBound = 0.0; //Will be used to keep track of the lower bound of the legend element in case it's a CGM map.
+        public int currentLegendColumn = 1;
+
+        //TABLE
+        int elementFieldIndex = -1;
+        int orderFieldIndex = -1;
+        int style1FieldIndex = -1;
+        int style2FieldIndex = -1;
+        int labelFieldIndex = -1;
+        int label2FieldIndex = -1;
+        int descriptionFieldIndex = -1;
+        int headingFieldIndex = -1;
+        int columnFieldIndex = -1;
+        int label1StyleFieldIndex = -1;
+        int label2StyleFieldIndex = -1;
 
         #endregion
-
 
         #region PROPERTIES
 
@@ -486,7 +500,7 @@ namespace GSCLegendRendererPro.ProWindows
         {
             CustomCombobox fieldColumn = _legendColumn.Where(x => x.Name.Contains(Constants.LegendTable.legendColumnField, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
             CustomCombobox fieldDescription = _legendDescription.Where(x => x.Name.Contains(Constants.LegendTable.legendDescriptionField, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
-            CustomCombobox fieldElement = _legendElement.Where(x => x.Name.Contains(Constants.LegendTable.legendElementField, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+            CustomCombobox fieldElement = _legendElement.Where(x => x.Name == Constants.LegendTable.legendElementField).FirstOrDefault();
             CustomCombobox fieldHeading = _legendHeading.Where(x => x.Name.Contains(Constants.LegendTable.legendHeadingField, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
             CustomCombobox fieldLabel1 = _legendLabel1.Where(x => x.Name.Contains(Constants.LegendTable.legendLabel1Field, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
             CustomCombobox fieldLabel1Style = _legendLabel1Style.Where(x => x.Name.Contains(Constants.LegendTable.legendLabel1StyleField, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
@@ -579,15 +593,19 @@ namespace GSCLegendRendererPro.ProWindows
         /// </summary>
         private async void CreateLegend()
         {
+            _warningMessage = string.Empty;
+            NotifyPropertyChanged(nameof(WarningMessage));
+
             try
             {
                 if (_legendSelectedLayerIndex != -1)
                 {
                     //Setup prcedures
+                    bool validateUIControls = ValidateFieldControls();
                     bool setupAddinCleared = await SetupAddinEnvironment();
                     bool setupLayoutCleared = await SetupLayoutAndGraphics();
 
-                    if (setupAddinCleared && setupLayoutCleared && _legendLayers[_legendSelectedLayerIndex].STable != null)
+                    if (validateUIControls && setupAddinCleared && setupLayoutCleared && _legendLayers[_legendSelectedLayerIndex].STable != null)
                     {
                         await QueuedTask.Run(() =>
                         {
@@ -605,29 +623,42 @@ namespace GSCLegendRendererPro.ProWindows
 
                                 using (RowCursor legendCursor = legendTable.Search(itemFilter, true))
                                 {
-                                    while (legendCursor.MoveNext())
+                                    //Get fields indexes
+                                    if (GetFieldIndexesFromTable(legendCursor))
                                     {
-                                        using (Row legendRpw = legendCursor.Current)
+                                        while (legendCursor.MoveNext())
                                         {
-
+                                            using (Row legendRpw = legendCursor.Current)
+                                            {
+                                                //Current row information collecting
+                                                currentIteration = currentIteration + 1.0;
+                                            }
                                         }
-                                    }
+                                    }  
                                 }
 
                             }
                         });
 
-                        //Show notication success
-                        FrameworkApplication.AddNotification(new Notification()
+                        if (_warningMessage == string.Empty)
                         {
-                            Title = Properties.Resources.FormRendererTitle,
-                            Message = Properties.Resources.GenericMessageCompleted,
-                            ImageSource = System.Windows.Application.Current.Resources["Success_Toast48"] as ImageSource
-                        });
-                    }
+                            //Show notication success
+                            FrameworkApplication.AddNotification(new Notification()
+                            {
+                                Title = Properties.Resources.FormRendererTitle,
+                                Message = Properties.Resources.GenericMessageCompleted,
+                                ImageSource = System.Windows.Application.Current.Resources["Success_Toast48"] as ImageSource
+                            });
 
-                    //Close window
-                    _view.Close();
+                            //Close window
+                            _view.Close();
+                        }
+                    }
+                    else
+                    {
+                        _warningMessage = Properties.Resources.ErrorInvalidControls;
+                        NotifyPropertyChanged(nameof(WarningMessage));
+                    }
                 }
                 else
                 {
@@ -725,6 +756,9 @@ namespace GSCLegendRendererPro.ProWindows
 
                 //Get all symbols from style and keep them in a dictionary for later use
                 await GetAllSymbols();
+
+                //If within a CGM map, get the lower bound of the legend element
+                legendYLowerBound = await GetCGMLegendLowerBound(Constants.YSpacings.legendEnd_Citation, Constants.Graphics.cgmCitation);
 
                 return true;
             }
@@ -1130,6 +1164,99 @@ namespace GSCLegendRendererPro.ProWindows
             }
 
             return symbolDictionary;
+        }
+
+        /// <summary>
+        /// From a given anchor, will calculate the legend maximum height, 
+        /// based on upper cgm citation graphic anchor. This will be used to
+        /// automatically calculate the number of columns
+        /// </summary>
+        /// <param name="in_ySpacingWithCitation">The wanted y spacing between end of legend and the reference graphic</param>
+        /// <returns></returns>
+        public async Task<double> GetCGMLegendLowerBound(double in_ySpacingWithCitation, string in_referenceCGMGraphicName)
+        {
+            double outYBound = 0.0;
+
+            try
+            {
+                if (pPage != null)
+                {
+                    await QueuedTask.Run(async () =>
+                    {
+                        Element referenceCGMElement = pPage.Elements.Where(e => e.Name == in_referenceCGMGraphicName).FirstOrDefault();
+
+                        if (referenceCGMElement != null && referenceCGMElement.GetBounds() != null)
+                        {
+                            outYBound = referenceCGMElement.GetBounds().YMax + in_ySpacingWithCitation;
+                        }
+                    });
+
+
+
+                }
+            }
+            catch (Exception GetCGMLegendLowerBoundException)
+            {
+                new ErrorService(GetCGMLegendLowerBoundException).WriteToFile();
+            }
+
+
+            return outYBound;
+
+        }
+
+        /// <summary>
+        /// From a given table row cursor, will keep in variables the index of the field names, 
+        /// in order to prevent fetching the index each time a value is needed.
+        /// </summary>
+        /// <param name="legendCursor"></param>
+        /// <returns></returns>
+        public bool GetFieldIndexesFromTable(RowCursor legendCursor)
+        {
+            bool allValidates = true;
+             
+            if (_legendSelectedElementIndex != -1 || _legendSelectedOrderIndex != -1 || _legendSelectedLabel1Index != -1 ||
+                _legendSelectedLabel2Index != -1 || _legendSelectedDescriptionIndex != -1 || _legendSelectedHeadingIndex != -1 ||
+                _legendSelectedColumnIndex != -1 || _legendSelectedLabel1StyleIndex != -1 || _legendSelectedLabel2StyleIndex != -1 ||
+                _legendSelectedStyle1Index != -1 || _legendSelectedStyle2Index != -1)
+            {
+                elementFieldIndex = legendCursor.FindField(_legendElement[_legendSelectedElementIndex].Value);
+                orderFieldIndex = legendCursor.FindField(_legendOrder[_legendSelectedOrderIndex].Value);
+                labelFieldIndex = legendCursor.FindField(_legendLabel1[_legendSelectedLabel1Index].Value);
+                label2FieldIndex = legendCursor.FindField(_legendLabel2[_legendSelectedLabel2Index].Value);
+                descriptionFieldIndex = legendCursor.FindField(_legendDescription[_legendSelectedDescriptionIndex].Value);
+                headingFieldIndex = legendCursor.FindField(_legendHeading[_legendSelectedHeadingIndex].Value);
+                columnFieldIndex = legendCursor.FindField(_legendColumn[_legendSelectedColumnIndex].Value);
+                label1StyleFieldIndex = legendCursor.FindField(_legendLabel1Style[_legendSelectedLabel1StyleIndex].Value);
+                label2StyleFieldIndex = legendCursor.FindField(_legendLabel2Style[_legendSelectedLabel2StyleIndex].Value);
+                style1FieldIndex = legendCursor.FindField(_legendStyle1[_legendSelectedStyle1Index].Value);
+                style2FieldIndex = legendCursor.FindField(_legendStyle2[_legendSelectedStyle2Index].Value);
+            }
+            else
+            {
+                allValidates = false;
+            }
+
+            return allValidates;
+        }
+
+        /// <summary>
+        /// Will validate UI controls to make sure eveyrthing is filled out properly
+        /// </summary>
+        /// <returns></returns>
+        public bool ValidateFieldControls()
+        {
+            bool allValidates = true;
+
+            if (_legendSelectedElementIndex == -1 || _legendSelectedOrderIndex == -1 || _legendSelectedLabel1Index == -1 ||
+                _legendSelectedLabel2Index == -1 || _legendSelectedDescriptionIndex == -1 || _legendSelectedHeadingIndex == -1 ||
+                _legendSelectedColumnIndex == -1 || _legendSelectedLabel1StyleIndex == -1 || _legendSelectedLabel2StyleIndex == -1 ||
+                _legendSelectedStyle1Index == -1 || _legendSelectedStyle2Index == -1)
+            {
+                allValidates = false;
+            }
+
+            return allValidates;
         }
 
         #endregion
