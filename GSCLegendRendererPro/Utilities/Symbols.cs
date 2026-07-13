@@ -2,6 +2,7 @@
 using ArcGIS.Core.Internal.CIM;
 using ArcGIS.Desktop.Core;
 using ArcGIS.Desktop.Internal.Mapping;
+using ArcGIS.Desktop.Layouts;
 using ArcGIS.Desktop.Mapping;
 using GSCLegendRendererPro.Models;
 using GSCLegendRendererPro.Services;
@@ -133,6 +134,29 @@ namespace GSCLegendRendererPro.Utilities
             StyleProjectItem workingStyle = Project.Current.GetItems<StyleProjectItem>().FirstOrDefault(x => x.Path == stylePath);
 
             return workingStyle;
+        }
+
+        /// <summary>
+        /// Will return a text symbol of red color. If a parent symbol is passed, font config will be taken from it.
+        /// </summary>
+        /// <param name="parentSymbol">Can be null, font config will be taken from it, else arial 10 is the default.</param>
+        /// <returns></returns>
+        public static TextElement GetMissingTextSymbol(TextElement parentSymbol)
+        {
+            string missingText = Properties.Resources.ErrorHeadingMissingText;
+            parentSymbol.TextProperties.Text = missingText;
+            CIMGraphic cimGraphic = parentSymbol.GetGraphic();
+            if (cimGraphic != null)
+            {
+                CIMTextSymbol cIMTextSymbol = cimGraphic.Symbol.Symbol as CIMTextSymbol;
+                cIMTextSymbol.SetColor(ColorFactory.Instance.RedRGB);
+                cIMTextSymbol.FontFamilyName = "Arial";
+                cIMTextSymbol.SetSize(8);
+                parentSymbol.SetGraphic(cimGraphic);
+            }
+
+            return parentSymbol;
+
         }
 
     }

@@ -100,6 +100,15 @@ namespace GSCLegendRendererPro.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Missing text or style..
+        /// </summary>
+        public static string ErrorHeadingMissingText {
+            get {
+                return ResourceManager.GetString("ErrorHeadingMissingText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Not all controls are filled with a value..
         /// </summary>
         public static string ErrorInvalidControls {
@@ -114,6 +123,15 @@ namespace GSCLegendRendererPro.Properties {
         public static string ErrorLayoutLoading {
             get {
                 return ResourceManager.GetString("ErrorLayoutLoading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Missing a graphic element from within the template layout..
+        /// </summary>
+        public static string ErrorMissingLegendElement {
+            get {
+                return ResourceManager.GetString("ErrorMissingLegendElement", resourceCulture);
             }
         }
         
@@ -441,6 +459,15 @@ namespace GSCLegendRendererPro.Properties {
             get {
                 object obj = ResourceManager.GetObject("LegendRendererTemplate", resourceCulture);
                 return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Missing value found in legend order field. This might cause some problems on item rendering. Look for:  {0}.
+        /// </summary>
+        public static string WarningNullOrderFound {
+            get {
+                return ResourceManager.GetString("WarningNullOrderFound", resourceCulture);
             }
         }
     }

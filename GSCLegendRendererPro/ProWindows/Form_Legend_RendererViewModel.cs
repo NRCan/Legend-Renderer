@@ -7,6 +7,7 @@ using ArcGIS.Desktop.Core;
 using ArcGIS.Desktop.Framework;
 using ArcGIS.Desktop.Framework.Contracts;
 using ArcGIS.Desktop.Framework.Threading.Tasks;
+using ArcGIS.Desktop.Internal.Mapping.Symbology;
 using ArcGIS.Desktop.Layouts;
 using ArcGIS.Desktop.Mapping;
 using GSCLegendRendererPro.Models;
@@ -15,17 +16,25 @@ using GSCLegendRendererPro.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Media3D;
 using static GSCLegendRendererPro.Utilities.Layers;
+using static System.Net.Mime.MediaTypeNames;
+using Envelope = ArcGIS.Core.Geometry.Envelope;
 using Field = ArcGIS.Core.Data.Field;
 using LinearUnit = ArcGIS.Core.Geometry.LinearUnit;
+using Table = ArcGIS.Core.Data.Table;
+using TextElement = ArcGIS.Desktop.Layouts.TextElement;
 
 namespace GSCLegendRendererPro.ProWindows
 {
@@ -75,15 +84,26 @@ namespace GSCLegendRendererPro.ProWindows
         public Element upRightBracket = null; //Will be used to complete right bracket when end-point is reached.
         public Element waitingCenterRightBracket = null; //Wil be used to move bracket associated map unit when full bracket has been completed
         public int howManyRightBrackets = 0; //Will be used to recalculate x spacing in case more columns are asked by user and that some right brackets are also found
-        public Tuple<Element, Element, Element, Element> bracketMapUnit = new Tuple<Element, Element, Element, Element>(null, null, null, null); //Will be used to keep unit box for bracket and replace it at the right anchor when bracket is done drawing.
-        //public Tuple<double, double> anchorPoint = GetAnchorPointStart(); //TODO Find if mxd is a CGM one or not.
-        //public originalYSpacing = anchorPoint.Item2; //Synchronise with initial calculate anchor.
+        public Tuple<Element, Element, Element, Element> bracketMapUnit = new Tuple<Element, Element, Element, Element>(null, null, null, null); //Will be used to keep unit box for bracket and replace it at the right anchor when bracket is done drawing.       
+        public Tuple<double, double> anchorPoint = new Tuple<double, double>(0, 0);
         public Tuple<double, double> anchorPointParent = new Tuple<double, double>(0, 0);
-        public List<string> heading5Text = new List<string>(); //Init
+        //public List<string> heading5Text = new List<string>(); //Init
         public double currentIteration = 0.0; //Will be used if user has forgot to enter an order.
         public bool nullOrderBreaker = false; //Will be used to show error message to user if null values are found, but only once.
         public double legendYLowerBound = 0.0; //Will be used to keep track of the lower bound of the legend element in case it's a CGM map.
-        public int currentLegendColumn = 1;
+        public int currentColumn = 1;
+        double currentOrder = 0;
+        string currentStyle1 = string.Empty;
+        string currentStyle2 = string.Empty;
+        string currentLabel1 = string.Empty;
+        string currentLabel2 = string.Empty;
+        string currentDescription = string.Empty;
+        string currentHeading = string.Empty;
+        string currentElementName = string.Empty;
+        string currentLabel1Style = string.Empty;
+        string currentLabel2Style = string.Empty;
+        public Element currentElementObject = null;
+        List<IElement> legendElementList = new List<IElement>(); //Will hold all legend items to group them at the end of the process.
 
         //TABLE
         int elementFieldIndex = -1;
@@ -98,9 +118,21 @@ namespace GSCLegendRendererPro.ProWindows
         int label1StyleFieldIndex = -1;
         int label2StyleFieldIndex = -1;
 
+        //OTHER
+        public double columnWidth { get; set; }
+        public double elementWidth { get; set; }
+        public double elementDescriptGapWidth { get; set; }
+        public double descriptionWidth { get; set; }
+        public double columnColumnGapWidth { get; set; }
+        public double smallDescriptionHeight { get; set; }
+        public double smallDescriptionHeightLine { get; set; }
+        public double groupDescriptionWidth { get; set; }
+        public List<string> heading5Text { get; set; } //Will be used to detect heading 5 elements, which will see their description made italic and indented of 10 points
+        public bool isCGMTemplateMXD { get; set; } //Will be used to prevent legend grouping in a CGM template to prevent weird behavior.
+
         #endregion
 
-        #region PROPERTIES
+        #region UI PROPERTIES
 
         //Layer controls
         private ObservableCollection<LayerDisplay> _legendLayers = new();
@@ -600,14 +632,15 @@ namespace GSCLegendRendererPro.ProWindows
             {
                 if (_legendSelectedLayerIndex != -1)
                 {
-                    //Setup prcedures
+                    //Setup procedures
                     bool validateUIControls = ValidateFieldControls();
                     bool setupAddinCleared = await SetupAddinEnvironment();
                     bool setupLayoutCleared = await SetupLayoutAndGraphics();
 
                     if (validateUIControls && setupAddinCleared && setupLayoutCleared && _legendLayers[_legendSelectedLayerIndex].STable != null)
                     {
-                        await QueuedTask.Run(() =>
+                        //Run on UI thread
+                        await QueuedTask.Run(async () =>
                         {
                             //Prepare legend table and query filter to sort it on user predefined order
                             using (Table legendTable = _legendLayers[_legendSelectedLayerIndex].STable.GetTable())
@@ -628,10 +661,47 @@ namespace GSCLegendRendererPro.ProWindows
                                     {
                                         while (legendCursor.MoveNext())
                                         {
-                                            using (Row legendRpw = legendCursor.Current)
+                                            using (Row legendRow = legendCursor.Current)
                                             {
                                                 //Current row information collecting
                                                 currentIteration = currentIteration + 1.0;
+                                                currentOrder = currentIteration;
+                                                await GatherCurrentRowInformation(legendRow);
+
+                                                #region GRAPHIC PREPARATION
+
+                                                await CleanupDescription();
+
+                                                //Get related graphic from template layout dictionary
+                                                if (templateGraphicDico.ContainsKey(currentElementName))
+                                                {
+                                                    currentElementObject = CopyElementGraphicObject(templateGraphicDico[currentElementName] as Element);
+                                                }
+                                                else
+                                                {
+                                                    throw new Exception(string.Format(Properties.Resources.ErrorMissingLegendElement, currentElementName));
+                                                }
+
+                                                //Manage null order
+                                                await ManageNullOrder(legendRow);
+
+                                                //Set heading5 trigger for special style symbols
+                                                await Heading5Preparation(legendRow);
+
+                                                //Get spacings in x and Y for current row
+                                                ySpacing = GetYSpacing(lastElement, lastElementType, currentElementName, anchorPoint.Item2);
+                                                xSpacing = GetXSpacing(currentElementName);
+
+                                                //Manage column change and spacing
+                                                await ManageColumn(legendRow);
+
+                                                #endregion
+
+                                                #region GRAPHIC HANDLING
+
+                                                await AddHeading(legendRow);
+
+                                                #endregion
                                             }
                                         }
                                     }  
@@ -759,6 +829,18 @@ namespace GSCLegendRendererPro.ProWindows
 
                 //If within a CGM map, get the lower bound of the legend element
                 legendYLowerBound = await GetCGMLegendLowerBound(Constants.YSpacings.legendEnd_Citation, Constants.Graphics.cgmCitation);
+
+                //Get start anchor point (in case from CGM template)
+                await GetAnchorPointStart();
+
+                //Set default Y spacing at start (incase from CGM template)
+                originalYSpacing = anchorPoint.Item2; //Synchronise with initial calculate anchor.
+
+                //Initiate width and height of some graphics
+                await InitWidthHeight();
+
+                //Heading 5 initialization
+                heading5Text = new List<string>();
 
                 return true;
             }
@@ -1259,6 +1341,818 @@ namespace GSCLegendRendererPro.ProWindows
             return allValidates;
         }
 
+        /// <summary>
+        /// Will make a copy of a given element object via cloning with CIM
+        /// </summary>
+        /// <param name="inputOb">The object to get a copy rom</param>
+        /// <returns></returns>
+        public Element CopyElementObject(Element element)
+        {
+            Element copiedElement = null;
+            
+            //Get CIM definition
+            CIMElement cimElement = element.GetDefinition();
+
+            //Clone
+            CIMElement copiedCIMElement = CIMElement.Clone(cimElement) as CIMElement;
+
+            //Create new object and add it to current layout
+            copiedElement = ElementFactory.Instance.CreateElement(pPage, copiedCIMElement);
+     
+            return copiedElement;
+        }
+
+        /// <summary>
+        /// Will make a copy of a given element object via cloning with CIM
+        /// </summary>
+        /// <param name="inputOb">The object to get a copy rom</param>
+        /// <returns></returns>
+        public Element CopyElementGraphicObject(Element element)
+        {
+            GraphicElement cloneElement = null;
+            GraphicElement copiedElement = element as GraphicElement;
+
+            if (copiedElement != null)
+            {
+                cloneElement = copiedElement.Clone();
+                CIMElement cimCloneElement = cloneElement.GetDefinition();
+                ElementFactory.Instance.CreateElement(pPage, cimCloneElement);
+            }
+
+            return copiedElement;
+        }
+
+        /// <summary>
+        /// Will output the x,y coordinate for the first anchor of the legend
+        /// Default is center of layout, else if inside CGM template, will be placed inside the LEGEND element.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<Tuple<double, double>> GetAnchorPointStart()
+        {
+
+            anchorPoint = new Tuple<double, double>(0.0, 0.0);
+
+            try
+            {
+                if (pPage != null)
+                {
+                    await QueuedTask.Run(async () =>
+                    {
+                        Element referenceLegendElement = pPage.Elements.Where(e => e.Name == Constants.Graphics.cgmLegendElement ||
+                        e.Name.Contains(Constants.Graphics.cgmDetectorKeyword)).FirstOrDefault();
+
+                        //Case when CGM blue legend box is detected, get new anchor
+                        if (referenceLegendElement != null && referenceLegendElement.GetBounds() != null)
+                        {
+                            anchorPoint = new Tuple<double, double>(referenceLegendElement.GetBounds().XMin, referenceLegendElement.GetBounds().YMax);
+                            if (referenceLegendElement.Name.Contains(Constants.Graphics.cgmDetectorKeyword))
+                            {
+                                isCGMTemplateMXD = true;
+                            }
+                            
+                        }
+                        //Case when nothing has been save relative to cgm blue legend box, default to upper left of paper layout
+                        else if (anchorPoint.Item2 == 0.0 || isCGMTemplateMXD == false)
+                        {
+                            anchorPoint = new Tuple<double, double>(0.0, pLayoutView.Extent.YMax);
+                            isCGMTemplateMXD = false;
+                        }
+                    });
+                }
+            }
+            catch (Exception GetAnchorPointStartException)
+            {
+                new ErrorService(GetAnchorPointStartException).WriteToFile();
+            }
+
+            return anchorPoint;
+
+        }
+
+        /// <summary>
+        /// Will initialize some width and height of some graphics
+        /// </summary>
+        /// <returns></returns>
+        public async Task InitWidthHeight()
+        {
+            columnWidth = xSpacings.COLUMN_WIDTH;
+            elementWidth = xSpacings.ELEMENT_WIDTH;
+            elementDescriptGapWidth = xSpacings.ELEMENT_DESCRIPTION_GAP_WIDTH;
+            descriptionWidth = xSpacings.DESCRIPTION_WIDTH;
+            columnColumnGapWidth = xSpacings.COLUMN_COLUMN_GAP_WIDTH;
+            smallDescriptionHeight = Constants.YSpacings.smallDescriptionHeightLimit;
+            smallDescriptionHeightLine = Constants.YSpacings.smallDescriptionHeightLimitLines;
+            groupDescriptionWidth = xSpacings.GROUP_DESCRIPTION_WIDTH;
+
+        }
+
+        /// <summary>
+        /// Will retrieve all legend field values from a given row
+        /// </summary>
+        /// <param name="row"></param>
+        /// <returns></returns>
+        public async Task GatherCurrentRowInformation(Row row)
+        {
+            if (row[orderFieldIndex] != null)
+            {
+                Double.TryParse(row[orderFieldIndex].ToString(), out currentOrder);
+            }
+            if (row[style1FieldIndex] != null)
+            {
+                currentStyle1 = row[style1FieldIndex].ToString();
+            }
+            if (row[style2FieldIndex] != null)
+            {
+                currentStyle2 = row[style2FieldIndex].ToString();
+            }
+            if (row[labelFieldIndex] != null)
+            {
+                currentLabel1 = row[labelFieldIndex].ToString();
+            }
+            if (row[label2FieldIndex] != null)
+            {
+                currentLabel2 = row[label2FieldIndex].ToString();
+            }
+            if (row[descriptionFieldIndex] != null)
+            {
+                currentDescription = row[descriptionFieldIndex].ToString();
+            }
+            if (row[headingFieldIndex] != null)
+            {
+                currentHeading = row[headingFieldIndex].ToString();
+            }
+            if (row[elementFieldIndex] != null)
+            {
+                currentElementName = row[elementFieldIndex].ToString();
+            }
+            if (row[label1StyleFieldIndex] != null)
+            {
+                currentLabel1Style = row[label1StyleFieldIndex].ToString();
+            }
+            if (row[label2StyleFieldIndex] != null)
+            {
+                currentLabel2Style = row[label2StyleFieldIndex].ToString();
+            }
+            if (row[columnFieldIndex] != null)
+            {
+                int.TryParse(row[columnFieldIndex].ToString(), out currentColumn);
+            }
+        }
+
+        /// <summary>
+        /// Clean and replace < characters from description
+        /// Having <bol></bol> within description along an extra < symbol, breaks the bolding of the heading within the description
+        /// </summary>
+        /// <returns></returns>
+        public async Task CleanupDescription()
+        {
+            if (currentDescription != string.Empty && currentHeading != string.Empty && heading5Text.Count == 0)
+            {
+                currentDescription = currentDescription.Replace("<", "&lt;");
+            }
+        }
+
+        /// <summary>
+        /// Will show a warning message to user regarding a missing, empty or null order value. The warning will be shown only once per legend rendering session.
+        /// </summary>
+        /// <returns></returns>
+        public async Task ManageNullOrder(Row orderRow) 
+        {
+            //Manage null order
+            if (orderRow[orderFieldIndex].ToString() == string.Empty || orderRow[orderFieldIndex].ToString() == "<Null>" || orderRow[orderFieldIndex] == null)
+            {
+                if (!nullOrderBreaker)
+                {
+                    MessageBoxResult msgBoxResult = MessageBox.Show(string.Format(Properties.Resources.WarningNullOrderFound, currentElementName + " " + currentHeading + " " + currentDescription), 
+                        Properties.Resources.GenericWarningTitle, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Exclamation);
+                    if (msgBoxResult == MessageBoxResult.OK)
+                    {
+                        nullOrderBreaker = true;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Set heading5 for special style symbols
+        /// Two cases, either user repeats heading5 text in wanted embedded symbols, or
+        /// uses the latest element named HEADING5_END without duplicating heading5 text in all symbols
+        /// </summary>
+        /// <param name="heading5Row"></param>
+        /// <returns></returns>
+        public async Task Heading5Preparation(Row heading5Row)
+        {
+            //Check if anything in current list
+            if (heading5Text.Count > 0)
+            {
+                //Add any duplicate with current heading
+                if (heading5Text[0] == currentHeading)
+                {
+                    heading5Text.Add(currentHeading);
+                }
+
+                //Detect suddent misrupt of heading 5 text in heading column
+                if (heading5Text[0] != currentHeading && heading5Text.Count > 1)
+                {
+                    heading5Text = new List<string>(); //reinitialize
+                }
+                //Detect explicit use of a heading 5 end element
+                if (currentElementName == Constants.Graphics.heading5_end)
+                {
+                    heading5Text = new List<string>(); //reinitialize
+                }
+            }
+        }
+
+        /// <summary>
+        /// Will return a x spacing based on element names
+        /// </summary>
+        /// <returns></returns>
+        private double GetXSpacing(string toElementName)
+        {
+            //Variable
+            double x = 0.0;
+
+            string xSpacingElement = xSpacings.GetType().GetProperty(toElementName)?.GetValue(xSpacings, null)?.ToString();
+
+            if (xSpacingElement != null && xSpacingElement != string.Empty)
+            {
+                try
+                {
+                    x = Convert.ToDouble(xSpacingElement, CultureInfo.InvariantCulture);
+                }
+                catch (Exception)
+                {
+
+                }
+            }
+
+            return x;
+        }
+
+        /// <summary>
+        /// Will return a y spacing based on from and to element names
+        /// </summary>
+        /// <returns></returns>
+        private double GetYSpacing(IElement fromElement, string fromElementType, string toElementName, double lastYSpacing)
+        {
+            //Variable
+            double y = 0.0;
+
+            if (fromElement != null)
+            {
+                object ySpacingFromElement = ySpacings.GetType().GetProperty(fromElementType);
+
+                //Get x-y spacing
+                if (ySpacingFromElement != null)
+                {
+                    string ySpacingToElement = ySpacings.GetType().GetProperty(fromElementType)?.GetType().GetProperty(toElementName)?.GetValue(ySpacingFromElement, null)?.ToString();
+
+
+                    if (ySpacingToElement != null && ySpacingToElement != string.Empty)
+                    {
+                        try
+                        {
+                            y = Convert.ToDouble(ySpacingToElement, CultureInfo.InvariantCulture);
+                        }
+                        catch (Exception)
+                        {
+                            if (ySpacingToElement.Contains(Constants.Graphics.anchorLowerLeft))
+                            {
+                                y = Math.Abs((fromElement.GetBounds().YMin - lastYSpacing)) + Convert.ToDouble(ySpacingToElement.Split(' ')[0], CultureInfo.InvariantCulture);
+                            }
+                        }
+
+                        //Special case for heading3
+                        if (fromElementType == Constants.Graphics.heading3 || fromElementType == Constants.Graphics.topNote || fromElementType == Constants.Graphics.note)
+                        {
+                            y = fromElement.GetBounds().Height + Convert.ToDouble(ySpacingToElement.Split(' ')[0], CultureInfo.InvariantCulture);
+                        }
+                    }
+                }
+            }
+
+            return y;
+        }
+
+        /// <summary>
+        /// Will manage the column number, in case user wants it to be autocalculated based on the widght of a legend element template
+        /// </summary>
+        /// <returns></returns>
+        private async Task ManageColumn(Row columnRow)
+        {
+            try
+            {
+                if (_legendAutoCalculateColumn)
+                {
+                    //Track column change with auto-calculate
+                    if (legendYLowerBound != 0.0 && currentElementObject != null)
+                    {
+                        if ((anchorPoint.Item2 - ySpacing - currentElementObject.GetBounds().Height) < legendYLowerBound)
+                        {
+                            currentColumn++;
+                        }
+                    }
+                }
+
+                if (currentColumn > 1 && lastColumn != currentColumn)
+                {
+                    //Get x spacing based on how many brackets were found in previous column
+                    double rightBracketSpacing = 0;
+                    if (howManyRightBrackets > 0)
+                    {
+                        rightBracketSpacing = (descriptionWidth + elementDescriptGapWidth + elementWidth + GetXSpacing(Constants.Graphics.bracketRightCenter) + GetXSpacing(Constants.Graphics.unitBoxBracket));
+                    }
+
+                    //Move to right and reset Y.
+                    ySpacing = 0; //Reset y spacing so it appears at the top of the page 
+                    anchorPoint = new Tuple<double, double>(anchorPoint.Item1 + columnWidth + columnColumnGapWidth + rightBracketSpacing, originalYSpacing);
+
+                    //Adjust  anchorpoint in case current element as an inner centered y anchor (CC, CL and CR)
+                    if (templateGraphicDico.ContainsKey(currentElementName))
+                    {
+                        Element newColumnFirstElement = CopyElementGraphicObject(templateGraphicDico[currentElementName] as Element);
+
+                        //Get anchor type and calculate y spacing based on it.
+                        Anchor elementAnchor = newColumnFirstElement.GetAnchor();
+                        if (elementAnchor == Anchor.CenterPoint || elementAnchor == Anchor.LeftMidPoint || elementAnchor == Anchor.RightMidPoint)
+                        {
+                            ySpacing = (newColumnFirstElement.GetBounds().Height / 2.0);
+                        }
+                    }
+                    lastColumn = currentColumn;
+
+                    //Reset right bracket number
+                    howManyRightBrackets = 0;
+
+                }
+            }
+            catch (Exception ManageColumnException)
+            {
+                new ErrorService(ManageColumnException).WriteToFile();
+            }
+
+        }
+
+        /// <summary>
+        /// Will add a heading element to the legend based on the current row information
+        /// </summary>
+        /// <returns></returns>
+        private async Task AddHeading(Row headingRow)
+        {
+            try
+            {
+                if (currentElementName.Contains(Constants.Graphics.heading1.Substring(0, 6)))
+                {
+
+                    string originalElementName = currentElementObject.Name;
+
+                    //TODO special cases heading 3 like description, heading 4 UL
+
+                    #region Move to right anchor
+
+                    //Set new anchor
+                    anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - ySpacing);
+
+
+                    //Set height for heading3 
+                    if (currentElementName.Contains(Constants.Graphics.heading3))
+                    {
+                        //Recalculate height
+                        string tempGroupHeadingDescription = currentHeading;
+                        if (currentDescription != null)
+                        {
+                            tempGroupHeadingDescription = currentHeading + currentDescription;
+                        }
+                        double heading3Height = GetTextHeight(tempGroupHeadingDescription, descriptionWidth, Constants.TextConfiguration.lineHeight);
+
+                        //Set new envelope
+                        SetRectangularPolygonFromAnchorTypeAndHeight(currentElementObject, anchorPoint, heading3Height);
+                    }
+                    else
+                    {
+                        //Set new envelope
+                        SetRectangularPolygonFromAnchorType(currentElementObject, anchorPoint);
+                    }
+
+                    //Move
+                    PositionElement(currentElementObject, xSpacing, 0);
+
+                    #endregion
+
+                    //Rename
+                    currentElementObject.SetName(currentElementObject.Name + currentOrder.ToString());
+
+                    //Add missing value for empty heading text
+                    TextElement tElement = currentElementObject as TextElement;
+                    if (currentHeading == null || currentHeading == string.Empty || currentHeading == " ")
+                    {
+                        tElement = Symbols.GetMissingTextSymbol(tElement);
+                    }
+
+                    //Special case for heading 3 since we can't have bolded all caps setting inside a graphic along
+                    //no cap and not bolded description.
+                    if (currentElementName.Contains(Constants.Graphics.heading3))
+                    {
+                        currentHeading = Constants.TextConfiguration.tagAllCaps + Constants.TextConfiguration.tagBold + currentHeading + Constants.TextConfiguration.endTagBold + Constants.TextConfiguration.endTagAllCaps + " ";
+
+                        //Add Description to text - Only for heading 3 in theory
+                        if (!IsTextEmpty(currentDescription))
+                        {
+                            //Add header if needed
+                            if (!IsTextEmpty(currentHeading))
+                            {
+                                currentHeading = currentHeading + currentDescription;
+                            }
+                        }
+
+                    }
+                    if (currentElementName.Contains(Constants.Graphics.heading5))
+                    {
+                        //Keep heading text so it can be used for a trigger to modify description style for heading 5 only.
+                        heading5Text.Add(currentHeading);
+                    }
+
+                    tElement.TextProperties.Text = currentHeading;
+
+                    //Manage style if needed
+                    if (currentStyle1 != "")
+                    {
+                        if (textSymbolDico.ContainsKey(currentStyle1))
+                        {
+                            SymbolStyleItem inStyleSymbol = textSymbolDico[currentStyle1];
+
+                            CIMGraphic cimGraphic = tElement.GetGraphic();
+                            if (cimGraphic != null)
+                            {
+                                CIMTextSymbol cIMTextSymbol = cimGraphic.Symbol.Symbol as CIMTextSymbol;
+
+                                if (cIMTextSymbol != null)
+                                {
+                                    cIMTextSymbol.SetColor(cIMTextSymbol.GetColor());
+                                    cIMTextSymbol.FontFamilyName = cIMTextSymbol.FontFamilyName;
+                                    cIMTextSymbol.SetSize(cIMTextSymbol.GetSize());
+                                    cIMTextSymbol.VerticalAlignment = cIMTextSymbol.VerticalAlignment;
+                                    tElement.SetGraphic(cimGraphic);
+                                }
+
+                            }
+                        }
+                        else
+                        {
+                            //Missing or wrong style 
+                            tElement = Symbols.GetMissingTextSymbol(tElement);
+                        }
+
+
+                    }
+
+                    ////Add base element
+                    //currentDoc.ActiveView.GraphicsContainer.AddElement(headElement, 0);
+                    //currentDoc.ActiveView.GraphicsContainer.BringToFront(currentGrapSelection.SelectedElements);
+
+                    ////Unselect
+                    //currentGrapSelection.UnselectElement(headElement);
+
+                    //Add to legend list
+                    legendElementList.Add(currentElementObject);
+
+                    //Keep name
+                    lastElement = currentElementObject;
+                    lastElementType = originalElementName;
+
+                }
+            }
+            catch (Exception AddHeadingException)
+            {
+                new ErrorService(AddHeadingException).WriteToFile();
+            }
+
+        }
+
+        /// <summary>
+        /// Will calculate a text element height based on wanted text inside it, if width and font size is fixed.
+        /// </summary>
+        /// <param name="inText"></param>
+        /// <param name="minHeight">A minimal height in case text is a bit bolder or bigger, used for heading for example</param>
+        /// <returns></returns>
+        public double GetTextHeight(string inText, double maxWidth, double minHeight = 0.0, double fontSize = 8.0)
+        {
+            //Count total width of text
+            double textWidth = 0.0;
+            double tHeight = 0.0;
+            int j;
+
+            try
+            {
+                //Adjust with possible font GSCGeology2015. Need to have bigger box
+                if (otherComponents.GEOLOGY_FONT_NAME != null && inText.Contains(otherComponents.GEOLOGY_FONT_NAME))
+                {
+                    tHeight = tHeight + Constants.Fonts.geologyFontHeightAjustement;
+
+                    //Strip text of tags that could make it look longer then it is
+                    inText = inText.Replace(Constants.TextConfiguration.tagFont + '"' + otherComponents.GEOLOGY_FONT_NAME + '"' + ">", "");
+                }
+
+                if (arialCharactersWidth == null)
+                {
+                    arialCharactersWidth = GetArialCharacterWidth();
+                }
+
+                //Strip text of tags that could make it look longer then it is
+                inText = inText.Replace(Constants.TextConfiguration.tagAllCaps, "");
+                inText = inText.Replace(Constants.TextConfiguration.tagBold, "");
+                inText = inText.Replace(Constants.TextConfiguration.tagItalic, "");
+                inText = inText.Replace(Constants.TextConfiguration.endTagAllCaps, "");
+                inText = inText.Replace(Constants.TextConfiguration.endTagBold, "");
+                inText = inText.Replace(Constants.TextConfiguration.endTagItalic, "");
+                inText = inText.Replace(Constants.TextConfiguration.endTagFont, "");
+
+                for (int i = 0; i < inText.Length; i++)
+                {
+                    j = Encoding.Default.GetBytes(inText.Substring(i, 1))[0];
+                    if (j >= 32)
+                    {
+                        if (arialCharactersWidth.ContainsKey(j))
+                        {
+                            textWidth = textWidth + (fontSize * arialCharactersWidth[j]);
+                        }
+                        else
+                        {
+                            textWidth = textWidth + (fontSize * 1);
+                        }
+
+                    }
+                }
+
+                //Calculate approx. number of lines
+                double numberLines = (textWidth * 0.352778) / maxWidth;
+                numberLines = Math.Ceiling(numberLines); //Round to upper boundary
+
+                //Extra validation
+                if (numberLines >= 6)
+                {
+                    double extraWidth = (textWidth * 0.02) + textWidth; //Extra percent of width, in case
+                    numberLines = (extraWidth * 0.352778) / maxWidth;
+                    numberLines = Math.Ceiling(numberLines);
+                }
+
+                //Height
+                if (Constants.TextConfiguration.lineHeight < minHeight)
+                {
+                    tHeight = tHeight + (numberLines * (minHeight));
+                }
+                else
+                {
+                    tHeight = tHeight + (numberLines * (Constants.TextConfiguration.lineHeight));
+                }
+            }
+            catch (Exception GetTextHeightException)
+            {
+                new ErrorService(GetTextHeightException).WriteToFile();
+            }
+
+
+            return tHeight;
+
+        }
+
+        /// <summary>
+        /// From a given element and anchor point, will calculate a new polygon enveloppe to fit anchor point so the element can
+        /// be set at the right place on the layout before being moved.
+        /// </summary>
+        /// <param name="inElement"></param>
+        /// <param name="inAnchor"></param>
+        /// <returns></returns>
+        public void SetRectangularPolygonFromAnchorType(Element inElement, Tuple<double, double> inAnchor)
+        {
+            SetRectangularPolygonFromAnchorTypeAndHeight(inElement, inAnchor, inElement.GetBounds().Height);
+        }
+
+        /// <summary>
+        /// From a given element, anchor point and height, will calculate a new polygon envelope
+        /// </summary>
+        /// <param name="inElement"></param>
+        /// <param name="inAnchor"></param>
+        /// <param name="inHeight"></param>
+        public void SetRectangularPolygonFromAnchorTypeAndHeight(Element inElement, Tuple<double, double> inAnchor, double inHeight)
+        {
+            try
+            {
+                if (inElement != null)
+                {
+                    //Get anchor type
+                    Anchor currentAnchorPointType = inElement.GetAnchor();
+                    GeometryType inGeometryType = inElement.GetGeometry().GeometryType;
+
+                    //Apply conversion factor
+                    //inHeight = inHeight ;
+                    double inElementWidth = inElement.GetWidth();
+                    double inElementHeight = inElement.GetHeight();
+
+                    //Default envelop based on top left corner anchor point
+                    Coordinate2D lowerLeftPoint = new Coordinate2D(inAnchor.Item1, inAnchor.Item2 - inHeight);
+                    Coordinate2D upperRightPoint = new Coordinate2D(inAnchor.Item1 + inElementWidth, inAnchor.Item2);
+
+                    ArcGIS.Core.Geometry.Envelope elementEnvelope = inElement.GetBounds();
+                    if (elementEnvelope != null)
+                    {
+                        switch(currentAnchorPointType)
+                        {
+                            case Anchor.TopLeftCorner:
+
+                                lowerLeftPoint = new Coordinate2D(inAnchor.Item1, inAnchor.Item2 - inHeight);
+                                upperRightPoint = new Coordinate2D(inAnchor.Item1 + inElementWidth, inAnchor.Item2);
+
+                                Envelope llEnvelope = EnvelopeBuilderEx.CreateEnvelope(lowerLeftPoint, upperRightPoint);
+
+                                ArcGIS.Core.Geometry.Polygon topLeftPoly = PolygonBuilderEx.CreatePolygon(llEnvelope);
+                                inElement.SetGeometry(topLeftPoly);
+
+                                break;
+
+                            case Anchor.CenterPoint:
+
+                                lowerLeftPoint = new Coordinate2D(inAnchor.Item1 - inElementWidth / 2.0, inAnchor.Item2 - inHeight / 2.0);
+                                upperRightPoint = new Coordinate2D(inAnchor.Item1 + inElementWidth / 2.0, inAnchor.Item2 + inHeight / 2.0);
+
+                                //Validate if polygon graphic is a group of lines elements, which behaves differently 
+                                //and for some reasons even if the anchor point is center center, behaves likes it's left
+                                //see same case for line graphices.
+                                if (IsElementAllNonFlatLines(inElement))
+                                {
+                                    lowerLeftPoint = new Coordinate2D(inAnchor.Item1 + inElementWidth / 2.0 - inElementWidth / 2.0, inAnchor.Item2 - inHeight / 2.0);
+                                    upperRightPoint = new Coordinate2D(inAnchor.Item1 + inElementWidth / 2.0 - inElementWidth / 2.0, inAnchor.Item2 - inHeight / 2.0);
+                                }
+
+                                Envelope cEnvelope = EnvelopeBuilderEx.CreateEnvelope(lowerLeftPoint, upperRightPoint);
+                                ArcGIS.Core.Geometry.Polygon centerPoly = PolygonBuilderEx.CreatePolygon(cEnvelope);
+                                inElement.SetGeometry(centerPoly);
+
+
+                                break;
+                            case Anchor.TopMidPoint:
+
+                                lowerLeftPoint = new Coordinate2D(inAnchor.Item1 - inElementWidth / 2.0, inAnchor.Item2 - inHeight);
+                                upperRightPoint = new Coordinate2D(inAnchor.Item1 + inElementWidth / 2.0, inAnchor.Item2);
+
+                                Envelope tmEnvelope = EnvelopeBuilderEx.CreateEnvelope(lowerLeftPoint, upperRightPoint);
+
+                                ArcGIS.Core.Geometry.Polygon tmtPoly = PolygonBuilderEx.CreatePolygon(tmEnvelope);
+                                inElement.SetGeometry(tmtPoly);
+
+                                break;
+                            case Anchor.LeftMidPoint:
+
+                                lowerLeftPoint = new Coordinate2D(inAnchor.Item1, inAnchor.Item2 - inHeight / 2.0);
+                                upperRightPoint = new Coordinate2D(inAnchor.Item1 + inElementWidth, inAnchor.Item2 + inHeight / 2.0);
+
+                                Envelope lmEnvelope = EnvelopeBuilderEx.CreateEnvelope(lowerLeftPoint, upperRightPoint);
+
+                                ArcGIS.Core.Geometry.Polygon lmPoly = PolygonBuilderEx.CreatePolygon(lmEnvelope);
+                                inElement.SetGeometry(lmPoly);
+
+                                break;
+                            case Anchor.BottomRightCorner:
+
+                                lowerLeftPoint = new Coordinate2D(inAnchor.Item1 - inElementWidth, inAnchor.Item2);
+                                upperRightPoint = new Coordinate2D(inAnchor.Item1, inAnchor.Item2 + inHeight);
+
+                                Envelope brEnvelope = EnvelopeBuilderEx.CreateEnvelope(lowerLeftPoint, upperRightPoint);
+
+                                ArcGIS.Core.Geometry.Polygon brPoly = PolygonBuilderEx.CreatePolygon(brEnvelope);
+                                inElement.SetGeometry(brPoly);
+
+                                break;
+                            case Anchor.BottomLeftCorner:
+
+                                lowerLeftPoint = new Coordinate2D(inAnchor.Item1, inAnchor.Item2);
+                                upperRightPoint = new Coordinate2D(inAnchor.Item1 + inElementWidth, inAnchor.Item2 - inHeight);
+
+                                Envelope blEnvelope = EnvelopeBuilderEx.CreateEnvelope(lowerLeftPoint, upperRightPoint);
+
+                                ArcGIS.Core.Geometry.Polygon blPoly = PolygonBuilderEx.CreatePolygon(blEnvelope);
+                                inElement.SetGeometry(blPoly);
+
+                                break;
+                        }
+
+                    }
+                }
+            }
+            catch (Exception SetRectangularPolygonFromAnchorTypeAndHeightException)
+            {
+                new ErrorService(SetRectangularPolygonFromAnchorTypeAndHeightException).WriteToFile();
+            }
+
+        }
+
+        /// <summary>
+        /// Will validate if input element is a  non flat (height 0) line element, or a group element composed of a bunch of non-flat lines.
+        /// Knowing this can results in different methods of anchoring since they behave like left anchor compared to whatever they are set to.
+        /// Flat line graphics always behave like anchor point is at the left side. Area of lines and heighted lines behaves the same but can be seen as polygons.
+        /// </summary>
+        /// <param name="inElement"></param>
+        /// <returns></returns>
+        public bool IsElementAllNonFlatLines(Element inElement)
+        {
+            bool allLines = true;
+            ArcGIS.Core.Geometry.Geometry elementGeometry = inElement.GetGeometry();
+
+            //For single line element
+            if (elementGeometry != null && elementGeometry.GeometryType != GeometryType.Polyline)
+            {
+                allLines = false;
+            }
+            else
+            {
+                //Check height
+                if (inElement.GetBounds().Height == 0)
+                {
+                    allLines = false;
+                }
+                else
+                {
+                    allLines = true;
+                }
+            }
+
+            //for group of elements
+            GroupElement inGroupElement = inElement as GroupElement;
+            if (inGroupElement != null)
+            {
+                //Check geometry of inner elements, if it's all lines
+                for (int el = 0; el < inGroupElement.GetElementsAsFlattenedList().Count(); el++)
+                {
+                    Element innerElement = inGroupElement.GetElementsAsFlattenedList()[el];
+                    if (innerElement.GetGeometry().GeometryType != GeometryType.Polyline)
+                    {
+                        allLines = false;
+                        break;
+                    }
+                    else
+                    {
+                        allLines = true;
+                    }
+                }
+            }
+
+            return allLines;
+        }
+
+        /// <summary>
+        /// Will position a given element to a new location coordinate. The new coordinates can fit a desire anchor point.
+        /// The element anchor will change momentarily to set the new position, then it'll revert to it's original value
+        /// </summary>
+        /// <param name="pElement"></param>
+        /// <param name="newX"></param>
+        /// <param name="newY"></param>
+        /// <param name="withAnchor"></param>
+        public void PositionElement(Element pElement, double newX, double newY, Anchor withAnchor = Anchor.BottomLeftCorner)
+        {
+
+            try
+            {
+                //Get actual anchor point coordinates
+                Coordinate2D newAnchorCoordinates = new Coordinate2D(newX, newY);
+
+                //Keep actual anchor in case it's different
+                Anchor currentAnchor = pElement.GetAnchor();
+
+                //Set anchor so it fits the desire coordinate
+                pElement.SetAnchor(withAnchor);
+
+                //Set the new geometry
+                pElement.SetAnchorPoint(newAnchorCoordinates);
+
+                //Reset the old anchor
+                pElement.SetAnchor(currentAnchor);
+
+
+
+            }
+            catch (Exception positionElementException)
+            {
+                new ErrorService(positionElementException).WriteToFile();
+            }
+
+        }
+
+        /// <summary>
+        /// Will validate if input text is different then string.empty, a space, null or string literal "<null>"
+        /// </summary>
+        /// <param name="inputText"></param>
+        /// <returns></returns>
+        public bool IsTextEmpty(string inputText)
+        {
+            bool isEmpty = false;
+            if (inputText == string.Empty || inputText == null || inputText == " " || inputText == Constants.TextConfiguration.NullLiteral)
+            {
+                isEmpty = true;
+            }
+
+            return isEmpty;
+        }
         #endregion
     }
 }
