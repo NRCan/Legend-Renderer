@@ -248,7 +248,7 @@
     <value>Missing value found in legend order field. This might cause some problems on item rendering. Look for:  {0}</value>
   </data>
   <data name="ErrorMissingLegendElement" xml:space="preserve">
-    <value>Missing a graphic element from within the template layout.</value>
+    <value>Missing a graphic element from within the template layout. {0}</value>
   </data>
   <data name="ErrorHeadingMissingText" xml:space="preserve">
     <value>Missing text or style.</value>

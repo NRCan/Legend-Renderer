@@ -226,7 +226,7 @@
     <value>Une valeur nulle dans le champ d'ordre de légende a été détectée, cette dernière pourrait causer des problèmes pour l'afficher, veuillez corriger l'erreur. Voir: {0}</value>
   </data>
   <data name="ErrorMissingLegendElement" xml:space="preserve">
-    <value>Un élément graphique semble manquant dans le gabarit d'habillage de carte.</value>
+    <value>Un élément graphique semble manquant dans le gabarit d'habillage de carte. {0}</value>
   </data>
   <data name="ErrorHeadingMissingText" xml:space="preserve">
     <value>Texte ou style  indisponible.</value>

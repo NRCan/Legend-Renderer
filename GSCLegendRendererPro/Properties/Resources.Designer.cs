@@ -127,7 +127,7 @@ namespace GSCLegendRendererPro.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Missing a graphic element from within the template layout..
+        ///   Looks up a localized string similar to Missing a graphic element from within the template layout. {0}.
         /// </summary>
         public static string ErrorMissingLegendElement {
             get {

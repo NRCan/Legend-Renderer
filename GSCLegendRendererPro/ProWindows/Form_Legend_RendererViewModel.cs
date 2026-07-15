@@ -103,7 +103,7 @@ namespace GSCLegendRendererPro.ProWindows
         string currentLabel1Style = string.Empty;
         string currentLabel2Style = string.Empty;
         public Element currentElementObject = null;
-        List<IElement> legendElementList = new List<IElement>(); //Will hold all legend items to group them at the end of the process.
+        List<Element> legendElementList = new List<Element>(); //Will hold all legend items to group them at the end of the process.
 
         //TABLE
         int elementFieldIndex = -1;
@@ -665,7 +665,7 @@ namespace GSCLegendRendererPro.ProWindows
                                             {
                                                 //Current row information collecting
                                                 currentIteration = currentIteration + 1.0;
-                                                currentOrder = currentIteration;
+                                                //currentOrder = currentIteration;
                                                 await GatherCurrentRowInformation(legendRow);
 
                                                 #region GRAPHIC PREPARATION
@@ -675,7 +675,7 @@ namespace GSCLegendRendererPro.ProWindows
                                                 //Get related graphic from template layout dictionary
                                                 if (templateGraphicDico.ContainsKey(currentElementName))
                                                 {
-                                                    currentElementObject = CopyElementGraphicObject(templateGraphicDico[currentElementName] as Element);
+                                                    currentElementObject = CopyElementObject(templateGraphicDico[currentElementName] as Element);
                                                 }
                                                 else
                                                 {
@@ -700,6 +700,13 @@ namespace GSCLegendRendererPro.ProWindows
                                                 #region GRAPHIC HANDLING
 
                                                 await AddHeading(legendRow);
+
+                                                #endregion
+
+                                                #region FINALIZE
+
+                                                //ElementFactory.Instance.CreateGroupElement(pPage, legendElementList);
+                                                
 
                                                 #endregion
                                             }
@@ -1353,32 +1360,30 @@ namespace GSCLegendRendererPro.ProWindows
             //Get CIM definition
             CIMElement cimElement = element.GetDefinition();
 
-            //Clone
-            CIMElement copiedCIMElement = CIMElement.Clone(cimElement) as CIMElement;
+            //Clone - DO NOT CLONE, IT ALREADY ADDS IT TO ORIGINAL LAYOUT
+            //CIMElement copiedCIMElement = CIMElement.Clone(cimElement) as CIMElement;
 
-            //Create new object and add it to current layout
-            copiedElement = ElementFactory.Instance.CreateElement(pPage, copiedCIMElement);
-     
-            return copiedElement;
-        }
-
-        /// <summary>
-        /// Will make a copy of a given element object via cloning with CIM
-        /// </summary>
-        /// <param name="inputOb">The object to get a copy rom</param>
-        /// <returns></returns>
-        public Element CopyElementGraphicObject(Element element)
-        {
-            GraphicElement cloneElement = null;
-            GraphicElement copiedElement = element as GraphicElement;
-
-            if (copiedElement != null)
+            //Case when the element is a group, we need to iterate through its elements and copy them one by one
+            CIMGroupElement cimGroupElement = cimElement as CIMGroupElement;
+            if (cimGroupElement != null)
             {
-                cloneElement = copiedElement.Clone();
-                CIMElement cimCloneElement = cloneElement.GetDefinition();
-                ElementFactory.Instance.CreateElement(pPage, cimCloneElement);
+                List<Element> cimElements = new List<Element>();
+                foreach (CIMElement elem in cimGroupElement.Elements)
+                {
+                   cimElements.Add(ElementFactory.Instance.CreateElement(pPage, elem));
+                }
+
+                //Create new object and add it to current layout
+                copiedElement = ElementFactory.Instance.CreateGroupElement(pPage, cimElements, element.Name);
+
+            }
+            else
+            {
+                //Create new object and add it to current layout
+                copiedElement = ElementFactory.Instance.CreateElement(pPage, cimElement);
             }
 
+     
             return copiedElement;
         }
 
@@ -1411,10 +1416,10 @@ namespace GSCLegendRendererPro.ProWindows
                             }
                             
                         }
-                        //Case when nothing has been save relative to cgm blue legend box, default to upper left of paper layout
+                        //Case when nothing has been save relative to cgm blue legend box, default to upper left of paper layout with a margin of 10
                         else if (anchorPoint.Item2 == 0.0 || isCGMTemplateMXD == false)
                         {
-                            anchorPoint = new Tuple<double, double>(0.0, pLayoutView.Extent.YMax);
+                            anchorPoint = new Tuple<double, double>(10.0, pPage.GetPage().Height - 10);
                             isCGMTemplateMXD = false;
                         }
                     });
@@ -1594,7 +1599,7 @@ namespace GSCLegendRendererPro.ProWindows
         /// Will return a y spacing based on from and to element names
         /// </summary>
         /// <returns></returns>
-        private double GetYSpacing(IElement fromElement, string fromElementType, string toElementName, double lastYSpacing)
+        private double GetYSpacing(Element fromElement, string fromElementType, string toElementName, double lastYSpacing)
         {
             //Variable
             double y = 0.0;
@@ -1606,8 +1611,7 @@ namespace GSCLegendRendererPro.ProWindows
                 //Get x-y spacing
                 if (ySpacingFromElement != null)
                 {
-                    string ySpacingToElement = ySpacings.GetType().GetProperty(fromElementType)?.GetType().GetProperty(toElementName)?.GetValue(ySpacingFromElement, null)?.ToString();
-
+                    string ySpacingToElement = ySpacings.GetSpacing(fromElementType, toElementName);
 
                     if (ySpacingToElement != null && ySpacingToElement != string.Empty)
                     {
@@ -1671,7 +1675,7 @@ namespace GSCLegendRendererPro.ProWindows
                     //Adjust  anchorpoint in case current element as an inner centered y anchor (CC, CL and CR)
                     if (templateGraphicDico.ContainsKey(currentElementName))
                     {
-                        Element newColumnFirstElement = CopyElementGraphicObject(templateGraphicDico[currentElementName] as Element);
+                        Element newColumnFirstElement = CopyElementObject(templateGraphicDico[currentElementName] as Element);
 
                         //Get anchor type and calculate y spacing based on it.
                         Anchor elementAnchor = newColumnFirstElement.GetAnchor();
@@ -1702,7 +1706,7 @@ namespace GSCLegendRendererPro.ProWindows
         {
             try
             {
-                if (currentElementName.Contains(Constants.Graphics.heading1.Substring(0, 6)))
+                if (currentElementObject != null && currentElementName.Contains(Constants.Graphics.heading1.Substring(0, 6)))
                 {
 
                     string originalElementName = currentElementObject.Name;
@@ -1712,8 +1716,8 @@ namespace GSCLegendRendererPro.ProWindows
                     #region Move to right anchor
 
                     //Set new anchor
-                    anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - ySpacing);
-
+                    anchorPoint = new Tuple<double, double>(anchorPoint.Item1 + xSpacing, anchorPoint.Item2 - ySpacing);
+                    PositionElement(currentElementObject, anchorPoint.Item1, anchorPoint.Item2);
 
                     //Set height for heading3 
                     if (currentElementName.Contains(Constants.Graphics.heading3))
@@ -1736,14 +1740,11 @@ namespace GSCLegendRendererPro.ProWindows
                     }
 
                     //Move
-                    PositionElement(currentElementObject, xSpacing, 0);
+                    //PositionElement(currentElementObject, , 0);
 
                     #endregion
 
-                    //Rename
-                    currentElementObject.SetName(currentElementObject.Name + currentOrder.ToString());
-
-                    //Add missing value for empty heading text
+                    //Set text and manage empty
                     TextElement tElement = currentElementObject as TextElement;
                     if (currentHeading == null || currentHeading == string.Empty || currentHeading == " ")
                     {
@@ -1773,7 +1774,8 @@ namespace GSCLegendRendererPro.ProWindows
                         heading5Text.Add(currentHeading);
                     }
 
-                    tElement.TextProperties.Text = currentHeading;
+                    //Set heading text
+                    tElement.SetTextProperties(new TextProperties(currentHeading, tElement.TextProperties.Font,tElement.TextProperties.FontSize, tElement.TextProperties.FontStyle));
 
                     //Manage style if needed
                     if (currentStyle1 != "")
@@ -1806,7 +1808,7 @@ namespace GSCLegendRendererPro.ProWindows
 
 
                     }
-
+                    //pLayoutView.Refresh();
                     ////Add base element
                     //currentDoc.ActiveView.GraphicsContainer.AddElement(headElement, 0);
                     //currentDoc.ActiveView.GraphicsContainer.BringToFront(currentGrapSelection.SelectedElements);

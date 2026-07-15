@@ -83,5 +83,17 @@ namespace GSCLegendRendererPro.Models
         public ConfigurationBase POINT_CC { get; set; }
         public ConfigurationBase POINT_CC_45 { get; set; }
         public ConfigurationBase POINT_LC_45 { get; set; }
+
+        public string GetSpacing(string currentType, string nextType)
+        {
+            object? row = GetType().GetProperty(currentType)?.GetValue(this);
+
+            return row?
+                .GetType()
+                .GetProperty(nextType)?
+                .GetValue(row)?
+                .ToString();
+        }
     }
+
 }
