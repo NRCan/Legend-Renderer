@@ -703,6 +703,8 @@ namespace GSCLegendRendererPro.ProWindows
 
                                                 await AddHeading(legendRow);
 
+                                                //await AddMapUnit(legendRow);
+
                                                 #endregion
 
                                                 #region FINALIZE
@@ -717,6 +719,11 @@ namespace GSCLegendRendererPro.ProWindows
                                 }
 
                             }
+
+                            //Finalize whole process
+                            await OrderElementsInTOC();
+                            await GroupLegendElements();
+
                         });
 
                         if (_warningMessage == string.Empty)
@@ -1814,9 +1821,6 @@ namespace GSCLegendRendererPro.ProWindows
                     //currentDoc.ActiveView.GraphicsContainer.AddElement(headElement, 0);
                     //currentDoc.ActiveView.GraphicsContainer.BringToFront(currentGrapSelection.SelectedElements);
 
-                    ////Unselect
-                    //currentGrapSelection.UnselectElement(headElement);
-
                     //Add to legend list
                     legendElementList.Add(currentElementObject);
 
@@ -2184,6 +2188,220 @@ namespace GSCLegendRendererPro.ProWindows
 
             return isEmpty;
         }
+
+        /// <summary>
+        /// Will add a map unit graphic
+        /// </summary>
+        /// <param name="mapUnitRow"></param>
+        /// <returns></returns>
+        private async Task AddMapUnit(Row mapUnitRow)
+        {
+            try
+            {
+                //if (currentElementObject != null && ( currentElementName == Constants.Graphics.unitBox || currentElementName == Constants.Graphics.unitSplit ||
+                //            currentElementName == Constants.Graphics.unitindent1 || currentElementName == Constants.Graphics.unitindent2))
+                //{
+
+                //    //Get appropriate element
+                //    IElement unitBoxElement = Services.ObjectManagement.CopyInputObject(templateGraphicDico[currentElement]) as IElement;
+                //    IElementProperties unitBoxElProp = unitBoxElement as IElementProperties;
+                //    currentDoc.ActiveView.GraphicsContainer.AddElement(unitBoxElement as IElement, 0);
+                //    string originalElementName = unitBoxElProp.Name;
+
+                //    //Init empty dem element if ever needed
+                //    IElement demUnitBoxElement = null;
+
+                //    #region Move to right anchor
+
+                //    //Set new anchor
+                //    anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - ySpacing); //New anchor point with proper move inside it
+                //    SetRectangularPolygonFromAnchorType(unitBoxElement, anchorPoint);
+
+                //    //Move
+                //    if (currentElement == Constants.Graphics.unitindent1 || currentElement == Constants.Graphics.unitindent2)
+                //    {
+                //        ITransform2D transElement = unitBoxElement as ITransform2D;
+                //        transElement.Move(xSpacing, 0); //Move accordingly to x spacing if any
+                //    }
+
+                //    #endregion
+
+                //    //Rename
+                //    unitBoxElProp.Name = unitBoxElProp.Name + currentOrder.ToString();
+
+                //    //Symbolize
+                //    IElement unitBoxLabelElement = new MarkerElement();
+                //    IGroupElement inGroupElement = unitBoxElement as IGroupElement;
+
+                //    //Unselect
+                //    currentGrapSelection.UnselectElement(unitBoxElement);
+
+                //    if (inGroupElement != null)
+                //    {
+                //        //Check geometry of inner elements, if it's all lines
+
+                //        for (int el = 0; el < inGroupElement.ElementCount; el++)
+                //        {
+                //            IElement innerElement = inGroupElement.Element[el];
+                //            if (el == 0)
+                //            {
+                //                SetPolygonFill(innerElement, currentStyle1, true);
+
+                //                //Add label
+                //                if (currentLabel1 == null || currentLabel1 == string.Empty || currentLabel1 == " ")
+                //                {
+                //                    currentLabel1 = Constants.TextConfiguration.missingText;
+                //                }
+
+                //                unitBoxLabelElement = AddLabelInUnitBox(currentLabel1, innerElement, currentDoc, anchorPoint, Constants.Graphics.UnitBoxType.split1, currentLabel1Style);
+
+                //            }
+                //            else if (el > 0)
+                //            {
+                //                SetPolygonFill(innerElement, currentStyle2, true);
+
+                //                //Add label
+                //                if (currentLabel2 == null || currentLabel2 == string.Empty || currentLabel2 == " ")
+                //                {
+                //                    currentLabel2 = Constants.TextConfiguration.missingText;
+                //                }
+                //                unitBoxLabelElement = AddLabelInUnitBox(currentLabel2, innerElement, currentDoc, anchorPoint, Constants.Graphics.UnitBoxType.split2, currentLabel2Style);
+                //            }
+
+                //        }
+                //    }
+                //    else
+                //    {
+                //        //Symbolize
+                //        demUnitBoxElement = SetPolygonFill(unitBoxElement, currentStyle1, true, true, anchorPoint, currentStyle2);
+
+                //        //Add
+                //        currentDoc.ActiveView.GraphicsContainer.AddElement(demUnitBoxElement as IElement, 0);
+
+                //        //Add label
+                //        if (currentLabel1 == null || currentLabel1 == string.Empty || currentLabel1 == " ")
+                //        {
+                //            currentLabel1 = Constants.TextConfiguration.missingText;
+                //        }
+
+                //        unitBoxLabelElement = AddLabelInUnitBox(currentLabel1, unitBoxElement, currentDoc, anchorPoint, Constants.Graphics.UnitBoxType.normal, currentLabel1Style);
+
+                //    }
+
+                //    //Move label and/or dem
+                //    if (currentElement == Constants.Graphics.unitindent1 || currentElement == Constants.Graphics.unitindent2)
+                //    {
+                //        //DEM
+                //        if (this.checkBox_DEMBoxes.Checked)
+                //        {
+                //            ITransform2D transDEMElement = demUnitBoxElement as ITransform2D;
+                //            transDEMElement.Move(xSpacing, 0); //Move accordingly to x spacing if any
+                //        }
+
+                //        //LABEL
+                //        ITransform2D transLabelElement = unitBoxLabelElement as ITransform2D;
+                //        transLabelElement.Move(xSpacing, 0); //Move accordingly to x spacing if any
+                //    }
+
+                //    //Keep name
+                //    lastElement = unitBoxElement;
+                //    lastElementType = originalElementName;
+
+                //    //Add header if needed
+                //    if (currentHeading != null && currentHeading != string.Empty && currentHeading != " ")
+                //    {
+                //        currentDescription = Constants.TextConfiguration.tagBold + currentHeading + Constants.TextConfiguration.endTagBold + " " + currentDescription;
+                //    }
+
+                //    //Add Description
+                //    IElement newDescriptionElement = AddDescription(currentDescription, unitBoxElement, currentDoc, anchorPoint, originalElementName);
+                //    double descriptionHeight = newDescriptionElement.Geometry.Envelope.Height;
+                //    if (descriptionHeight > smallDescriptionHeight)
+                //    {
+                //        //Reset anchor point for next element
+                //        if (currentColumn != 0)
+                //        {
+                //            anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - descriptionHeight); //New anchor point with proper move inside it
+
+                //        }
+
+                //        //Keep name
+                //        lastElement = newDescriptionElement;
+                //        lastElementType = Constants.Graphics.description;
+
+                //    }
+
+                //    //Move description
+                //    if (currentElement == Constants.Graphics.unitindent1 || currentElement == Constants.Graphics.unitindent2)
+                //    {
+                //        ITransform2D transDescElement = newDescriptionElement as ITransform2D;
+                //        transDescElement.Move(xSpacing, 0); //Move accordingly to x spacing if any
+                //    }
+
+                //    //Keep element if for bracket
+                //    if (currentColumn == 0)
+                //    {
+                //        bracketMapUnit = new Tuple<IElement, IElement, IElement, IElement>(unitBoxElement, unitBoxLabelElement, newDescriptionElement, demUnitBoxElement);
+
+                //        //Reset anchor point
+                //        anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 + ySpacing);
+                //    }
+
+                //    //Add to legend list
+                //    if (demUnitBoxElement != null)
+                //    {
+                //        legendElementList.Add(demUnitBoxElement as IElement);
+                //    }
+                //    legendElementList.Add(unitBoxLabelElement as IElement);
+                //    legendElementList.Add(unitBoxElement as IElement);
+
+
+
+                //}
+            }
+            catch (Exception AddMapUnitException)
+            {
+                new ErrorService(AddMapUnitException).WriteToFile();
+            }
+        }
+
+        /// <summary>
+        /// The tool processing each element from their order, each added item are being added on top of
+        /// each other in the table of content. At the end the one at the top will be the last legend item.
+        /// Resort them just like it was set in the table order field.
+        /// </summary>
+        /// <returns></returns>
+        private async Task OrderElementsInTOC()
+        {
+            legendElementList.Reverse();
+            foreach (Element legendElement in legendElementList)
+            {
+                pPage.SelectElement(legendElement);
+                if (pPage.CanBringForward(legendElement))
+                {
+                    pPage.BringToFront(legendElement);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Will select all legend items and group them all into a single element 
+        /// for ease of work after tool is done (ex. move, delete)
+        /// </summary>
+        /// <returns></returns>
+        private async Task GroupLegendElements()
+        {
+            //Need to select elements first
+            pPage.SelectElements(legendElementList);
+
+            //Group
+            //GroupElement legendGroup = pPage.GroupElements(legendElementList);
+            //legendGroup.SetName(Properties.Resources.ResultLegendRendererGroupName);
+            ElementFactory.Instance.CreateGroupElement(pPage, pPage.GetSelectedElements(), Properties.Resources.ResultLegendRendererGroupName, false);
+        }
+
+
+
         #endregion
     }
 }

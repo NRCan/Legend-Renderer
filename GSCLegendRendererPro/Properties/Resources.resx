@@ -253,4 +253,7 @@
   <data name="ErrorHeadingMissingText" xml:space="preserve">
     <value>Missing text or style.</value>
   </data>
+  <data name="ResultLegendRendererGroupName" xml:space="preserve">
+    <value>Legend</value>
+  </data>
 </root>

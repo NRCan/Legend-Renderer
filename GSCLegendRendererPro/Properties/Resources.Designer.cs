@@ -463,6 +463,15 @@ namespace GSCLegendRendererPro.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Legend.
+        /// </summary>
+        public static string ResultLegendRendererGroupName {
+            get {
+                return ResourceManager.GetString("ResultLegendRendererGroupName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Missing value found in legend order field. This might cause some problems on item rendering. Look for:  {0}.
         /// </summary>
         public static string WarningNullOrderFound {
