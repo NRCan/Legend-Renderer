@@ -144,7 +144,7 @@ namespace GSCLegendRendererPro.Utilities
         public static TextElement GetMissingTextSymbol(TextElement parentSymbol)
         {
             string missingText = Properties.Resources.ErrorHeadingMissingText;
-            parentSymbol.TextProperties.Text = missingText;
+            //parentSymbol.TextProperties.Text = missingText;
             CIMGraphic cimGraphic = parentSymbol.GetGraphic();
             if (cimGraphic != null)
             {
@@ -154,6 +154,8 @@ namespace GSCLegendRendererPro.Utilities
                 cIMTextSymbol.SetSize(8);
                 parentSymbol.SetGraphic(cimGraphic);
             }
+
+            parentSymbol.SetTextProperties(new TextProperties(missingText, parentSymbol.TextProperties.Font, parentSymbol.TextProperties.FontSize, parentSymbol.TextProperties.FontStyle));
 
             return parentSymbol;
 

@@ -28,6 +28,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
+using static ArcGIS.Desktop.Internal.GeoProcessing.Controls.rtbEditor;
 using static GSCLegendRendererPro.Utilities.Layers;
 using static System.Net.Mime.MediaTypeNames;
 using Envelope = ArcGIS.Core.Geometry.Envelope;
@@ -102,7 +103,7 @@ namespace GSCLegendRendererPro.ProWindows
         string currentElementName = string.Empty;
         string currentLabel1Style = string.Empty;
         string currentLabel2Style = string.Empty;
-        public Element currentElementObject = null;
+        public Element currentElementObject { get; set; }
         List<Element> legendElementList = new List<Element>(); //Will hold all legend items to group them at the end of the process.
 
         //TABLE
@@ -645,6 +646,7 @@ namespace GSCLegendRendererPro.ProWindows
                             //Prepare legend table and query filter to sort it on user predefined order
                             using (Table legendTable = _legendLayers[_legendSelectedLayerIndex].STable.GetTable())
                             {
+
                                 ArcGIS.Core.Data.QueryFilter itemFilter = new ArcGIS.Core.Data.QueryFilter();
                                 if (_legendSelectedOrderIndex != -1)
                                 {
@@ -654,7 +656,7 @@ namespace GSCLegendRendererPro.ProWindows
                                     };
                                 }
 
-                                using (RowCursor legendCursor = legendTable.Search(itemFilter, true))
+                                using (RowCursor legendCursor = legendTable.Search(itemFilter, false))
                                 {
                                     //Get fields indexes
                                     if (GetFieldIndexesFromTable(legendCursor))
@@ -675,7 +677,7 @@ namespace GSCLegendRendererPro.ProWindows
                                                 //Get related graphic from template layout dictionary
                                                 if (templateGraphicDico.ContainsKey(currentElementName))
                                                 {
-                                                    currentElementObject = CopyElementObject(templateGraphicDico[currentElementName] as Element);
+                                                    currentElementObject = CopyElementObject(templateGraphicDico[currentElementName] as Element, currentOrder.ToString());
                                                 }
                                                 else
                                                 {
@@ -1353,7 +1355,7 @@ namespace GSCLegendRendererPro.ProWindows
         /// </summary>
         /// <param name="inputOb">The object to get a copy rom</param>
         /// <returns></returns>
-        public Element CopyElementObject(Element element)
+        public Element CopyElementObject(Element element, string newElementName)
         {
             Element copiedElement = null;
             
@@ -1374,13 +1376,14 @@ namespace GSCLegendRendererPro.ProWindows
                 }
 
                 //Create new object and add it to current layout
-                copiedElement = ElementFactory.Instance.CreateGroupElement(pPage, cimElements, element.Name);
+                copiedElement = ElementFactory.Instance.CreateGroupElement(pPage, cimElements, newElementName + " " + element.Name, false);
 
             }
             else
             {
                 //Create new object and add it to current layout
-                copiedElement = ElementFactory.Instance.CreateElement(pPage, cimElement);
+                cimElement.Name = newElementName + " " + cimElement.Name;
+                copiedElement = ElementFactory.Instance.CreateElement(pPage, cimElement, false);
             }
 
      
@@ -1675,13 +1678,13 @@ namespace GSCLegendRendererPro.ProWindows
                     //Adjust  anchorpoint in case current element as an inner centered y anchor (CC, CL and CR)
                     if (templateGraphicDico.ContainsKey(currentElementName))
                     {
-                        Element newColumnFirstElement = CopyElementObject(templateGraphicDico[currentElementName] as Element);
+                        //Element newColumnFirstElement = CopyElementObject(templateGraphicDico[currentElementName] as Element, currentOrder.ToString());
 
                         //Get anchor type and calculate y spacing based on it.
-                        Anchor elementAnchor = newColumnFirstElement.GetAnchor();
+                        Anchor elementAnchor = currentElementObject.GetAnchor();
                         if (elementAnchor == Anchor.CenterPoint || elementAnchor == Anchor.LeftMidPoint || elementAnchor == Anchor.RightMidPoint)
                         {
-                            ySpacing = (newColumnFirstElement.GetBounds().Height / 2.0);
+                            ySpacing = (currentElementObject.GetBounds().Height / 2.0);
                         }
                     }
                     lastColumn = currentColumn;
@@ -1709,14 +1712,14 @@ namespace GSCLegendRendererPro.ProWindows
                 if (currentElementObject != null && currentElementName.Contains(Constants.Graphics.heading1.Substring(0, 6)))
                 {
 
-                    string originalElementName = currentElementObject.Name;
+                    string originalElementName = currentElementObject.Name.Split(" ")[1];
 
                     //TODO special cases heading 3 like description, heading 4 UL
 
                     #region Move to right anchor
 
                     //Set new anchor
-                    anchorPoint = new Tuple<double, double>(anchorPoint.Item1 + xSpacing, anchorPoint.Item2 - ySpacing);
+                    anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - ySpacing);
                     PositionElement(currentElementObject, anchorPoint.Item1, anchorPoint.Item2);
 
                     //Set height for heading3 
@@ -1739,17 +1742,10 @@ namespace GSCLegendRendererPro.ProWindows
                         SetRectangularPolygonFromAnchorType(currentElementObject, anchorPoint);
                     }
 
-                    //Move
-                    //PositionElement(currentElementObject, , 0);
+                    //Move in X
+                    MoveElement(currentElementObject, xSpacing, 0);
 
                     #endregion
-
-                    //Set text and manage empty
-                    TextElement tElement = currentElementObject as TextElement;
-                    if (currentHeading == null || currentHeading == string.Empty || currentHeading == " ")
-                    {
-                        tElement = Symbols.GetMissingTextSymbol(tElement);
-                    }
 
                     //Special case for heading 3 since we can't have bolded all caps setting inside a graphic along
                     //no cap and not bolded description.
@@ -1774,8 +1770,13 @@ namespace GSCLegendRendererPro.ProWindows
                         heading5Text.Add(currentHeading);
                     }
 
-                    //Set heading text
-                    tElement.SetTextProperties(new TextProperties(currentHeading, tElement.TextProperties.Font,tElement.TextProperties.FontSize, tElement.TextProperties.FontStyle));
+                    //Set heading text and manage empty
+                    TextElement tElement = currentElementObject as TextElement;
+                    tElement.SetTextProperties(new TextProperties(currentHeading, tElement.TextProperties.Font, tElement.TextProperties.FontSize, tElement.TextProperties.FontStyle));
+                    if (currentHeading == null || currentHeading == string.Empty || currentHeading == " ")
+                    {
+                        tElement = Symbols.GetMissingTextSymbol(tElement);
+                    }
 
                     //Manage style if needed
                     if (currentStyle1 != "")
@@ -2119,18 +2120,46 @@ namespace GSCLegendRendererPro.ProWindows
                 Coordinate2D newAnchorCoordinates = new Coordinate2D(newX, newY);
 
                 //Keep actual anchor in case it's different
-                Anchor currentAnchor = pElement.GetAnchor();
+                //Anchor currentAnchor = pElement.GetAnchor();
 
                 //Set anchor so it fits the desire coordinate
-                pElement.SetAnchor(withAnchor);
+                //pElement.SetAnchor(withAnchor);
 
                 //Set the new geometry
                 pElement.SetAnchorPoint(newAnchorCoordinates);
 
                 //Reset the old anchor
-                pElement.SetAnchor(currentAnchor);
+                //pElement.SetAnchor(currentAnchor);
 
 
+
+            }
+            catch (Exception positionElementException)
+            {
+                new ErrorService(positionElementException).WriteToFile();
+            }
+
+        }
+
+        /// <summary>
+        /// Will position a given element to a new location coordinate. The new coordinates can fit a desire anchor point.
+        /// The element anchor will change momentarily to set the new position, then it'll revert to it's original value
+        /// </summary>
+        /// <param name="pElement"></param>
+        /// <param name="newX"></param>
+        /// <param name="newY"></param>
+        /// <param name="withAnchor"></param>
+        public void MoveElement(Element pElement, double deltaX, double deltaY, Anchor withAnchor = Anchor.BottomLeftCorner)
+        {
+
+            try
+            {
+                //Get actual anchor point coordinates
+                Coordinate2D anchorCoordinates = pElement.GetAnchorPoint();
+                anchorCoordinates = new Coordinate2D(anchorCoordinates.X + deltaX, anchorCoordinates.Y + deltaY);
+
+                //Set the new geometry
+                pElement.SetAnchorPoint(anchorCoordinates);
 
             }
             catch (Exception positionElementException)
