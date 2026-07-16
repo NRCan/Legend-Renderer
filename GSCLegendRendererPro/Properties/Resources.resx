@@ -256,4 +256,10 @@
   <data name="ResultLegendRendererGroupName" xml:space="preserve">
     <value>Legend</value>
   </data>
+  <data name="LegendItemLabelName" xml:space="preserve">
+    <value>Label</value>
+  </data>
+  <data name="ErrorMissingLabel" xml:space="preserve">
+    <value>Missing</value>
+  </data>
 </root>

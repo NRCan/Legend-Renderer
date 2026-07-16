@@ -8,6 +8,7 @@ using ArcGIS.Desktop.Framework;
 using ArcGIS.Desktop.Framework.Contracts;
 using ArcGIS.Desktop.Framework.Threading.Tasks;
 using ArcGIS.Desktop.Internal.Mapping.Symbology;
+using ArcGIS.Desktop.Internal.Reports;
 using ArcGIS.Desktop.Layouts;
 using ArcGIS.Desktop.Mapping;
 using GSCLegendRendererPro.Models;
@@ -16,6 +17,8 @@ using GSCLegendRendererPro.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -28,9 +31,11 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
+using System.Windows.Navigation;
 using static ArcGIS.Desktop.Internal.GeoProcessing.Controls.rtbEditor;
 using static GSCLegendRendererPro.Utilities.Layers;
 using static System.Net.Mime.MediaTypeNames;
+using Color = ArcGIS.Core.Internal.CIM.Color;
 using Envelope = ArcGIS.Core.Geometry.Envelope;
 using Field = ArcGIS.Core.Data.Field;
 using LinearUnit = ArcGIS.Core.Geometry.LinearUnit;
@@ -68,7 +73,7 @@ namespace GSCLegendRendererPro.ProWindows
         LayoutView pLayoutView = null;
 
         //GRAPHICS PROCESSING
-        public Dictionary<string, IElement> templateGraphicDico { get; set; }
+        public Dictionary<string, Element> templateGraphicDico { get; set; }
         public Element parentElement = null; //Will be used to keep parent element that has embedded children
         public double originalYSpacing = 0;
         public double ySpacing = 0;//Keep track of Y spacing
@@ -667,10 +672,10 @@ namespace GSCLegendRendererPro.ProWindows
                                             {
                                                 //Current row information collecting
                                                 currentIteration = currentIteration + 1.0;
-                                                //currentOrder = currentIteration;
-                                                await GatherCurrentRowInformation(legendRow);
 
                                                 #region GRAPHIC PREPARATION
+
+                                                await GatherCurrentRowInformation(legendRow);
 
                                                 await CleanupDescription();
 
@@ -703,14 +708,18 @@ namespace GSCLegendRendererPro.ProWindows
 
                                                 await AddHeading(legendRow);
 
-                                                //await AddMapUnit(legendRow);
+                                                await AddMapUnit(legendRow);
 
                                                 #endregion
 
                                                 #region FINALIZE
 
-                                                //ElementFactory.Instance.CreateGroupElement(pPage, legendElementList);
-                                                
+                                                //Add to legend list
+                                                legendElementList.Add(currentElementObject);
+
+                                                //Keep name
+                                                lastElement = currentElementObject;
+                                                lastElementType = currentElementName;
 
                                                 #endregion
                                             }
@@ -1177,7 +1186,7 @@ namespace GSCLegendRendererPro.ProWindows
             {
                 //Validate if template mxd is available, else send copy resource to local folder
                 string templateLayoutPath = System.IO.Path.Combine(Properties.Settings.Default.WorkingEnvironmentPath, Constants.Assets.pageLayoutTemplateFile);
-                templateGraphicDico = new Dictionary<string, IElement>();
+                templateGraphicDico = new Dictionary<string, Element>();
 
                 await QueuedTask.Run(async () =>
                 {
@@ -1362,7 +1371,7 @@ namespace GSCLegendRendererPro.ProWindows
         /// </summary>
         /// <param name="inputOb">The object to get a copy rom</param>
         /// <returns></returns>
-        public Element CopyElementObject(Element element, string newElementName)
+        public Element CopyElementObject(Element element, string elementNamePrefix)
         {
             Element copiedElement = null;
             
@@ -1383,13 +1392,13 @@ namespace GSCLegendRendererPro.ProWindows
                 }
 
                 //Create new object and add it to current layout
-                copiedElement = ElementFactory.Instance.CreateGroupElement(pPage, cimElements, newElementName + " " + element.Name, false);
+                copiedElement = ElementFactory.Instance.CreateGroupElement(pPage, cimElements, elementNamePrefix + " " + element.Name, false);
 
             }
             else
             {
                 //Create new object and add it to current layout
-                cimElement.Name = newElementName + " " + cimElement.Name;
+                cimElement.Name = elementNamePrefix + " " + cimElement.Name;
                 copiedElement = ElementFactory.Instance.CreateElement(pPage, cimElement, false);
             }
 
@@ -1719,12 +1728,6 @@ namespace GSCLegendRendererPro.ProWindows
                 if (currentElementObject != null && currentElementName.Contains(Constants.Graphics.heading1.Substring(0, 6)))
                 {
 
-                    string originalElementName = currentElementObject.Name.Split(" ")[1];
-
-                    //TODO special cases heading 3 like description, heading 4 UL
-
-                    #region Move to right anchor
-
                     //Set new anchor
                     anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - ySpacing);
                     PositionElement(currentElementObject, anchorPoint.Item1, anchorPoint.Item2);
@@ -1752,7 +1755,6 @@ namespace GSCLegendRendererPro.ProWindows
                     //Move in X
                     MoveElement(currentElementObject, xSpacing, 0);
 
-                    #endregion
 
                     //Special case for heading 3 since we can't have bolded all caps setting inside a graphic along
                     //no cap and not bolded description.
@@ -1782,7 +1784,7 @@ namespace GSCLegendRendererPro.ProWindows
                     tElement.SetTextProperties(new TextProperties(currentHeading, tElement.TextProperties.Font, tElement.TextProperties.FontSize, tElement.TextProperties.FontStyle));
                     if (currentHeading == null || currentHeading == string.Empty || currentHeading == " ")
                     {
-                        tElement = Symbols.GetMissingTextSymbol(tElement);
+                        tElement = Symbols.SetMissingTextSymbol(tElement);
                     }
 
                     //Manage style if needed
@@ -1811,23 +1813,9 @@ namespace GSCLegendRendererPro.ProWindows
                         else
                         {
                             //Missing or wrong style 
-                            tElement = Symbols.GetMissingTextSymbol(tElement);
+                            tElement = Symbols.SetMissingTextSymbol(tElement);
                         }
-
-
                     }
-                    //pLayoutView.Refresh();
-                    ////Add base element
-                    //currentDoc.ActiveView.GraphicsContainer.AddElement(headElement, 0);
-                    //currentDoc.ActiveView.GraphicsContainer.BringToFront(currentGrapSelection.SelectedElements);
-
-                    //Add to legend list
-                    legendElementList.Add(currentElementObject);
-
-                    //Keep name
-                    lastElement = currentElementObject;
-                    lastElementType = originalElementName;
-
                 }
             }
             catch (Exception AddHeadingException)
@@ -2198,166 +2186,142 @@ namespace GSCLegendRendererPro.ProWindows
         {
             try
             {
-                //if (currentElementObject != null && ( currentElementName == Constants.Graphics.unitBox || currentElementName == Constants.Graphics.unitSplit ||
-                //            currentElementName == Constants.Graphics.unitindent1 || currentElementName == Constants.Graphics.unitindent2))
-                //{
+                if (currentElementObject != null && (currentElementName == Constants.Graphics.unitBox || currentElementName == Constants.Graphics.unitSplit ||
+                            currentElementName == Constants.Graphics.unitindent1 || currentElementName == Constants.Graphics.unitindent2))
+                {
 
-                //    //Get appropriate element
-                //    IElement unitBoxElement = Services.ObjectManagement.CopyInputObject(templateGraphicDico[currentElement]) as IElement;
-                //    IElementProperties unitBoxElProp = unitBoxElement as IElementProperties;
-                //    currentDoc.ActiveView.GraphicsContainer.AddElement(unitBoxElement as IElement, 0);
-                //    string originalElementName = unitBoxElProp.Name;
+                    //Get appropriate element
+                    string originalElementName = currentElementName;
 
-                //    //Init empty dem element if ever needed
-                //    IElement demUnitBoxElement = null;
+                    //Init empty dem element if ever needed
+                    Element demUnitBoxElement = null;
+                    Element labelUnitBoxElement = null;
 
-                //    #region Move to right anchor
+                    #region Move to right anchor
 
-                //    //Set new anchor
-                //    anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - ySpacing); //New anchor point with proper move inside it
-                //    SetRectangularPolygonFromAnchorType(unitBoxElement, anchorPoint);
+                    //Set new anchor
+                    anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - ySpacing); //New anchor point with proper move inside it
+                    SetRectangularPolygonFromAnchorType(currentElementObject, anchorPoint);
 
-                //    //Move
-                //    if (currentElement == Constants.Graphics.unitindent1 || currentElement == Constants.Graphics.unitindent2)
-                //    {
-                //        ITransform2D transElement = unitBoxElement as ITransform2D;
-                //        transElement.Move(xSpacing, 0); //Move accordingly to x spacing if any
-                //    }
+                    //Move
+                    if (currentElementName == Constants.Graphics.unitindent1 || currentElementName == Constants.Graphics.unitindent2)
+                    {
+                        MoveElement(currentElementObject, xSpacing, 0);
+                    }
 
-                //    #endregion
+                    #endregion
 
-                //    //Rename
-                //    unitBoxElProp.Name = unitBoxElProp.Name + currentOrder.ToString();
+                    //Symbolize
+                    //Element unitBoxLabelElement = new TextSymbol();
+                    GroupElement inGroupElement = currentElementObject as GroupElement;
 
-                //    //Symbolize
-                //    IElement unitBoxLabelElement = new MarkerElement();
-                //    IGroupElement inGroupElement = unitBoxElement as IGroupElement;
+                    if (inGroupElement != null)
+                    {
+                        //Check geometry of inner elements, if it's all lines
+                        List<Element> groupElements = inGroupElement.GetElementsAsFlattenedList().ToList();
 
-                //    //Unselect
-                //    currentGrapSelection.UnselectElement(unitBoxElement);
+                        for (int el = 0; el < groupElements.Count(); el++)
+                        {
+                            Element innerElement = groupElements[el];
+                            if (el == 0)
+                            {
+                                SetPolygonFill(innerElement, currentStyle1, true);
 
-                //    if (inGroupElement != null)
-                //    {
-                //        //Check geometry of inner elements, if it's all lines
+                                //Add label
+                                if (currentLabel1 == null || currentLabel1 == string.Empty || currentLabel1 == " ")
+                                {
+                                    currentLabel1 = Constants.TextConfiguration.missingText;
+                                }
 
-                //        for (int el = 0; el < inGroupElement.ElementCount; el++)
-                //        {
-                //            IElement innerElement = inGroupElement.Element[el];
-                //            if (el == 0)
-                //            {
-                //                SetPolygonFill(innerElement, currentStyle1, true);
+                                //unitBoxLabelElement = AddLabelInUnitBox(currentLabel1, innerElement, currentDoc, anchorPoint, Constants.Graphics.UnitBoxType.split1, currentLabel1Style);
 
-                //                //Add label
-                //                if (currentLabel1 == null || currentLabel1 == string.Empty || currentLabel1 == " ")
-                //                {
-                //                    currentLabel1 = Constants.TextConfiguration.missingText;
-                //                }
+                            }
+                            else if (el > 0)
+                            {
+                                SetPolygonFill(innerElement, currentStyle2, true);
 
-                //                unitBoxLabelElement = AddLabelInUnitBox(currentLabel1, innerElement, currentDoc, anchorPoint, Constants.Graphics.UnitBoxType.split1, currentLabel1Style);
+                                //Add label
+                                if (currentLabel2 == null || currentLabel2 == string.Empty || currentLabel2 == " ")
+                                {
+                                    currentLabel2 = Constants.TextConfiguration.missingText;
+                                }
+                                //unitBoxLabelElement = AddLabelInUnitBox(currentLabel2, innerElement, currentDoc, anchorPoint, Constants.Graphics.UnitBoxType.split2, currentLabel2Style);
+                            }
 
-                //            }
-                //            else if (el > 0)
-                //            {
-                //                SetPolygonFill(innerElement, currentStyle2, true);
+                        }
+                    }
+                    else
+                    {
+                        //Symbolize
+                        demUnitBoxElement = SetPolygonFill(currentElementObject, currentStyle1, true, true, anchorPoint, currentStyle2);
 
-                //                //Add label
-                //                if (currentLabel2 == null || currentLabel2 == string.Empty || currentLabel2 == " ")
-                //                {
-                //                    currentLabel2 = Constants.TextConfiguration.missingText;
-                //                }
-                //                unitBoxLabelElement = AddLabelInUnitBox(currentLabel2, innerElement, currentDoc, anchorPoint, Constants.Graphics.UnitBoxType.split2, currentLabel2Style);
-                //            }
+                        ////Add label
+                        //if (currentLabel1 == null || currentLabel1 == string.Empty || currentLabel1 == " ")
+                        //{
+                        //    currentLabel1 = Constants.TextConfiguration.missingText;
+                        //}
 
-                //        }
-                //    }
-                //    else
-                //    {
-                //        //Symbolize
-                //        demUnitBoxElement = SetPolygonFill(unitBoxElement, currentStyle1, true, true, anchorPoint, currentStyle2);
+                        labelUnitBoxElement = AddLabelInUnitBox(currentLabel1, currentElementObject, anchorPoint, Constants.Graphics.UnitBoxType.normal, currentLabel1Style);
 
-                //        //Add
-                //        currentDoc.ActiveView.GraphicsContainer.AddElement(demUnitBoxElement as IElement, 0);
+                    }
 
-                //        //Add label
-                //        if (currentLabel1 == null || currentLabel1 == string.Empty || currentLabel1 == " ")
-                //        {
-                //            currentLabel1 = Constants.TextConfiguration.missingText;
-                //        }
+                    ////Move label and/or dem
+                    //if (currentElement == Constants.Graphics.unitindent1 || currentElement == Constants.Graphics.unitindent2)
+                    //{
+                    //    //DEM
+                    //    if (this.checkBox_DEMBoxes.Checked)
+                    //    {
+                    //        ITransform2D transDEMElement = demUnitBoxElement as ITransform2D;
+                    //        transDEMElement.Move(xSpacing, 0); //Move accordingly to x spacing if any
+                    //    }
 
-                //        unitBoxLabelElement = AddLabelInUnitBox(currentLabel1, unitBoxElement, currentDoc, anchorPoint, Constants.Graphics.UnitBoxType.normal, currentLabel1Style);
-
-                //    }
-
-                //    //Move label and/or dem
-                //    if (currentElement == Constants.Graphics.unitindent1 || currentElement == Constants.Graphics.unitindent2)
-                //    {
-                //        //DEM
-                //        if (this.checkBox_DEMBoxes.Checked)
-                //        {
-                //            ITransform2D transDEMElement = demUnitBoxElement as ITransform2D;
-                //            transDEMElement.Move(xSpacing, 0); //Move accordingly to x spacing if any
-                //        }
-
-                //        //LABEL
-                //        ITransform2D transLabelElement = unitBoxLabelElement as ITransform2D;
-                //        transLabelElement.Move(xSpacing, 0); //Move accordingly to x spacing if any
-                //    }
-
-                //    //Keep name
-                //    lastElement = unitBoxElement;
-                //    lastElementType = originalElementName;
-
-                //    //Add header if needed
-                //    if (currentHeading != null && currentHeading != string.Empty && currentHeading != " ")
-                //    {
-                //        currentDescription = Constants.TextConfiguration.tagBold + currentHeading + Constants.TextConfiguration.endTagBold + " " + currentDescription;
-                //    }
-
-                //    //Add Description
-                //    IElement newDescriptionElement = AddDescription(currentDescription, unitBoxElement, currentDoc, anchorPoint, originalElementName);
-                //    double descriptionHeight = newDescriptionElement.Geometry.Envelope.Height;
-                //    if (descriptionHeight > smallDescriptionHeight)
-                //    {
-                //        //Reset anchor point for next element
-                //        if (currentColumn != 0)
-                //        {
-                //            anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - descriptionHeight); //New anchor point with proper move inside it
-
-                //        }
-
-                //        //Keep name
-                //        lastElement = newDescriptionElement;
-                //        lastElementType = Constants.Graphics.description;
-
-                //    }
-
-                //    //Move description
-                //    if (currentElement == Constants.Graphics.unitindent1 || currentElement == Constants.Graphics.unitindent2)
-                //    {
-                //        ITransform2D transDescElement = newDescriptionElement as ITransform2D;
-                //        transDescElement.Move(xSpacing, 0); //Move accordingly to x spacing if any
-                //    }
-
-                //    //Keep element if for bracket
-                //    if (currentColumn == 0)
-                //    {
-                //        bracketMapUnit = new Tuple<IElement, IElement, IElement, IElement>(unitBoxElement, unitBoxLabelElement, newDescriptionElement, demUnitBoxElement);
-
-                //        //Reset anchor point
-                //        anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 + ySpacing);
-                //    }
-
-                //    //Add to legend list
-                //    if (demUnitBoxElement != null)
-                //    {
-                //        legendElementList.Add(demUnitBoxElement as IElement);
-                //    }
-                //    legendElementList.Add(unitBoxLabelElement as IElement);
-                //    legendElementList.Add(unitBoxElement as IElement);
+                    //    //LABEL
+                    //    ITransform2D transLabelElement = unitBoxLabelElement as ITransform2D;
+                    //    transLabelElement.Move(xSpacing, 0); //Move accordingly to x spacing if any
+                    //}
 
 
+                    ////Add header if needed
+                    //if (currentHeading != null && currentHeading != string.Empty && currentHeading != " ")
+                    //{
+                    //    currentDescription = Constants.TextConfiguration.tagBold + currentHeading + Constants.TextConfiguration.endTagBold + " " + currentDescription;
+                    //}
 
-                //}
+                    ////Add Description
+                    //IElement newDescriptionElement = AddDescription(currentDescription, unitBoxElement, currentDoc, anchorPoint, originalElementName);
+                    //double descriptionHeight = newDescriptionElement.Geometry.Envelope.Height;
+                    //if (descriptionHeight > smallDescriptionHeight)
+                    //{
+                    //    //Reset anchor point for next element
+                    //    if (currentColumn != 0)
+                    //    {
+                    //        anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - descriptionHeight); //New anchor point with proper move inside it
+
+                    //    }
+
+                    //    //Keep name
+                    //    lastElement = newDescriptionElement;
+                    //    lastElementType = Constants.Graphics.description;
+
+                    //}
+
+                    ////Move description
+                    //if (currentElement == Constants.Graphics.unitindent1 || currentElement == Constants.Graphics.unitindent2)
+                    //{
+                    //    ITransform2D transDescElement = newDescriptionElement as ITransform2D;
+                    //    transDescElement.Move(xSpacing, 0); //Move accordingly to x spacing if any
+                    //}
+
+                    ////Keep element if for bracket
+                    //if (currentColumn == 0)
+                    //{
+                    //    bracketMapUnit = new Tuple<IElement, IElement, IElement, IElement>(unitBoxElement, unitBoxLabelElement, newDescriptionElement, demUnitBoxElement);
+
+                    //    //Reset anchor point
+                    //    anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 + ySpacing);
+                    //}
+
+                }
             }
             catch (Exception AddMapUnitException)
             {
@@ -2376,11 +2340,17 @@ namespace GSCLegendRendererPro.ProWindows
             legendElementList.Reverse();
             foreach (Element legendElement in legendElementList)
             {
-                pPage.SelectElement(legendElement);
-                if (pPage.CanBringForward(legendElement))
+                //All except what is within groups
+                Element parentElement = legendElement.GetParent(false) as Element;
+                GroupElement parentGroupElement = parentElement as GroupElement;
+                if (!(parentGroupElement is GroupElement))
                 {
-                    pPage.BringToFront(legendElement);
-                }
+                    pPage.SelectElement(legendElement);
+                    if (pPage.CanBringForward(legendElement))
+                    {
+                        pPage.BringToFront(legendElement);
+                    }
+                }   
             }
         }
 
@@ -2395,13 +2365,401 @@ namespace GSCLegendRendererPro.ProWindows
             pPage.SelectElements(legendElementList);
 
             //Group
-            //GroupElement legendGroup = pPage.GroupElements(legendElementList);
-            //legendGroup.SetName(Properties.Resources.ResultLegendRendererGroupName);
             ElementFactory.Instance.CreateGroupElement(pPage, pPage.GetSelectedElements(), Properties.Resources.ResultLegendRendererGroupName, false);
         }
 
 
+        /// <summary>
+        /// Will set the background color for given element with given style
+        /// </summary>
+        /// <param name="inElement"></param>
+        /// <param name="style"></param>
+        public Element SetPolygonFill(Element inElement, string style, bool isSimpleFill, bool isUnitBoxOnly = false, Tuple<double, double> inAnchor = null, string style2 = "")
+        {
+            try
+            {
+                GraphicElement graphicElement = inElement as GraphicElement;
+                if (graphicElement != null)
+                {
+                    //Symbolize if symbol can be found in style file
+                    //IGroupElement3 groupShapeElement = GetGroupLegendElement(Constants.Graphics.legendBoxDEM);
+                    //IFillShapeElement intShapeElement = inElement as IFillShapeElement;
 
+                    //Detect cartographic line and force rounded joins
+                    ///Special case found for UNIT_SPLIT having the wrong join and showing a bad rendering.
+                    //IMultiLayerLineSymbol multiLineSymbol = intShapeElement.Symbol.Outline as IMultiLayerLineSymbol;
+                    //if (multiLineSymbol != null && style2 != "")
+                    //{
+                    //    for (int i = 0; i < multiLineSymbol.LayerCount; i++)
+                    //    {
+                    //        ICartographicLineSymbol cartoLineSymbol = multiLineSymbol.Layer[i] as ICartographicLineSymbol;
+                    //        if (cartoLineSymbol != null)
+                    //        {
+                    //            cartoLineSymbol.Join = esriLineJoinStyle.esriLJSRound;
+                    //        }
+
+                    //    }
+                    //}
+
+                    //ILineSymbol inOutline = intShapeElement.Symbol.Outline; //Cast to keep actual outline
+
+                    if (fillSymbolDico.ContainsKey(style) && isSimpleFill)
+                    {
+
+                        //Get symbol type and color
+                        string symbolTypeName = string.Empty;
+                        SymbolStyleItem fillSymbol = fillSymbolDico[style];
+
+                        //Fill polygon or replace with related DEM image
+                        if (_legendDEM && isUnitBoxOnly)
+                        {
+                            //Detect tranparent color and force it white
+                            Element demElement = SetPolygonDEM(fillSymbol.Symbol.GetColor(), inAnchor);
+
+                            //Group and send beneath unit box then group it and reset current object as a new grouped graphic
+                            GroupElement(inElement, demElement, inElement.Name + "_DEM", false);
+
+                            return inElement;
+                        }
+                        //Overlay fill type 
+                        else if (symbolTypeName == Constants.ObjectNames.fillTypeMultilayer)
+                        {
+                            ////Will act as a non simple fill
+                            //IFillSymbol fillMulti = iFillSymbol;
+
+                            ////Set color if needed
+                            //if (style2 != string.Empty && style2 != null && fillSymbolDico.ContainsKey(style2))
+                            //{
+                            //    string symbolTypeName2 = string.Empty;
+                            //    ISymbol fillSymbol2 = fillSymbolDico[style2] as ISymbol;
+                            //    IColor symbolColor2 = Services.Symbols.GetPolygonSymbolColor(fillSymbol2, out symbolTypeName2);
+
+                            //    fillMulti.Color = symbolColor2;
+                            //}
+
+                            ////Manage outline
+                            //if (isOutlineNullColor)
+                            //{
+                            //    //Apply black outline 
+                            //    fillMulti.Outline = inOutline;
+                            //}
+                            //else
+                            //{
+                            //    //Keep wanted outline
+                            //    fillMulti.Outline = multiLineSymbol;
+
+                            //}
+                            //intShapeElement.Symbol = fillMulti;
+
+                            return inElement;
+                        }
+                        else
+                        {
+                            //Set background color
+                            CIMGraphic graphic = graphicElement.GetGraphic();
+                            if (graphic != null)
+                            {
+                                CIMPolygonSymbol cimPolySymbol = graphic.Symbol.Symbol as CIMPolygonSymbol;
+                                cimPolySymbol.SetColor(fillSymbol.Symbol.GetColor());
+                                graphicElement.SetGraphic(graphic);
+                            }
+
+                            return inElement;
+                        }
+
+                    }
+                    else if (fillSymbolDico.ContainsKey(style) && !isSimpleFill)
+                    {
+                        //intShapeElement.Symbol = fillSymbolDico[style] as IFillSymbol;
+                        return inElement;
+                    }
+                    else
+                    {
+                        //Apply missing style
+                        GraphicElement missingFillSymbol = Symbols.SetMissingPolygonSymbol(graphicElement);
+                        //missingFillSymbol.Style = esriSimpleFillStyle.esriSFSSolid;
+                        //missingFillSymbol.Outline = inOutline;
+                        //missingFillSymbol.Outline.Color = inOutline.Color;
+                        //intShapeElement.Symbol = missingFillSymbol;
+
+                        return missingFillSymbol as Element;
+                    }
+                }
+
+                return null;
+
+            }
+            catch (Exception SetPolygonFillException)
+            {
+                new ErrorService(SetPolygonFillException).WriteToFile();
+                return null;
+            }
+
+        }
+
+        /// <summary>
+        /// Will add a picture element with given colored added above it as transparent.
+        /// </summary>
+        /// <param name="inElement"></param>
+        /// <param name="inColor"></param>
+        public Element SetPolygonDEM(CIMColor inColor, Tuple<double, double> inAnchor = null)
+        {
+            try
+            {   
+                //Variables
+                Services.ImageProcessing imProcessing = new Services.ImageProcessing();
+
+                //Calculate DEM transparency
+                int demtransparency = 178; //178/255 is 70% opacity
+                if (otherComponents.DEM_OPACITY_PERCENT != 70)
+                {
+                    double opacityConversion = Math.Round(((double)demtransparency / 100.0) * 255.0);
+                    demtransparency = Convert.ToInt16(opacityConversion);
+                }
+
+                //Validate DEM picture existance and get path
+                string demImagePath = System.IO.Path.Combine(Properties.Settings.Default.WorkingEnvironmentPath, Constants.Assets.demPicture);
+
+                //Init new image object
+                System.Drawing.Image demImage = System.Drawing.Image.FromFile(demImagePath);
+
+                //Build path to new mono colored image
+                //string outputFolderName = System.IO.Path.Combine(Dictionaries.Constants.ESRI.defaultArcGISFolderName, Dictionaries.Constants.Namespaces.mainNamespace + " " + ThisAddIn.Version.ToString());
+                //string outputFolderPath = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments), outputFolderName);
+                string monoColoredName = Constants.ImageConfiguration.monoColoredImageNamePrefix + demtransparency.ToString() + "_"
+                    + inColor.GetAlphaValue().ToString() + "_" + inColor.GetColorComponent(0).ToString() + "_" + inColor.GetColorComponent(1).ToString() + "_" + inColor.GetColorComponent(2).ToString() + ".png";
+                string demColoredName = Constants.Graphics.legendBoxDEM + demtransparency.ToString() + "_" + inColor.GetColorComponent(0).ToString() + "_" + inColor.GetColorComponent(1).ToString() + "_" + inColor.GetColorComponent(2).ToString() + ".png";
+                string monoColoredPath = System.IO.Path.Combine(Properties.Settings.Default.WorkingEnvironmentPath, monoColoredName);
+                string demColoredPath = System.IO.Path.Combine(Properties.Settings.Default.WorkingEnvironmentPath, demColoredName);
+
+                //Process and a get a copy of new mono colored image
+                if (!System.IO.File.Exists(monoColoredPath))
+                {
+                    imProcessing.CreateMonoColorFromImageCopy(demImage, inColor, monoColoredPath, demtransparency);
+                }
+
+                //Create bitmaps from original dem image and mono colored one
+                System.Drawing.Image monoColoredImage = System.Drawing.Image.FromFile(monoColoredPath);
+                Bitmap monoColoredBitmap = new Bitmap(monoColoredImage);
+                Bitmap originalBitmap = new Bitmap(demImage);
+
+                //Overlap both bitmaps
+                Bitmap overlapImage = new Bitmap(monoColoredImage);
+                Graphics overlapGraphic = Graphics.FromImage(overlapImage);
+                overlapGraphic.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
+                overlapGraphic.DrawImage(originalBitmap, 0, 0);
+                overlapGraphic.DrawImage(monoColoredBitmap, 0, 0);
+
+                //Save result
+                overlapImage.Save(demColoredPath, ImageFormat.Png);
+
+                //Get graphic element for DEM
+                Element demElement = CopyElementObject(templateGraphicDico[Constants.Graphics.legendBoxDEM], currentOrder.ToString());
+
+                //Set path
+                PictureElement demPictureElement = demElement as PictureElement;
+                demPictureElement.SetSourcePath(demColoredPath);
+
+                legendElementList.Add(demElement);
+
+                //Move if needed
+                if (inAnchor != null)
+                {
+                    //TODO find why we must substract 10 else the DEM picture is offset to the right by 10 if used inside a grouped element
+                    Tuple<double, double> newDEMAnchor = new Tuple<double, double>(inAnchor.Item1, inAnchor.Item2);
+                    SetRectangularPolygonFromAnchorType(demElement, newDEMAnchor);
+
+                }
+
+                return demElement;
+
+            }
+            catch (Exception SetPolygonDEMException)
+            {
+                new ErrorService(SetPolygonDEMException).WriteToFile();
+
+                return null;
+            }
+
+        }
+
+        /// <summary>
+        /// Will add a new text element at the center a of map unit box
+        /// </summary>
+        /// <param name="inText"></param>
+        /// <param name="parentElement"></param>
+        /// <param name="inDocument"></param>
+        private Element AddLabelInUnitBox(string inText, Element parentElement, Tuple<double, double> inAnchor, Constants.Graphics.UnitBoxType unitBoxType, string inStyle = "")
+        {
+            try
+            {
+                //Get appropriate element
+                Element unitBoxLabelElement = CopyElementObject(templateGraphicDico[Constants.Graphics.unitLabel], currentOrder.ToString());
+
+                //Create new text graphic with default style
+                TextElement tElement = unitBoxLabelElement as TextElement;
+
+                if (tElement != null)
+                {
+                    //Get graphic in order to change text and symbol
+                    CIMGraphic currentElementGraphic = tElement.GetGraphic();
+
+                    //Manage incoming style if needed
+                    if (inStyle != null && inStyle != "" && textSymbolDico.ContainsKey(inStyle))
+                    {
+                        //ISimpleTextSymbol inStyleSymbol = textSymbolDico[inStyle] as ISimpleTextSymbol;
+                        //ISimpleTextSymbol currentStyleSymbol = tElement.Symbol as ISimpleTextSymbol;
+                        //currentStyleSymbol.Font = inStyleSymbol.Font;
+                        //currentStyleSymbol.Color = inStyleSymbol.Color;
+                        //currentStyleSymbol.Size = Constants.TextConfiguration.defaultUnitBoxLabelFontSize; //Force size else incoming style might be too big.
+                        //currentStyleSymbol.VerticalAlignment = esriTextVerticalAlignment.esriTVACenter; //Force vertical center for text else incoming style might be set to else where.
+                        //tElement.Symbol = Services.ObjectManagement.CopyInputObject(currentStyleSymbol) as ISimpleTextSymbol;
+
+                        SymbolStyleItem fillSymbol = fillSymbolDico[inStyle];
+
+                        if (currentElementGraphic != null)
+                        {
+                            CIMTextSymbol cIMTextSymbol = currentElementGraphic.Symbol.Symbol as CIMTextSymbol;
+                            cIMTextSymbol.SetColor(ColorFactory.Instance.RedRGB);
+                            cIMTextSymbol.FontFamilyName = "Arial";
+                            cIMTextSymbol.SetSize(Constants.TextConfiguration.defaultUnitBoxLabelFontSize);
+                            cIMTextSymbol.VerticalAlignment = ArcGIS.Core.CIM.VerticalAlignment.Center;
+                            tElement.SetGraphic(currentElementGraphic);
+                        }
+
+                    }
+                    
+
+                    //Mange too long text (mainly to fix when used in UNIT_SPLIT boxes).
+                    //Conditions on style to prevent trigger on special fonts
+                    if (inText.Length >= 6 && inStyle == "")
+                    { 
+
+                        if (currentElementGraphic != null)
+                        {
+                            CIMTextSymbol cIMTextSymbol = currentElementGraphic.Symbol.Symbol as CIMTextSymbol;
+                            cIMTextSymbol.SetSize(Constants.TextConfiguration.tooLongLabelUnitBoxLabelFontSize);
+
+                            //Manage placement
+                            if (unitBoxType == Constants.Graphics.UnitBoxType.split2)
+                            {
+                                //Shift down a bit for right part.
+                                cIMTextSymbol.VerticalAlignment = ArcGIS.Core.CIM.VerticalAlignment.Baseline;
+                            }
+                            else if (unitBoxType == Constants.Graphics.UnitBoxType.split1)
+                            {
+                                //Shift up a bit for left part
+                                cIMTextSymbol.VerticalAlignment = ArcGIS.Core.CIM.VerticalAlignment.Top;
+                            }
+
+                            tElement.SetGraphic(currentElementGraphic);
+                        }
+
+                    }
+
+                    //Manage missing
+                    if (inText == null || inText == string.Empty || inText == " " && currentElementGraphic != null)
+                    {
+                        inText = Constants.TextConfiguration.missingText;
+                        tElement = Symbols.SetMissingTextSymbol(tElement, Properties.Resources.ErrorMissingLabel);
+                    }
+                    else
+                    {
+                        tElement.SetTextProperties(new TextProperties(inText, tElement.TextProperties.Font, tElement.TextProperties.FontSize, tElement.TextProperties.FontStyle));
+                    }
+
+                    //Get width and height of parent
+                    ArcGIS.Core.Geometry.Geometry parentGeom = parentElement.GetGeometry();
+                    Envelope parentEnvelope = parentGeom.Extent;
+                    double parentHeight = parentEnvelope.Height;
+                    double parentWidth = parentEnvelope.Width;
+
+                    //Set new anchor point
+                    SetRectangularPolygonFromAnchorType(unitBoxLabelElement, inAnchor);
+
+                    //Move       
+                    if (unitBoxType == Constants.Graphics.UnitBoxType.normal)
+                    {
+                        MoveElement(unitBoxLabelElement, parentWidth / 2.0, (-parentHeight / 2.0));//Move accordingly to anchor point which is center center
+                    }
+                    else if (unitBoxType == Constants.Graphics.UnitBoxType.split1)
+                    {
+                        //https://www.mathopenref.com/coordcentroid.html
+                        double centerX = (3 * inAnchor.Item1 + parentWidth) / 3.0;
+                        double centerY = (3 * inAnchor.Item2 - parentHeight) / 3.0;
+                        MoveElement(unitBoxLabelElement, centerX - inAnchor.Item1, -(Math.Abs(centerY - inAnchor.Item2)));//Move accordingly to anchor point which is center center
+                    }
+                    else if (unitBoxType == Constants.Graphics.UnitBoxType.split2 || unitBoxType == Constants.Graphics.UnitBoxType.line || unitBoxType == Constants.Graphics.UnitBoxType.child_line)
+                    {
+                        //https://www.mathopenref.com/coordcentroid.html
+                        double centerX = (3 * inAnchor.Item1 + 2 * parentWidth) / 3.0;
+                        double centerY = (3 * inAnchor.Item2 - 2 * parentHeight) / 3.0;
+                        MoveElement(unitBoxLabelElement, centerX - inAnchor.Item1, -(Math.Abs(centerY - inAnchor.Item2)));//Move accordingly to anchor point which is center center
+                    }
+
+                    //Group with parent
+                    unitBoxLabelElement = GroupElement(parentElement, unitBoxLabelElement, currentElementObject.Name + "_GROUP", true);
+
+                    //Add base element
+                    //IPageLayout l = inDocument.ActiveView as IPageLayout;
+                    //IGraphicsContainerSelect gcs = l as IGraphicsContainerSelect;
+                    //inDocument.ActiveView.GraphicsContainer.AddElement(unitBoxLabelElement as IElement, 0);
+                    //gcs.UnselectAllElements();
+                    //gcs.SelectElement(unitBoxLabelElement);
+
+                    //inDocument.ActiveView.GraphicsContainer.BringToFront(gcs.SelectedElements);
+
+                    //Unselect
+                    //gcs.UnselectElement(unitBoxLabelElement);
+
+                    //Add to legend list
+                    //legendElementList.Add(unitBoxLabelElement);
+
+                }
+
+                return unitBoxLabelElement;
+            }
+            catch (Exception AddLabelInUnitBoxException)
+            {
+                new ErrorService(AddLabelInUnitBoxException).WriteToFile();
+
+                return null;
+            }
+
+
+        }
+
+        /// <summary>
+        /// Will merge a parent and child element and bring forward or backward the child, currentobjectelement will also be replaced
+        /// </summary>
+        /// <param name="parentElement"></param>
+        /// <param name="childElement"></param>
+        /// <param name="newName"></param>
+        /// <param name="bringForward"></param>
+        /// <returns></returns>
+        public Element GroupElement(Element parentElement, Element childElement, string newName, bool bringForward = true)
+        {
+            
+
+            //Send beneath unit box then group it and reset current object as a new grouped graphic
+            pPage.SelectElement(childElement);
+            if (bringForward && pPage.CanBringForward(childElement))
+            {
+                pPage.BringForward(childElement);
+            }
+            else if (!bringForward && pPage.CanSendBackward(childElement))
+            {
+                pPage.SendBackward(childElement);
+            }
+
+            pPage.SelectElements(new List<Element>() { currentElementObject, childElement });
+            GroupElement newGroup = ElementFactory.Instance.CreateGroupElement(pPage, pPage.GetSelectedElements(), newName, false);
+
+            currentElementObject = newGroup;
+
+            return newGroup;
+
+        }
         #endregion
     }
 }

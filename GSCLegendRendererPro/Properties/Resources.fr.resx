@@ -234,4 +234,10 @@
   <data name="ResultLegendRendererGroupName" xml:space="preserve">
     <value>Légende</value>
   </data>
+  <data name="LegendItemLabelName" xml:space="preserve">
+    <value>Étiquette</value>
+  </data>
+  <data name="ErrorMissingLabel" xml:space="preserve">
+    <value>Null</value>
+  </data>
 </root>

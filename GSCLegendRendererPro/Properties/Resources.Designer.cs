@@ -127,6 +127,15 @@ namespace GSCLegendRendererPro.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Missing.
+        /// </summary>
+        public static string ErrorMissingLabel {
+            get {
+                return ResourceManager.GetString("ErrorMissingLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Missing a graphic element from within the template layout. {0}.
         /// </summary>
         public static string ErrorMissingLegendElement {
@@ -449,6 +458,15 @@ namespace GSCLegendRendererPro.Properties {
             get {
                 object obj = ResourceManager.GetObject("LegendBoxDEM", resourceCulture);
                 return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Label.
+        /// </summary>
+        public static string LegendItemLabelName {
+            get {
+                return ResourceManager.GetString("LegendItemLabelName", resourceCulture);
             }
         }
         
