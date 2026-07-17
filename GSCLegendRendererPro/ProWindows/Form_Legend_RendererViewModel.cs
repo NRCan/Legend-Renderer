@@ -1371,7 +1371,7 @@ namespace GSCLegendRendererPro.ProWindows
         /// </summary>
         /// <param name="inputOb">The object to get a copy rom</param>
         /// <returns></returns>
-        public Element CopyElementObject(Element element, string elementNamePrefix)
+        public Element CopyElementObject(Element element, string elementNamePrefix, string elementNameSuffix = "")
         {
             Element copiedElement = null;
             
@@ -1392,13 +1392,13 @@ namespace GSCLegendRendererPro.ProWindows
                 }
 
                 //Create new object and add it to current layout
-                copiedElement = ElementFactory.Instance.CreateGroupElement(pPage, cimElements, elementNamePrefix + " " + element.Name, false);
+                copiedElement = ElementFactory.Instance.CreateGroupElement(pPage, cimElements, elementNamePrefix + " " + element.Name + elementNameSuffix, false);
 
             }
             else
             {
                 //Create new object and add it to current layout
-                cimElement.Name = elementNamePrefix + " " + cimElement.Name;
+                cimElement.Name = elementNamePrefix + " " + cimElement.Name + elementNameSuffix;
                 copiedElement = ElementFactory.Instance.CreateElement(pPage, cimElement, false);
             }
 
@@ -1942,8 +1942,8 @@ namespace GSCLegendRendererPro.ProWindows
 
                     //Apply conversion factor
                     //inHeight = inHeight ;
-                    double inElementWidth = inElement.GetWidth();
-                    double inElementHeight = inElement.GetHeight();
+                    double inElementWidth = inElement.GetBounds().Width;
+                    //double inElementHeight = inElement.GetBounds().Height;
 
                     //Default envelop based on top left corner anchor point
                     Coordinate2D lowerLeftPoint = new Coordinate2D(inAnchor.Item1, inAnchor.Item2 - inHeight);
@@ -2103,7 +2103,7 @@ namespace GSCLegendRendererPro.ProWindows
         /// <param name="newX"></param>
         /// <param name="newY"></param>
         /// <param name="withAnchor"></param>
-        public void PositionElement(Element pElement, double newX, double newY, Anchor withAnchor = Anchor.BottomLeftCorner)
+        public void PositionElement(Element pElement, double newX, double newY, Anchor withAnchor = Anchor.Unspecified)
         {
 
             try
@@ -2112,19 +2112,23 @@ namespace GSCLegendRendererPro.ProWindows
                 Coordinate2D newAnchorCoordinates = new Coordinate2D(newX, newY);
 
                 //Keep actual anchor in case it's different
-                //Anchor currentAnchor = pElement.GetAnchor();
+                Anchor currentAnchor = pElement.GetAnchor();
 
                 //Set anchor so it fits the desire coordinate
-                //pElement.SetAnchor(withAnchor);
+                if (withAnchor != Anchor.Unspecified)
+                {
+                    pElement.SetAnchor(withAnchor);
+                }
 
                 //Set the new geometry
                 pElement.SetAnchorPoint(newAnchorCoordinates);
 
                 //Reset the old anchor
-                //pElement.SetAnchor(currentAnchor);
-
-
-
+                if (withAnchor != Anchor.Unspecified)
+                {
+                    pElement.SetAnchor(currentAnchor);
+                }
+                
             }
             catch (Exception positionElementException)
             {
@@ -2196,12 +2200,21 @@ namespace GSCLegendRendererPro.ProWindows
                     //Init empty dem element if ever needed
                     Element demUnitBoxElement = null;
                     Element labelUnitBoxElement = null;
+                    Element labelUnitBoxElement2 = null;
 
                     #region Move to right anchor
 
-                    //Set new anchor
+                    //Set new anchor and position
                     anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - ySpacing); //New anchor point with proper move inside it
-                    SetRectangularPolygonFromAnchorType(currentElementObject, anchorPoint);
+                    
+                    if (currentElementName != Constants.Graphics.unitSplit)
+                    {
+                        PositionElement(currentElementObject, anchorPoint.Item1, anchorPoint.Item2);
+                    }
+                    else
+                    {
+                        PositionElement(currentElementObject, anchorPoint.Item1, anchorPoint.Item2, Anchor.TopLeftCorner);
+                    }
 
                     //Move
                     if (currentElementName == Constants.Graphics.unitindent1 || currentElementName == Constants.Graphics.unitindent2)
@@ -2212,7 +2225,6 @@ namespace GSCLegendRendererPro.ProWindows
                     #endregion
 
                     //Symbolize
-                    //Element unitBoxLabelElement = new TextSymbol();
                     GroupElement inGroupElement = currentElementObject as GroupElement;
 
                     if (inGroupElement != null)
@@ -2223,6 +2235,7 @@ namespace GSCLegendRendererPro.ProWindows
                         for (int el = 0; el < groupElements.Count(); el++)
                         {
                             Element innerElement = groupElements[el];
+
                             if (el == 0)
                             {
                                 SetPolygonFill(innerElement, currentStyle1, true);
@@ -2233,7 +2246,7 @@ namespace GSCLegendRendererPro.ProWindows
                                     currentLabel1 = Constants.TextConfiguration.missingText;
                                 }
 
-                                //unitBoxLabelElement = AddLabelInUnitBox(currentLabel1, innerElement, currentDoc, anchorPoint, Constants.Graphics.UnitBoxType.split1, currentLabel1Style);
+                                labelUnitBoxElement = AddLabelInUnitBox(currentLabel1, innerElement, anchorPoint, Constants.Graphics.UnitBoxType.split1, currentLabel1Style);
 
                             }
                             else if (el > 0)
@@ -2245,7 +2258,7 @@ namespace GSCLegendRendererPro.ProWindows
                                 {
                                     currentLabel2 = Constants.TextConfiguration.missingText;
                                 }
-                                //unitBoxLabelElement = AddLabelInUnitBox(currentLabel2, innerElement, currentDoc, anchorPoint, Constants.Graphics.UnitBoxType.split2, currentLabel2Style);
+                                labelUnitBoxElement2 = AddLabelInUnitBox(currentLabel2, innerElement, anchorPoint, Constants.Graphics.UnitBoxType.split2, currentLabel2Style);
                             }
 
                         }
@@ -2255,37 +2268,28 @@ namespace GSCLegendRendererPro.ProWindows
                         //Symbolize
                         demUnitBoxElement = SetPolygonFill(currentElementObject, currentStyle1, true, true, anchorPoint, currentStyle2);
 
-                        ////Add label
-                        //if (currentLabel1 == null || currentLabel1 == string.Empty || currentLabel1 == " ")
-                        //{
-                        //    currentLabel1 = Constants.TextConfiguration.missingText;
-                        //}
-
                         labelUnitBoxElement = AddLabelInUnitBox(currentLabel1, currentElementObject, anchorPoint, Constants.Graphics.UnitBoxType.normal, currentLabel1Style);
 
                     }
 
-                    ////Move label and/or dem
-                    //if (currentElement == Constants.Graphics.unitindent1 || currentElement == Constants.Graphics.unitindent2)
-                    //{
-                    //    //DEM
-                    //    if (this.checkBox_DEMBoxes.Checked)
-                    //    {
-                    //        ITransform2D transDEMElement = demUnitBoxElement as ITransform2D;
-                    //        transDEMElement.Move(xSpacing, 0); //Move accordingly to x spacing if any
-                    //    }
+                    //Move label and/or dem
+                    if (currentElementName == Constants.Graphics.unitindent1 || currentElementName == Constants.Graphics.unitindent2)
+                    {
+                        //DEM
+                        if (_legendDEM)
+                        {
+                            MoveElement(demUnitBoxElement, xSpacing, 0);
+                        }
 
-                    //    //LABEL
-                    //    ITransform2D transLabelElement = unitBoxLabelElement as ITransform2D;
-                    //    transLabelElement.Move(xSpacing, 0); //Move accordingly to x spacing if any
-                    //}
+                        //LABEL
+                        MoveElement(labelUnitBoxElement, xSpacing, 0);
+                    }
 
-
-                    ////Add header if needed
-                    //if (currentHeading != null && currentHeading != string.Empty && currentHeading != " ")
-                    //{
-                    //    currentDescription = Constants.TextConfiguration.tagBold + currentHeading + Constants.TextConfiguration.endTagBold + " " + currentDescription;
-                    //}
+                    //Add header if needed
+                    if (currentHeading != null && currentHeading != string.Empty && currentHeading != " ")
+                    {
+                        currentDescription = Constants.TextConfiguration.tagBold + currentHeading + Constants.TextConfiguration.endTagBold + " " + currentDescription;
+                    }
 
                     ////Add Description
                     //IElement newDescriptionElement = AddDescription(currentDescription, unitBoxElement, currentDoc, anchorPoint, originalElementName);
@@ -2421,38 +2425,38 @@ namespace GSCLegendRendererPro.ProWindows
 
                             return inElement;
                         }
-                        //Overlay fill type 
-                        else if (symbolTypeName == Constants.ObjectNames.fillTypeMultilayer)
-                        {
-                            ////Will act as a non simple fill
-                            //IFillSymbol fillMulti = iFillSymbol;
+                        ////Overlay fill type 
+                        //else if (symbolTypeName == Constants.ObjectNames.fillTypeMultilayer)
+                        //{
+                        //    ////Will act as a non simple fill
+                        //    //IFillSymbol fillMulti = iFillSymbol;
 
-                            ////Set color if needed
-                            //if (style2 != string.Empty && style2 != null && fillSymbolDico.ContainsKey(style2))
-                            //{
-                            //    string symbolTypeName2 = string.Empty;
-                            //    ISymbol fillSymbol2 = fillSymbolDico[style2] as ISymbol;
-                            //    IColor symbolColor2 = Services.Symbols.GetPolygonSymbolColor(fillSymbol2, out symbolTypeName2);
+                        //    ////Set color if needed
+                        //    //if (style2 != string.Empty && style2 != null && fillSymbolDico.ContainsKey(style2))
+                        //    //{
+                        //    //    string symbolTypeName2 = string.Empty;
+                        //    //    ISymbol fillSymbol2 = fillSymbolDico[style2] as ISymbol;
+                        //    //    IColor symbolColor2 = Services.Symbols.GetPolygonSymbolColor(fillSymbol2, out symbolTypeName2);
 
-                            //    fillMulti.Color = symbolColor2;
-                            //}
+                        //    //    fillMulti.Color = symbolColor2;
+                        //    //}
 
-                            ////Manage outline
-                            //if (isOutlineNullColor)
-                            //{
-                            //    //Apply black outline 
-                            //    fillMulti.Outline = inOutline;
-                            //}
-                            //else
-                            //{
-                            //    //Keep wanted outline
-                            //    fillMulti.Outline = multiLineSymbol;
+                        //    ////Manage outline
+                        //    //if (isOutlineNullColor)
+                        //    //{
+                        //    //    //Apply black outline 
+                        //    //    fillMulti.Outline = inOutline;
+                        //    //}
+                        //    //else
+                        //    //{
+                        //    //    //Keep wanted outline
+                        //    //    fillMulti.Outline = multiLineSymbol;
 
-                            //}
-                            //intShapeElement.Symbol = fillMulti;
+                        //    //}
+                        //    //intShapeElement.Symbol = fillMulti;
 
-                            return inElement;
-                        }
+                        //    return inElement;
+                        //}
                         else
                         {
                             //Set background color
@@ -2477,10 +2481,6 @@ namespace GSCLegendRendererPro.ProWindows
                     {
                         //Apply missing style
                         GraphicElement missingFillSymbol = Symbols.SetMissingPolygonSymbol(graphicElement);
-                        //missingFillSymbol.Style = esriSimpleFillStyle.esriSFSSolid;
-                        //missingFillSymbol.Outline = inOutline;
-                        //missingFillSymbol.Outline.Color = inOutline.Color;
-                        //intShapeElement.Symbol = missingFillSymbol;
 
                         return missingFillSymbol as Element;
                     }
@@ -2593,8 +2593,13 @@ namespace GSCLegendRendererPro.ProWindows
         {
             try
             {
-                //Get appropriate element
-                Element unitBoxLabelElement = CopyElementObject(templateGraphicDico[Constants.Graphics.unitLabel], currentOrder.ToString());
+                //Get appropriate element and set appropriate name
+                string newLabelSuffix = string.Empty;
+                if (unitBoxType == Constants.Graphics.UnitBoxType.split2)
+                {
+                    newLabelSuffix = "_2";
+                }
+                Element unitBoxLabelElement = CopyElementObject(templateGraphicDico[Constants.Graphics.unitLabel], currentOrder.ToString(), newLabelSuffix);
 
                 //Create new text graphic with default style
                 TextElement tElement = unitBoxLabelElement as TextElement;
@@ -2607,13 +2612,6 @@ namespace GSCLegendRendererPro.ProWindows
                     //Manage incoming style if needed
                     if (inStyle != null && inStyle != "" && textSymbolDico.ContainsKey(inStyle))
                     {
-                        //ISimpleTextSymbol inStyleSymbol = textSymbolDico[inStyle] as ISimpleTextSymbol;
-                        //ISimpleTextSymbol currentStyleSymbol = tElement.Symbol as ISimpleTextSymbol;
-                        //currentStyleSymbol.Font = inStyleSymbol.Font;
-                        //currentStyleSymbol.Color = inStyleSymbol.Color;
-                        //currentStyleSymbol.Size = Constants.TextConfiguration.defaultUnitBoxLabelFontSize; //Force size else incoming style might be too big.
-                        //currentStyleSymbol.VerticalAlignment = esriTextVerticalAlignment.esriTVACenter; //Force vertical center for text else incoming style might be set to else where.
-                        //tElement.Symbol = Services.ObjectManagement.CopyInputObject(currentStyleSymbol) as ISimpleTextSymbol;
 
                         SymbolStyleItem fillSymbol = fillSymbolDico[inStyle];
 
@@ -2629,7 +2627,6 @@ namespace GSCLegendRendererPro.ProWindows
 
                     }
                     
-
                     //Mange too long text (mainly to fix when used in UNIT_SPLIT boxes).
                     //Conditions on style to prevent trigger on special fonts
                     if (inText.Length >= 6 && inStyle == "")
@@ -2698,22 +2695,16 @@ namespace GSCLegendRendererPro.ProWindows
                     }
 
                     //Group with parent
-                    unitBoxLabelElement = GroupElement(parentElement, unitBoxLabelElement, currentElementObject.Name + "_GROUP", true);
-
-                    //Add base element
-                    //IPageLayout l = inDocument.ActiveView as IPageLayout;
-                    //IGraphicsContainerSelect gcs = l as IGraphicsContainerSelect;
-                    //inDocument.ActiveView.GraphicsContainer.AddElement(unitBoxLabelElement as IElement, 0);
-                    //gcs.UnselectAllElements();
-                    //gcs.SelectElement(unitBoxLabelElement);
-
-                    //inDocument.ActiveView.GraphicsContainer.BringToFront(gcs.SelectedElements);
-
-                    //Unselect
-                    //gcs.UnselectElement(unitBoxLabelElement);
-
-                    //Add to legend list
-                    //legendElementList.Add(unitBoxLabelElement);
+                    if (unitBoxType != Constants.Graphics.UnitBoxType.split2)
+                    {
+                        unitBoxLabelElement = GroupElement(parentElement, unitBoxLabelElement, currentElementObject.Name + "_GROUP", true);
+                    }
+                    else
+                    {
+                        Element parentGroup = pPage.GetElements().Where(x => x.Name.Contains(currentOrder.ToString()) && x.Name.Contains("GROUP")).FirstOrDefault();
+                        unitBoxLabelElement = AddToGroupElement(parentGroup, unitBoxLabelElement, true);
+                    }
+                    
 
                 }
 
@@ -2736,11 +2727,10 @@ namespace GSCLegendRendererPro.ProWindows
         /// <param name="childElement"></param>
         /// <param name="newName"></param>
         /// <param name="bringForward"></param>
+
         /// <returns></returns>
         public Element GroupElement(Element parentElement, Element childElement, string newName, bool bringForward = true)
         {
-            
-
             //Send beneath unit box then group it and reset current object as a new grouped graphic
             pPage.SelectElement(childElement);
             if (bringForward && pPage.CanBringForward(childElement))
@@ -2753,11 +2743,70 @@ namespace GSCLegendRendererPro.ProWindows
             }
 
             pPage.SelectElements(new List<Element>() { currentElementObject, childElement });
+
             GroupElement newGroup = ElementFactory.Instance.CreateGroupElement(pPage, pPage.GetSelectedElements(), newName, false);
 
             currentElementObject = newGroup;
 
             return newGroup;
+
+        }
+
+        /// <summary>
+        /// Will add to an existing group elemenmt instead of creating a new one each time
+        /// </summary>
+        /// <returns></returns>
+        public Element AddToGroupElement(Element parentGroupElement, Element childElement, bool bringForward = true)
+        {
+            GroupElement parentGroup = parentGroupElement as GroupElement;
+
+            try
+            {
+                //Send beneath unit box then group it and reset current object as a new grouped graphic
+                pPage.SelectElement(childElement);
+                if (bringForward && pPage.CanBringForward(childElement))
+                {
+                    pPage.BringForward(childElement);
+                }
+                else if (!bringForward && pPage.CanSendBackward(childElement))
+                {
+                    pPage.SendBackward(childElement);
+                }
+
+                
+                if (parentGroup != null)
+                {
+                    //Add
+                    List<Element> parentElements = parentGroup.GetElementsAsFlattenedList().ToList();
+                    parentElements.Add(childElement);
+
+                    //Keep original nam
+                    string originalGroupName = parentGroupElement.Name;
+
+                    //Select before recreating group
+                    pPage.SelectElements(parentElements);
+      
+                    //Recreate
+                    parentGroup = ElementFactory.Instance.CreateGroupElement(pPage, pPage.GetSelectedElements(), originalGroupName + "NEW", false);
+
+                    //Delete original group
+                    pPage.DeleteElement(parentGroupElement);
+
+                    //Rename
+                    parentGroup.SetName(parentGroup.Name.Replace("NEW", ""));
+
+                    currentElementObject = parentGroup;
+                }
+
+                return parentGroup;
+
+            }
+            catch (Exception AddToGroupElementException)
+            {
+                new ErrorService(AddToGroupElementException).WriteToFile();
+
+                return null;
+            }
 
         }
         #endregion

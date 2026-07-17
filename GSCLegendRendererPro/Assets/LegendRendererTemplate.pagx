@@ -6057,7 +6057,7 @@
         "visible" : true,
         "rotationCenter" : {
           "x" : 10.2440000000005966,
-          "y" : 233.1232
+          "y" : 232.705460898876083
         },
         "graphic" : {
           "type" : "CIMParagraphTextGraphic",
@@ -6139,7 +6139,7 @@
               [
                 [
                   3.087600000000748,
-                  231.198200000000725
+                  230.3627217977529
                 ],
                 [
                   3.087600000000748,
@@ -6151,11 +6151,11 @@
                 ],
                 [
                   17.4004000000004453,
-                  231.198200000000725
+                  230.3627217977529
                 ],
                 [
                   3.087600000000748,
-                  231.198200000000725
+                  230.3627217977529
                 ]
               ]
             ]
@@ -8536,14 +8536,15 @@
       },
       {
         "type" : "CIMGroupElement",
-        "anchor" : "BottomLeftCorner",
+        "anchor" : "TopLeftCorner",
         "name" : "UNIT_SPLIT",
         "visible" : true,
         "rotationCenter" : {
           "x" : 0.89500000000043656,
-          "y" : 216.5046999999995
+          "y" : 226.5046999999995
         },
         "lockedAspectRatio" : true,
+        "expanded" : true,
         "frame" : {
           "rings" : [
             [
@@ -8620,12 +8621,12 @@
         "elements" : [
           {
             "type" : "CIMGraphicElement",
-            "anchor" : "BottomLeftCorner",
+            "anchor" : "TopLeftCorner",
             "name" : "UNIT_SPLIT1",
             "visible" : true,
             "rotationCenter" : {
               "x" : 0.89500000000043656,
-              "y" : 216.5046999999995
+              "y" : 226.5046999999995
             },
             "lockedAspectRatio" : true,
             "graphic" : {
@@ -8701,12 +8702,12 @@
           },
           {
             "type" : "CIMGraphicElement",
-            "anchor" : "BottomLeftCorner",
+            "anchor" : "TopLeftCorner",
             "name" : "UNIT_SPLIT2",
             "visible" : true,
             "rotationCenter" : {
               "x" : 0.89500000000043656,
-              "y" : 216.5046999999995
+              "y" : 226.5046999999995
             },
             "lockedAspectRatio" : true,
             "graphic" : {
