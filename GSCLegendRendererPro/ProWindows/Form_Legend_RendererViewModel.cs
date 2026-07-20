@@ -1481,42 +1481,88 @@ namespace GSCLegendRendererPro.ProWindows
             {
                 Double.TryParse(row[orderFieldIndex].ToString(), out currentOrder);
             }
+
             if (row[style1FieldIndex] != null)
             {
                 currentStyle1 = row[style1FieldIndex].ToString();
             }
+            else
+            {
+                currentStyle1 = null;
+            }
+
             if (row[style2FieldIndex] != null)
             {
                 currentStyle2 = row[style2FieldIndex].ToString();
             }
+            else
+            {
+                currentStyle2 = null;
+            }
+
             if (row[labelFieldIndex] != null)
             {
                 currentLabel1 = row[labelFieldIndex].ToString();
             }
+            else
+            {
+                currentLabel1 = null;
+            }
+
             if (row[label2FieldIndex] != null)
             {
                 currentLabel2 = row[label2FieldIndex].ToString();
             }
+            else
+            {
+                currentLabel2 = null;
+            }
+
             if (row[descriptionFieldIndex] != null)
             {
                 currentDescription = row[descriptionFieldIndex].ToString();
             }
+            else
+            {
+                currentDescription = null;
+            }
+
             if (row[headingFieldIndex] != null)
             {
                 currentHeading = row[headingFieldIndex].ToString();
             }
+            else
+            {
+                currentHeading = null;
+            }
+
             if (row[elementFieldIndex] != null)
             {
                 currentElementName = row[elementFieldIndex].ToString();
             }
+            else
+            {
+                currentElementName = null;
+            }
+
             if (row[label1StyleFieldIndex] != null)
             {
                 currentLabel1Style = row[label1StyleFieldIndex].ToString();
             }
+            else
+            {
+                currentLabel1Style = null;
+            }
+
             if (row[label2StyleFieldIndex] != null)
             {
                 currentLabel2Style = row[label2StyleFieldIndex].ToString();
             }
+            else
+            {
+                currentLabel2Style = null;
+            }
+
             if (row[columnFieldIndex] != null)
             {
                 int.TryParse(row[columnFieldIndex].ToString(), out currentColumn);
@@ -1530,7 +1576,7 @@ namespace GSCLegendRendererPro.ProWindows
         /// <returns></returns>
         public async Task CleanupDescription()
         {
-            if (currentDescription != string.Empty && currentHeading != string.Empty && heading5Text.Count == 0)
+            if (currentDescription != null && currentDescription != string.Empty && currentHeading != string.Empty && heading5Text.Count == 0)
             {
                 currentDescription = currentDescription.Replace("<", "&lt;");
             }
@@ -1543,7 +1589,7 @@ namespace GSCLegendRendererPro.ProWindows
         public async Task ManageNullOrder(Row orderRow) 
         {
             //Manage null order
-            if (orderRow[orderFieldIndex].ToString() == string.Empty || orderRow[orderFieldIndex].ToString() == "<Null>" || orderRow[orderFieldIndex] == null)
+            if (orderRow[orderFieldIndex] == null || orderRow[orderFieldIndex].ToString() == string.Empty || orderRow[orderFieldIndex].ToString() == "<Null>")
             {
                 if (!nullOrderBreaker)
                 {
@@ -1788,7 +1834,7 @@ namespace GSCLegendRendererPro.ProWindows
                     }
 
                     //Manage style if needed
-                    if (currentStyle1 != "")
+                    if (currentStyle1 != null && currentStyle1 != "")
                     {
                         if (textSymbolDico.ContainsKey(currentStyle1))
                         {
@@ -2216,13 +2262,18 @@ namespace GSCLegendRendererPro.ProWindows
                         PositionElement(currentElementObject, anchorPoint.Item1, anchorPoint.Item2, Anchor.TopLeftCorner);
                     }
 
-                    //Move
-                    if (currentElementName == Constants.Graphics.unitindent1 || currentElementName == Constants.Graphics.unitindent2)
+                    #endregion
+
+                    //Manage label
+                    if (currentLabel1 == null || currentLabel1 == string.Empty || currentLabel1 == " ")
                     {
-                        MoveElement(currentElementObject, xSpacing, 0);
+                        currentLabel1 = Constants.TextConfiguration.missingText;
                     }
 
-                    #endregion
+                    if (currentLabel2 == null || currentLabel2 == string.Empty || currentLabel2 == " ")
+                    {
+                        currentLabel2 = Constants.TextConfiguration.missingText;
+                    }
 
                     //Symbolize
                     GroupElement inGroupElement = currentElementObject as GroupElement;
@@ -2240,12 +2291,6 @@ namespace GSCLegendRendererPro.ProWindows
                             {
                                 SetPolygonFill(innerElement, currentStyle1, true);
 
-                                //Add label
-                                if (currentLabel1 == null || currentLabel1 == string.Empty || currentLabel1 == " ")
-                                {
-                                    currentLabel1 = Constants.TextConfiguration.missingText;
-                                }
-
                                 labelUnitBoxElement = AddLabelInUnitBox(currentLabel1, innerElement, anchorPoint, Constants.Graphics.UnitBoxType.split1, currentLabel1Style);
 
                             }
@@ -2253,11 +2298,6 @@ namespace GSCLegendRendererPro.ProWindows
                             {
                                 SetPolygonFill(innerElement, currentStyle2, true);
 
-                                //Add label
-                                if (currentLabel2 == null || currentLabel2 == string.Empty || currentLabel2 == " ")
-                                {
-                                    currentLabel2 = Constants.TextConfiguration.missingText;
-                                }
                                 labelUnitBoxElement2 = AddLabelInUnitBox(currentLabel2, innerElement, anchorPoint, Constants.Graphics.UnitBoxType.split2, currentLabel2Style);
                             }
 
@@ -2275,12 +2315,6 @@ namespace GSCLegendRendererPro.ProWindows
                     //Move label and/or dem
                     if (currentElementName == Constants.Graphics.unitindent1 || currentElementName == Constants.Graphics.unitindent2)
                     {
-                        //DEM
-                        if (_legendDEM)
-                        {
-                            MoveElement(demUnitBoxElement, xSpacing, 0);
-                        }
-
                         //LABEL
                         MoveElement(labelUnitBoxElement, xSpacing, 0);
                     }
