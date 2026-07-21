@@ -2317,8 +2317,8 @@ namespace GSCLegendRendererPro.ProWindows
                     //Move label and/or dem
                     if (currentElementName == Constants.Graphics.unitindent1 || currentElementName == Constants.Graphics.unitindent2)
                     {
-                        //LABEL
                         MoveElement(labelUnitBoxElement, xSpacing, 0);
+                        MoveElement(demUnitBoxElement, xSpacing, 0);
                     }
 
                     //Add header if needed
@@ -2327,49 +2327,49 @@ namespace GSCLegendRendererPro.ProWindows
                         currentDescription = Constants.TextConfiguration.tagBold + currentHeading + Constants.TextConfiguration.endTagBold + " " + currentDescription;
                     }
 
-                    ////Add Description
-                    //Element newDescriptionElement = AddDescription(currentDescription, originalParent, anchorPoint, originalElementName);
+                    //Add Description
+                    Element newDescriptionElement = AddDescription(currentDescription, originalParent, anchorPoint, originalElementName);
 
-                    ////Rest anchor point for next element
-                    //double descriptionHeight = Constants.TextConfiguration.lineHeight;
-                    //if (newDescriptionElement is GroupElement)
-                    //{
-                    //    GroupElement newDescriptGroup = newDescriptionElement as GroupElement;
-                    //    descriptionHeight = newDescriptGroup.GetElementsAsFlattenedList().First().GetHeight();
-                    //}
-                    //else
-                    //{
-                    //    descriptionHeight = newDescriptionElement.GetHeight();
-                    //}
+                    //Rest anchor point for next element
+                    double descriptionHeight = Constants.TextConfiguration.lineHeight;
+                    if (newDescriptionElement is GroupElement)
+                    {
+                        GroupElement newDescriptGroup = newDescriptionElement as GroupElement;
+                        descriptionHeight = newDescriptGroup.GetElementsAsFlattenedList().First().GetHeight();
+                    }
+                    else
+                    {
+                        descriptionHeight = newDescriptionElement.GetHeight();
+                    }
 
-                    //if (descriptionHeight > smallDescriptionHeight)
-                    //{
-                    //    if (currentColumn != 0)
-                    //    {
-                    //        anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - descriptionHeight); //New anchor point with proper move inside it
+                    if (descriptionHeight > smallDescriptionHeight)
+                    {
+                        if (currentColumn != 0)
+                        {
+                            anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - descriptionHeight); //New anchor point with proper move inside it
 
-                    //    }
+                        }
 
-                    //    //Keep name
-                    //    lastElement = newDescriptionElement;
-                    //    lastElementType = Constants.Graphics.description;
+                        //Keep name
+                        lastElement = newDescriptionElement;
+                        lastElementType = Constants.Graphics.description;
 
-                    //}
+                    }
 
-                    ////Move description
-                    //if (currentElementName == Constants.Graphics.unitindent1 || currentElementName == Constants.Graphics.unitindent2)
-                    //{
-                    //    MoveElement(newDescriptionElement, xSpacing, 0);
-                    //}
+                    //Move description
+                    if (currentElementName == Constants.Graphics.unitindent1 || currentElementName == Constants.Graphics.unitindent2)
+                    {
+                        MoveElement(newDescriptionElement, xSpacing, 0);
+                    }
 
-                    ////Keep element if for bracket
-                    //if (currentColumn == 0)
-                    //{
-                    //    bracketMapUnit = new Tuple<Element, Element, Element, Element>(demUnitBoxElement, labelUnitBoxElement, newDescriptionElement, demUnitBoxElement);
+                    //Keep element if for bracket
+                    if (currentColumn == 0)
+                    {
+                        bracketMapUnit = new Tuple<Element, Element, Element, Element>(demUnitBoxElement, labelUnitBoxElement, newDescriptionElement, demUnitBoxElement);
 
-                    //    //Reset anchor point
-                    //    anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 + ySpacing);
-                    //}
+                        //Reset anchor point
+                        anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 + ySpacing);
+                    }
 
                 }
             }
@@ -2467,7 +2467,8 @@ namespace GSCLegendRendererPro.ProWindows
                             Element demElement = SetPolygonDEM(fillSymbol.Symbol.GetColor(), inAnchor);
 
                             //Group and send beneath unit box then group it and reset current object as a new grouped graphic
-                            GroupElement(inElement, demElement, inElement.Name + "_DEM", false);
+                            OrderElement(demElement);
+                            //GroupElement(inElement, demElement, inElement.Name + "_DEM", false);
 
                             return inElement;
                         }
@@ -2740,17 +2741,11 @@ namespace GSCLegendRendererPro.ProWindows
                         MoveElement(unitBoxLabelElement, centerX - inAnchor.Item1, -(Math.Abs(centerY - inAnchor.Item2)));//Move accordingly to anchor point which is center center
                     }
 
-                    //Group with parent
-                    if (unitBoxType != Constants.Graphics.UnitBoxType.split2)
-                    {
-                        unitBoxLabelElement = GroupElement(parentElement, unitBoxLabelElement, currentElementObject.Name + "_GROUP", true);
-                    }
-                    else
-                    {
-                        Element parentGroup = pPage.GetElements().Where(x => x.Name.Contains(currentOrder.ToString()) && x.Name.Contains("GROUP")).FirstOrDefault();
-                        unitBoxLabelElement = AddToGroupElement(parentGroup, unitBoxLabelElement, true);
-                    }
-                    
+                    //Order
+                    OrderElement(unitBoxLabelElement);
+
+                    //Keep track of new item
+                    legendElementList.Add(unitBoxLabelElement);
 
                 }
 
@@ -2775,18 +2770,8 @@ namespace GSCLegendRendererPro.ProWindows
         /// <param name="bringForward"></param>
 
         /// <returns></returns>
-        public Element GroupElement(Element parentElement, Element childElement, string newName, bool bringForward = true)
+        public Element GroupElement(Element parentElement, Element childElement, string newName)
         {
-            //Send beneath unit box then group it and reset current object as a new grouped graphic
-            pPage.SelectElement(childElement);
-            if (bringForward && pPage.CanBringForward(childElement))
-            {
-                pPage.BringForward(childElement);
-            }
-            else if (!bringForward && pPage.CanSendBackward(childElement))
-            {
-                pPage.SendBackward(childElement);
-            }
 
             pPage.SelectElements(new List<Element>() { currentElementObject, childElement });
 
@@ -2799,27 +2784,34 @@ namespace GSCLegendRendererPro.ProWindows
         }
 
         /// <summary>
+        /// Will reorder an element to set proper drawing order
+        /// </summary>
+        /// <param name="orderElement"></param>
+        /// <param name="bringForward"></param>
+        public void OrderElement(Element orderElement, bool bringForward = true)
+        {
+            //Send beneath unit box then group it and reset current object as a new grouped graphic
+            pPage.SelectElement(orderElement);
+            if (bringForward && pPage.CanBringForward(orderElement))
+            {
+                pPage.BringToFront(orderElement);
+            }
+            else if (!bringForward && pPage.CanSendBackward(orderElement))
+            {
+                pPage.SendBackward(orderElement);
+            }
+        }
+
+        /// <summary>
         /// Will add to an existing group elemenmt instead of creating a new one each time
         /// </summary>
         /// <returns></returns>
-        public Element AddToGroupElement(Element parentGroupElement, Element childElement, bool bringForward = true)
+        public Element AddToGroupElement(Element parentGroupElement, Element childElement)
         {
             GroupElement parentGroup = parentGroupElement as GroupElement;
 
             try
             {
-                //Send beneath unit box then group it and reset current object as a new grouped graphic
-                pPage.SelectElement(childElement);
-                if (bringForward && pPage.CanBringForward(childElement))
-                {
-                    pPage.BringForward(childElement);
-                }
-                else if (!bringForward && pPage.CanSendBackward(childElement))
-                {
-                    pPage.SendBackward(childElement);
-                }
-
-                
                 if (parentGroup != null)
                 {
                     //Add
@@ -2867,7 +2859,7 @@ namespace GSCLegendRendererPro.ProWindows
         private Element AddDescription(string inDescription, Element parentElem, Tuple<double, double> inAnchor, string parentElemType, bool isLineOrPoint = false)
         {
             //Get appropriate element
-            Element descriptionElement = CopyElementObject(templateGraphicDico[Constants.Graphics.description] as Element, currentOrder.ToString());
+            Element descriptionElement = null;
 
             //Get different size description
             if (parentElemType == Constants.Graphics.unitindent1)
@@ -2877,6 +2869,10 @@ namespace GSCLegendRendererPro.ProWindows
             else if (parentElemType == Constants.Graphics.unitindent2)
             {
                 descriptionElement = CopyElementObject(templateGraphicDico[Constants.Graphics.description_indent2] as Element, currentOrder.ToString());
+            }
+            else
+            {
+                descriptionElement = CopyElementObject(templateGraphicDico[Constants.Graphics.description] as Element, currentOrder.ToString());
             }
 
             //If description is meant for a group 5 heading, then modify style
@@ -3003,12 +2999,11 @@ namespace GSCLegendRendererPro.ProWindows
 
             #endregion
 
-            //Finalize description
-            //Element finalDescription = AddDescriptionFromElement(descriptionElement, parentElem, inAnchor, parentElemType, isLineOrPoint);
+            //Order
+            OrderElement(descriptionElement);
 
-            //Group with parent
-            Element parentGroup = pPage.GetElements().Where(x => x.Name.Contains(currentOrder.ToString()) && x.Name.Contains("GROUP")).FirstOrDefault();
-            AddToGroupElement(parentGroup, descriptionElement, true);
+            //Add to tracking list
+            legendElementList.Add(descriptionElement);
 
             return descriptionElement;
         }
