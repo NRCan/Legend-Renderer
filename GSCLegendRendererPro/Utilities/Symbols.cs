@@ -150,6 +150,7 @@ namespace GSCLegendRendererPro.Utilities
             }
 
             CIMGraphic cimGraphic = parentSymbol.GetGraphic();
+
             if (cimGraphic != null)
             {
                 CIMTextSymbol cIMTextSymbol = cimGraphic.Symbol.Symbol as CIMTextSymbol;

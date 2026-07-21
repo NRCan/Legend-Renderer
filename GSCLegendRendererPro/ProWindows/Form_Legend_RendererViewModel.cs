@@ -38,6 +38,7 @@ using static System.Net.Mime.MediaTypeNames;
 using Color = ArcGIS.Core.Internal.CIM.Color;
 using Envelope = ArcGIS.Core.Geometry.Envelope;
 using Field = ArcGIS.Core.Data.Field;
+using Geometry = ArcGIS.Core.Geometry.Geometry;
 using LinearUnit = ArcGIS.Core.Geometry.LinearUnit;
 using Table = ArcGIS.Core.Data.Table;
 using TextElement = ArcGIS.Desktop.Layouts.TextElement;
@@ -2108,7 +2109,7 @@ namespace GSCLegendRendererPro.ProWindows
             else
             {
                 //Check height
-                if (inElement.GetBounds().Height == 0)
+            if (inElement.GetBounds().Height == 0)
                 {
                     allLines = false;
                 }
@@ -2126,7 +2127,7 @@ namespace GSCLegendRendererPro.ProWindows
                 for (int el = 0; el < inGroupElement.GetElementsAsFlattenedList().Count(); el++)
                 {
                     Element innerElement = inGroupElement.GetElementsAsFlattenedList()[el];
-                    if (innerElement.GetGeometry().GeometryType != GeometryType.Polyline)
+                if (innerElement.GetGeometry().GeometryType != GeometryType.Polyline)
                     {
                         allLines = false;
                         break;
@@ -2240,8 +2241,9 @@ namespace GSCLegendRendererPro.ProWindows
                             currentElementName == Constants.Graphics.unitindent1 || currentElementName == Constants.Graphics.unitindent2))
                 {
 
-                    //Get appropriate element
+                    //Keep some information
                     string originalElementName = currentElementName;
+                    Element originalParent = currentElementObject;
 
                     //Init empty dem element if ever needed
                     Element demUnitBoxElement = null;
@@ -2326,11 +2328,22 @@ namespace GSCLegendRendererPro.ProWindows
                     }
 
                     ////Add Description
-                    //IElement newDescriptionElement = AddDescription(currentDescription, unitBoxElement, currentDoc, anchorPoint, originalElementName);
-                    //double descriptionHeight = newDescriptionElement.Geometry.Envelope.Height;
+                    //Element newDescriptionElement = AddDescription(currentDescription, originalParent, anchorPoint, originalElementName);
+
+                    ////Rest anchor point for next element
+                    //double descriptionHeight = Constants.TextConfiguration.lineHeight;
+                    //if (newDescriptionElement is GroupElement)
+                    //{
+                    //    GroupElement newDescriptGroup = newDescriptionElement as GroupElement;
+                    //    descriptionHeight = newDescriptGroup.GetElementsAsFlattenedList().First().GetHeight();
+                    //}
+                    //else
+                    //{
+                    //    descriptionHeight = newDescriptionElement.GetHeight();
+                    //}
+
                     //if (descriptionHeight > smallDescriptionHeight)
                     //{
-                    //    //Reset anchor point for next element
                     //    if (currentColumn != 0)
                     //    {
                     //        anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - descriptionHeight); //New anchor point with proper move inside it
@@ -2344,16 +2357,15 @@ namespace GSCLegendRendererPro.ProWindows
                     //}
 
                     ////Move description
-                    //if (currentElement == Constants.Graphics.unitindent1 || currentElement == Constants.Graphics.unitindent2)
+                    //if (currentElementName == Constants.Graphics.unitindent1 || currentElementName == Constants.Graphics.unitindent2)
                     //{
-                    //    ITransform2D transDescElement = newDescriptionElement as ITransform2D;
-                    //    transDescElement.Move(xSpacing, 0); //Move accordingly to x spacing if any
+                    //    MoveElement(newDescriptionElement, xSpacing, 0);
                     //}
 
                     ////Keep element if for bracket
                     //if (currentColumn == 0)
                     //{
-                    //    bracketMapUnit = new Tuple<IElement, IElement, IElement, IElement>(unitBoxElement, unitBoxLabelElement, newDescriptionElement, demUnitBoxElement);
+                    //    bracketMapUnit = new Tuple<Element, Element, Element, Element>(demUnitBoxElement, labelUnitBoxElement, newDescriptionElement, demUnitBoxElement);
 
                     //    //Reset anchor point
                     //    anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 + ySpacing);
@@ -2843,6 +2855,203 @@ namespace GSCLegendRendererPro.ProWindows
             }
 
         }
+
+        /// <summary>
+        /// Will add a new text element for description in column description part
+        /// </summary>
+        /// <param name="inDescription"></param>
+        /// <param name="parentElem"></param>
+        /// <param name="inDocument"></param>
+        /// <param name="inAnchor"></param>
+        /// <returns> Description height for validation purposes</returns>
+        private Element AddDescription(string inDescription, Element parentElem, Tuple<double, double> inAnchor, string parentElemType, bool isLineOrPoint = false)
+        {
+            //Get appropriate element
+            Element descriptionElement = CopyElementObject(templateGraphicDico[Constants.Graphics.description] as Element, currentOrder.ToString());
+
+            //Get different size description
+            if (parentElemType == Constants.Graphics.unitindent1)
+            {
+                descriptionElement = CopyElementObject(templateGraphicDico[Constants.Graphics.description_indent] as Element, currentOrder.ToString());
+            }
+            else if (parentElemType == Constants.Graphics.unitindent2)
+            {
+                descriptionElement = CopyElementObject(templateGraphicDico[Constants.Graphics.description_indent2] as Element, currentOrder.ToString());
+            }
+
+            //If description is meant for a group 5 heading, then modify style
+            if (heading5Text.Count >= 1)
+            {
+                descriptionElement = CopyElementObject(templateGraphicDico[Constants.Graphics.heading5Description] as Element, currentOrder.ToString());
+                double indentation = GetXSpacing(Constants.Graphics.heading5Description) - GetXSpacing(Constants.Graphics.description);
+                inAnchor = new Tuple<double, double>(inAnchor.Item1 + indentation, inAnchor.Item2);
+            }
+
+            //Create new text graphic with default style
+            TextElement dtElement = descriptionElement as TextElement;
+
+            //Manage missing
+            if (inDescription == null || inDescription == string.Empty || inDescription == " ")
+            {
+                dtElement = Symbols.SetMissingTextSymbol(dtElement, Properties.Resources.ErrorMissingLabel); 
+            }
+            else
+            {
+                dtElement.SetTextProperties(new TextProperties(inDescription, dtElement.TextProperties.Font, dtElement.TextProperties.FontSize, dtElement.TextProperties.FontStyle));
+            }
+
+            #region AddDescriptFromElement code
+            double wantedTextHeight = GetTextHeight(dtElement.TextProperties.Text, descriptionWidth);
+
+            //Min height setting
+            double smallDescHeight = smallDescriptionHeight;
+            if (isLineOrPoint)
+            {
+                smallDescHeight = smallDescriptionHeightLine;
+            }
+
+            //Get width and height of parent
+            //ArcGIS.Core.Internal.CIM.Geometry parentGeom = parentElem.GetBounds().ToCIMGeometry();
+            double parentHeight = 1.0;
+            double parentWidth = elementWidth;
+
+            //In case element is a unit box, try to get height
+            if (parentElem is GroupElement)
+            {
+                GroupElement ge = parentElem as GroupElement;
+                parentHeight = ge.GetElementsAsFlattenedList().First().GetHeight();
+            }
+            else
+            {
+                parentHeight = parentElem.GetHeight();
+            }
+
+            //Parent height setting based on anchor position
+            //double parentHeightCalculated = parentHeight;
+            //if (parentProperties.AnchorPoint == esriAnchorPointEnum.esriCenterPoint || parentProperties.AnchorPoint == esriAnchorPointEnum.esriLeftMidPoint || parentProperties.AnchorPoint == esriAnchorPointEnum.esriRightMidPoint)
+            //{
+            //    parentHeightCalculated = parentHeightCalculated / 2.0;
+            //}
+            ////else if (parentProperties.AnchorPoint == esriAnchorPointEnum.esriBottomLeftCorner || parentProperties.AnchorPoint == esriAnchorPointEnum.esriBottomMidPoint || parentProperties.AnchorPoint == esriAnchorPointEnum.esriBottomRightCorner)
+            ////{
+            ////    parentHeightCalculated
+            ////}
+
+            //Set width and height and manage group description for heading 5        
+            ArcGIS.Core.Geometry.Geometry descriptionGeometry = descriptionElement.GetGeometry();
+            double descriptionHeight = wantedTextHeight;
+
+            if (heading5Text.Count >= 1)
+            {
+                descriptionWidth = groupDescriptionWidth;
+            }
+
+            Coordinate2D lowerLeftDescription = new Coordinate2D(descriptionGeometry.Extent.XMin, descriptionGeometry.Extent.YMin);
+            Coordinate2D upperRightDescription = new Coordinate2D(descriptionGeometry.Extent.XMin + descriptionWidth, descriptionGeometry.Extent.YMin + descriptionHeight);
+
+            Envelope llEnvelope = EnvelopeBuilderEx.CreateEnvelope(lowerLeftDescription, upperRightDescription);
+            ArcGIS.Core.Geometry.Polygon descPoly = PolygonBuilderEx.CreatePolygon(llEnvelope);
+            descriptionElement.SetGeometry(descPoly);
+
+            //Set anchor
+            SetRectangularPolygonFromAnchorType(descriptionElement, inAnchor);
+
+            //Move based on different length of description
+            if (wantedTextHeight <= smallDescHeight)
+            {
+                //When description height is less then align its center on parent center
+                if (wantedTextHeight <= parentHeight || parentHeight <= 1.0)
+                {
+                    if (!IsElementAllNonFlatLines(parentElem) && !parentElem.Name.Contains(Constants.Graphics.blob))
+                    {
+                        MoveElement(descriptionElement, elementDescriptGapWidth + parentWidth, -(parentHeight / 2.0 - wantedTextHeight / 2.0)); //Anchor is upper left but needs to be centered on unit box.
+                    }
+                    else
+                    {
+                        //Special case for wave and blob since it's a line with anchor in center/center but behaves like bottom center...?
+                        MoveElement(descriptionElement, elementDescriptGapWidth + parentWidth, (parentHeight / 2.0) - (parentHeight - wantedTextHeight) / 2.0); //Anchor is upper left but needs to be centered on unit box
+                    }
+
+                }
+                else
+                {
+                    MoveElement(descriptionElement, elementDescriptGapWidth + parentWidth, wantedTextHeight / 2.0);
+                }
+
+            }
+            else
+            {
+                if (isLineOrPoint)
+                {
+                    if (parentHeight <= 1.0)
+                    {
+                        MoveElement(descriptionElement, elementDescriptGapWidth + parentWidth, (parentHeight / 2.0) + Constants.YSpacings.lineHeight0DescriptionHeightAdjustement);
+                    }
+                    else
+                    {
+                        MoveElement(descriptionElement, elementDescriptGapWidth + parentWidth, (parentHeight / 2.0) + Constants.YSpacings.lineDescriptionHeightAdjustement);
+                    }
+
+                }
+                else
+                {
+                    MoveElement(descriptionElement, elementDescriptGapWidth + parentWidth, 0); // Anchor is upper left and needs to be horizontally aligned with it
+                }
+
+
+            }
+
+            #endregion
+
+            //Finalize description
+            //Element finalDescription = AddDescriptionFromElement(descriptionElement, parentElem, inAnchor, parentElemType, isLineOrPoint);
+
+            //Group with parent
+            Element parentGroup = pPage.GetElements().Where(x => x.Name.Contains(currentOrder.ToString()) && x.Name.Contains("GROUP")).FirstOrDefault();
+            AddToGroupElement(parentGroup, descriptionElement, true);
+
+            return descriptionElement;
+        }
+
+        /// <summary>
+        /// Will detect the type of graphic and will extract the geometry out of it, for later calculation.
+        /// </summary>
+        /// <param name="inElement"></param>
+        /// <returns></returns>
+        public Geometry GetElementGeometry(Element inElement)
+        {
+            Geometry outGeometry = null;
+
+            switch(inElement)
+            {
+                case GraphicElement graphicElement:
+                    CIMGraphic graphic = graphicElement.GetGraphic();
+
+                    switch (graphic)
+                    {
+                        case CIMPointGraphic pointGraphic:
+                            outGeometry = pointGraphic.Location; break;
+                        case CIMLineGraphic lineGraphic:
+                            outGeometry = lineGraphic.Line; break;
+                        case CIMPolygonGraphic polygonGraphic:
+                            outGeometry = polygonGraphic.Polygon; break;
+                        case CIMTextGraphic textGraphic:
+                            outGeometry = textGraphic.Shape; break;
+                        default:
+                            break;
+                    }
+
+                    break;
+
+                default:
+                    outGeometry = inElement.GetBounds();
+                    break;
+
+            }
+
+            return outGeometry;
+        }
+
         #endregion
     }
 }
