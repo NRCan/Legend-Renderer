@@ -713,6 +713,8 @@ namespace GSCLegendRendererPro.ProWindows
 
                                                 await AddMapUnit(legendRow);
 
+                                                await AddThinUnit(legendRow);
+
                                                 #endregion
 
                                                 #region FINALIZE
@@ -1768,114 +1770,6 @@ namespace GSCLegendRendererPro.ProWindows
         }
 
         /// <summary>
-        /// Will add a heading element to the legend based on the current row information
-        /// </summary>
-        /// <returns></returns>
-        private async Task AddHeading(Row headingRow)
-        {
-            try
-            {
-                if (currentElementObject != null && currentElementName.Contains(Constants.Graphics.heading1.Substring(0, 6)))
-                {
-
-                    //Set new anchor
-                    anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - ySpacing);
-                    PositionElement(currentElementObject, anchorPoint.Item1, anchorPoint.Item2);
-
-                    //Set height for heading3 
-                    if (currentElementName.Contains(Constants.Graphics.heading3))
-                    {
-                        //Recalculate height
-                        string tempGroupHeadingDescription = currentHeading;
-                        if (currentDescription != null)
-                        {
-                            tempGroupHeadingDescription = currentHeading + currentDescription;
-                        }
-                        double heading3Height = GetTextHeight(tempGroupHeadingDescription, descriptionWidth, Constants.TextConfiguration.lineHeight);
-
-                        //Set new envelope
-                        SetRectangularPolygonFromAnchorTypeAndHeight(currentElementObject, anchorPoint, heading3Height);
-                    }
-                    else
-                    {
-                        //Set new envelope
-                        SetRectangularPolygonFromAnchorType(currentElementObject, anchorPoint);
-                    }
-
-                    //Move in X
-                    MoveElement(currentElementObject, xSpacing, 0);
-
-
-                    //Special case for heading 3 since we can't have bolded all caps setting inside a graphic along
-                    //no cap and not bolded description.
-                    if (currentElementName.Contains(Constants.Graphics.heading3))
-                    {
-                        currentHeading = Constants.TextConfiguration.tagAllCaps + Constants.TextConfiguration.tagBold + currentHeading + Constants.TextConfiguration.endTagBold + Constants.TextConfiguration.endTagAllCaps + " ";
-
-                        //Add Description to text - Only for heading 3 in theory
-                        if (!IsTextEmpty(currentDescription))
-                        {
-                            //Add header if needed
-                            if (!IsTextEmpty(currentHeading))
-                            {
-                                currentHeading = currentHeading + currentDescription;
-                            }
-                        }
-
-                    }
-                    if (currentElementName.Contains(Constants.Graphics.heading5))
-                    {
-                        //Keep heading text so it can be used for a trigger to modify description style for heading 5 only.
-                        heading5Text.Add(currentHeading);
-                    }
-
-                    //Set heading text and manage empty
-                    TextElement tElement = currentElementObject as TextElement;
-                    tElement.SetTextProperties(new TextProperties(currentHeading, tElement.TextProperties.Font, tElement.TextProperties.FontSize, tElement.TextProperties.FontStyle));
-                    if (currentHeading == null || currentHeading == string.Empty || currentHeading == " ")
-                    {
-                        tElement = Symbols.SetMissingTextSymbol(tElement);
-                    }
-
-                    //Manage style if needed
-                    if (currentStyle1 != null && currentStyle1 != "")
-                    {
-                        if (textSymbolDico.ContainsKey(currentStyle1))
-                        {
-                            SymbolStyleItem inStyleSymbol = textSymbolDico[currentStyle1];
-
-                            CIMGraphic cimGraphic = tElement.GetGraphic();
-                            if (cimGraphic != null)
-                            {
-                                CIMTextSymbol cIMTextSymbol = cimGraphic.Symbol.Symbol as CIMTextSymbol;
-
-                                if (cIMTextSymbol != null)
-                                {
-                                    cIMTextSymbol.SetColor(cIMTextSymbol.GetColor());
-                                    cIMTextSymbol.FontFamilyName = cIMTextSymbol.FontFamilyName;
-                                    cIMTextSymbol.SetSize(cIMTextSymbol.GetSize());
-                                    cIMTextSymbol.VerticalAlignment = cIMTextSymbol.VerticalAlignment;
-                                    tElement.SetGraphic(cimGraphic);
-                                }
-
-                            }
-                        }
-                        else
-                        {
-                            //Missing or wrong style 
-                            tElement = Symbols.SetMissingTextSymbol(tElement);
-                        }
-                    }
-                }
-            }
-            catch (Exception AddHeadingException)
-            {
-                new ErrorService(AddHeadingException).WriteToFile();
-            }
-
-        }
-
-        /// <summary>
         /// Will calculate a text element height based on wanted text inside it, if width and font size is fixed.
         /// </summary>
         /// <param name="inText"></param>
@@ -2229,161 +2123,6 @@ namespace GSCLegendRendererPro.ProWindows
             }
 
             return isEmpty;
-        }
-
-        /// <summary>
-        /// Will add a map unit graphic
-        /// </summary>
-        /// <param name="mapUnitRow"></param>
-        /// <returns></returns>
-        private async Task AddMapUnit(Row mapUnitRow)
-        {
-            try
-            {
-                if (currentElementObject != null && (currentElementName == Constants.Graphics.unitBox || currentElementName == Constants.Graphics.unitSplit ||
-                            currentElementName == Constants.Graphics.unitindent1 || currentElementName == Constants.Graphics.unitindent2))
-                {
-
-                    //Keep some information
-                    string originalElementName = currentElementName;
-                    Element originalParent = currentElementObject;
-
-                    //Init empty dem element if ever needed
-                    Element demUnitBoxElement = null;
-                    Element labelUnitBoxElement = null;
-                    Element labelUnitBoxElement2 = null;
-
-                    #region Move to right anchor
-
-                    //Set new anchor and position
-                    anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - ySpacing); //New anchor point with proper move inside it
-                    
-                    if (currentElementName != Constants.Graphics.unitSplit)
-                    {
-                        PositionElement(currentElementObject, anchorPoint.Item1, anchorPoint.Item2);
-                    }
-                    else
-                    {
-                        PositionElement(currentElementObject, anchorPoint.Item1, anchorPoint.Item2, Anchor.TopLeftCorner);
-                    }
-
-                    #endregion
-
-                    //Manage label
-                    if (currentLabel1 == null || currentLabel1 == string.Empty || currentLabel1 == " ")
-                    {
-                        currentLabel1 = Constants.TextConfiguration.missingText;
-                    }
-
-                    if (currentLabel2 == null || currentLabel2 == string.Empty || currentLabel2 == " ")
-                    {
-                        currentLabel2 = Constants.TextConfiguration.missingText;
-                    }
-
-                    //Add header if needed
-                    if (currentHeading != null && currentHeading != string.Empty && currentHeading != " ")
-                    {
-                        currentDescription = Constants.TextConfiguration.tagBold + currentHeading + Constants.TextConfiguration.endTagBold + " " + currentDescription;
-                    }
-
-                    //Add Description
-                    Element newDescriptionElement = AddDescription(currentDescription, originalParent, anchorPoint, originalElementName);
-
-                    //Rest anchor point for next element
-                    double descriptionHeight = Constants.TextConfiguration.lineHeight;
-                    if (newDescriptionElement is GroupElement)
-                    {
-                        GroupElement newDescriptGroup = newDescriptionElement as GroupElement;
-                        descriptionHeight = newDescriptGroup.GetElementsAsFlattenedList().First().GetHeight();
-                    }
-                    else
-                    {
-                        descriptionHeight = newDescriptionElement.GetHeight();
-                    }
-
-                    if (descriptionHeight > smallDescriptionHeight)
-                    {
-                        if (currentColumn != 0)
-                        {
-                            anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - descriptionHeight); //New anchor point with proper move inside it
-
-                        }
-
-                        //Keep name
-                        lastElement = newDescriptionElement;
-                        lastElementType = Constants.Graphics.description;
-
-                    }
-
-                    //Symbolize
-                    GroupElement inGroupElement = currentElementObject as GroupElement;
-
-                    if (inGroupElement != null)
-                    {
-                        //Check geometry of inner elements, if it's all lines
-                        List<Element> groupElements = inGroupElement.GetElementsAsFlattenedList().ToList();
-
-                        for (int el = 0; el < groupElements.Count(); el++)
-                        {
-                            Element innerElement = groupElements[el];
-
-                            if (el == 0)
-                            {
-                                SetPolygonFill(innerElement, currentStyle1, true);
-                                labelUnitBoxElement = AddLabelInUnitBox(currentLabel1, innerElement, anchorPoint, Constants.Graphics.UnitBoxType.split1, currentLabel1Style);
-
-                            }
-                            else if (el > 0)
-                            {
-                                SetPolygonFill(innerElement, currentStyle2, true);
-                                labelUnitBoxElement2 = AddLabelInUnitBox(currentLabel2, innerElement, anchorPoint, Constants.Graphics.UnitBoxType.split2, currentLabel2Style);
-                            }
-
-                        }
-                    }
-                    else
-                    {
-                        //Symbolize
-                        labelUnitBoxElement = AddLabelInUnitBox(currentLabel1, currentElementObject, anchorPoint, Constants.Graphics.UnitBoxType.normal, currentLabel1Style);
-                        demUnitBoxElement = SetPolygonFill(currentElementObject, currentStyle1, true, true, anchorPoint, currentStyle2);
-                    }
-
-                    //CASE - UNIT INDENT: Move items (label, description and unit box) for unit indent items
-                    if (currentElementName == Constants.Graphics.unitindent1 || currentElementName == Constants.Graphics.unitindent2)
-                    {
-                        MoveElement(newDescriptionElement, xSpacing, 0);
-                        MoveElement(labelUnitBoxElement, xSpacing, 0);
-                        MoveElement(demUnitBoxElement, xSpacing, 0);
-
-                        if (_legendDEM && demPictureElementObject != null)
-                        {
-                            MoveElement(demPictureElementObject, xSpacing, 0);
-                        }
-                    }
-
-                    //CASE - UNIT DEM needs to be send all the way back
-                    if (_legendDEM && demPictureElementObject != null && demUnitBoxElement != null)
-                    {
-                        //await Task.Delay(1000);
-                        //List<Element> currentBlockElement = pPage.GetElements().Where(e => e.Name.StartsWith(currentOrder.ToString() + " ")).ToList();
-                        demPictureElementObject.SetTOCPositionRelative(demUnitBoxElement, false);
-                    }
-
-                    //Keep element if for bracket
-                    if (currentColumn == 0)
-                    {
-                        bracketMapUnit = new Tuple<Element, Element, Element, Element>(demUnitBoxElement, labelUnitBoxElement, newDescriptionElement, demUnitBoxElement);
-
-                        //Reset anchor point
-                        anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 + ySpacing);
-                    }
-
-                }
-            }
-            catch (Exception AddMapUnitException)
-            {
-                new ErrorService(AddMapUnitException).WriteToFile();
-            }
         }
 
         /// <summary>
@@ -2773,7 +2512,6 @@ namespace GSCLegendRendererPro.ProWindows
         /// <param name="childElement"></param>
         /// <param name="newName"></param>
         /// <param name="bringForward"></param>
-
         /// <returns></returns>
         public Element GroupElement(Element parentElement, Element childElement, string newName)
         {
@@ -3052,6 +2790,396 @@ namespace GSCLegendRendererPro.ProWindows
             return outGeometry;
         }
 
+        /// <summary>
+        /// Will symbolize thin unit by changing inner line symbol and match color to wanted map unit color.
+        /// </summary>
+        /// <param name="inThinUnitElement"></param>
+        /// <param name="styleLineColorCode"></param>
+        /// <param name="styleLineSymbolCode"></param>
+        /// <returns></returns>
+        public Element SetThinUnitSymbol(Element inThinUnitElement, string styleLineColorCode, string styleLineSymbolCode)
+        {
+            
+            try
+            {
+                GroupElement inGroupElement = inThinUnitElement as GroupElement;
+                if (inGroupElement != null)
+                {
+                    List<Element> groupElements = inGroupElement.GetElementsAsFlattenedList().ToList();
+
+                    //Check geometry of inner elements, if it's all lines
+                    for (int el = 0; el < groupElements.Count(); el++)
+                    {
+                        Element innerElement = groupElements[el];
+                        GraphicElement graphicElement = innerElement as GraphicElement;
+
+                        if (innerElement.Name == Constants.Graphics.subUnitLine)
+                        {
+                            CIMGraphic graphic = graphicElement.GetGraphic();
+                            if (graphic != null && graphic is CIMLineGraphic)
+                            {
+                                CIMLineGraphic cimLineSymbol = graphic as CIMLineGraphic;
+
+                                if (cimLineSymbol != null)
+                                {
+                                    double currentLineWidth = cimLineSymbol.Symbol.Symbol.GetSize();
+
+                                    //Set line style
+                                    if (lineSymbolDico.ContainsKey(styleLineSymbolCode))
+                                    {
+                                        cimLineSymbol.Symbol.Symbol = lineSymbolDico[styleLineSymbolCode].Symbol;
+
+                                    }
+                                    else
+                                    {
+                                        //Apply missing style
+                                        Symbols.SetMissingLineSymbol(graphicElement);
+                                    }
+
+                                    //Set line color 
+                                    if (styleLineColorCode != null && fillSymbolDico.ContainsKey(styleLineColorCode))
+                                    {
+                                        SymbolStyleItem fillSymbol = fillSymbolDico[styleLineColorCode];
+                                        cimLineSymbol.Symbol.Symbol.SetColor(fillSymbolDico[styleLineColorCode].Symbol.GetColor());
+                                    }
+                                    else
+                                    {
+                                        //Apply missing style
+                                        Symbols.SetMissingLineSymbol(graphicElement);
+                                    }
+
+                                    graphicElement.SetGraphic(graphic);
+
+                                }
+
+                            }
+
+                        }
+                        else
+                        {
+                            //Force white background in unit box (in case)
+                            SetPolygonFill(innerElement, "1.01.01.001", true);
+                        }
+
+                    }
+                    
+                }
+            }
+            catch (Exception SetThinUnitSymbolException)
+            {
+                new ErrorService(SetThinUnitSymbolException).WriteToFile();
+            }
+
+            return inThinUnitElement;
+        }
+
+        #endregion
+
+        #region ADD GRAPHIC METHODS
+
+        /// <summary>
+        /// Will add a heading element to the legend based on the current row information
+        /// </summary>
+        /// <returns></returns>
+        private async Task AddHeading(Row headingRow)
+        {
+            try
+            {
+                if (currentElementObject != null && currentElementName.Contains(Constants.Graphics.heading1.Substring(0, 6)))
+                {
+
+                    //Set new anchor
+                    anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - ySpacing);
+                    PositionElement(currentElementObject, anchorPoint.Item1, anchorPoint.Item2);
+
+                    //Set height for heading3 
+                    if (currentElementName.Contains(Constants.Graphics.heading3))
+                    {
+                        //Recalculate height
+                        string tempGroupHeadingDescription = currentHeading;
+                        if (currentDescription != null)
+                        {
+                            tempGroupHeadingDescription = currentHeading + currentDescription;
+                        }
+                        double heading3Height = GetTextHeight(tempGroupHeadingDescription, descriptionWidth, Constants.TextConfiguration.lineHeight);
+
+                        //Set new envelope
+                        SetRectangularPolygonFromAnchorTypeAndHeight(currentElementObject, anchorPoint, heading3Height);
+                    }
+                    else
+                    {
+                        //Set new envelope
+                        SetRectangularPolygonFromAnchorType(currentElementObject, anchorPoint);
+                    }
+
+                    //Move in X
+                    MoveElement(currentElementObject, xSpacing, 0);
+
+
+                    //Special case for heading 3 since we can't have bolded all caps setting inside a graphic along
+                    //no cap and not bolded description.
+                    if (currentElementName.Contains(Constants.Graphics.heading3))
+                    {
+                        currentHeading = Constants.TextConfiguration.tagAllCaps + Constants.TextConfiguration.tagBold + currentHeading + Constants.TextConfiguration.endTagBold + Constants.TextConfiguration.endTagAllCaps + " ";
+
+                        //Add Description to text - Only for heading 3 in theory
+                        if (!IsTextEmpty(currentDescription))
+                        {
+                            //Add header if needed
+                            if (!IsTextEmpty(currentHeading))
+                            {
+                                currentHeading = currentHeading + currentDescription;
+                            }
+                        }
+
+                    }
+                    if (currentElementName.Contains(Constants.Graphics.heading5))
+                    {
+                        //Keep heading text so it can be used for a trigger to modify description style for heading 5 only.
+                        heading5Text.Add(currentHeading);
+                    }
+
+                    //Set heading text and manage empty
+                    TextElement tElement = currentElementObject as TextElement;
+                    tElement.SetTextProperties(new TextProperties(currentHeading, tElement.TextProperties.Font, tElement.TextProperties.FontSize, tElement.TextProperties.FontStyle));
+                    if (currentHeading == null || currentHeading == string.Empty || currentHeading == " ")
+                    {
+                        tElement = Symbols.SetMissingTextSymbol(tElement);
+                    }
+
+                    //Manage style if needed
+                    if (currentStyle1 != null && currentStyle1 != "")
+                    {
+                        if (textSymbolDico.ContainsKey(currentStyle1))
+                        {
+                            SymbolStyleItem inStyleSymbol = textSymbolDico[currentStyle1];
+
+                            CIMGraphic cimGraphic = tElement.GetGraphic();
+                            if (cimGraphic != null)
+                            {
+                                CIMTextSymbol cIMTextSymbol = cimGraphic.Symbol.Symbol as CIMTextSymbol;
+
+                                if (cIMTextSymbol != null)
+                                {
+                                    cIMTextSymbol.SetColor(cIMTextSymbol.GetColor());
+                                    cIMTextSymbol.FontFamilyName = cIMTextSymbol.FontFamilyName;
+                                    cIMTextSymbol.SetSize(cIMTextSymbol.GetSize());
+                                    cIMTextSymbol.VerticalAlignment = cIMTextSymbol.VerticalAlignment;
+                                    tElement.SetGraphic(cimGraphic);
+                                }
+
+                            }
+                        }
+                        else
+                        {
+                            //Missing or wrong style 
+                            tElement = Symbols.SetMissingTextSymbol(tElement);
+                        }
+                    }
+                }
+            }
+            catch (Exception AddHeadingException)
+            {
+                new ErrorService(AddHeadingException).WriteToFile();
+            }
+
+        }
+
+        /// <summary>
+        /// Will add a map unit graphic
+        /// </summary>
+        /// <param name="mapUnitRow"></param>
+        /// <returns></returns>
+        private async Task AddMapUnit(Row mapUnitRow)
+        {
+            try
+            {
+                if (currentElementObject != null && (currentElementName == Constants.Graphics.unitBox || currentElementName == Constants.Graphics.unitSplit ||
+                            currentElementName == Constants.Graphics.unitindent1 || currentElementName == Constants.Graphics.unitindent2))
+                {
+
+                    //Keep some information
+                    Element originalParent = currentElementObject;
+
+                    //Init empty element if ever needed for edge cases
+                    Element demUnitBoxElement = null;
+                    Element labelUnitBoxElement = null;
+                    Element labelUnitBoxElement2 = null;
+
+                    #region Move to right anchor
+
+                    //Set new anchor and position
+                    anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - ySpacing); //New anchor point with proper move inside it
+
+                    if (currentElementName != Constants.Graphics.unitSplit)
+                    {
+                        PositionElement(currentElementObject, anchorPoint.Item1, anchorPoint.Item2);
+                    }
+                    else
+                    {
+                        PositionElement(currentElementObject, anchorPoint.Item1, anchorPoint.Item2, Anchor.TopLeftCorner);
+                    }
+
+                    #endregion
+
+                    //Manage label
+                    if (currentLabel1 == null || currentLabel1 == string.Empty || currentLabel1 == " ")
+                    {
+                        currentLabel1 = Constants.TextConfiguration.missingText;
+                    }
+
+                    if (currentLabel2 == null || currentLabel2 == string.Empty || currentLabel2 == " ")
+                    {
+                        currentLabel2 = Constants.TextConfiguration.missingText;
+                    }
+
+                    //Add header if needed
+                    if (currentHeading != null && currentHeading != string.Empty && currentHeading != " ")
+                    {
+                        currentDescription = Constants.TextConfiguration.tagBold + currentHeading + Constants.TextConfiguration.endTagBold + " " + currentDescription;
+                    }
+
+                    //Add Description
+                    Element newDescriptionElement = AddDescription(currentDescription, originalParent, anchorPoint, currentElementName);
+
+                    //Rest anchor point for next element
+                    double descriptionHeight = Constants.TextConfiguration.lineHeight;
+                    if (newDescriptionElement is GroupElement)
+                    {
+                        GroupElement newDescriptGroup = newDescriptionElement as GroupElement;
+                        descriptionHeight = newDescriptGroup.GetElementsAsFlattenedList().First().GetHeight();
+                    }
+                    else
+                    {
+                        descriptionHeight = newDescriptionElement.GetHeight();
+                    }
+
+                    if (descriptionHeight > smallDescriptionHeight)
+                    {
+                        if (currentColumn != 0)
+                        {
+                            anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - descriptionHeight); //New anchor point with proper move inside it
+
+                        }
+
+                        //Keep name
+                        lastElement = newDescriptionElement;
+                        lastElementType = Constants.Graphics.description;
+
+                    }
+
+                    //Symbolize
+                    GroupElement inGroupElement = currentElementObject as GroupElement;
+
+                    if (inGroupElement != null)
+                    {
+                        //Check geometry of inner elements, if it's all lines
+                        List<Element> groupElements = inGroupElement.GetElementsAsFlattenedList().ToList();
+
+                        for (int el = 0; el < groupElements.Count(); el++)
+                        {
+                            Element innerElement = groupElements[el];
+
+                            if (el == 0)
+                            {
+                                SetPolygonFill(innerElement, currentStyle1, true);
+                                labelUnitBoxElement = AddLabelInUnitBox(currentLabel1, innerElement, anchorPoint, Constants.Graphics.UnitBoxType.split1, currentLabel1Style);
+
+                            }
+                            else if (el > 0)
+                            {
+                                SetPolygonFill(innerElement, currentStyle2, true);
+                                labelUnitBoxElement2 = AddLabelInUnitBox(currentLabel2, innerElement, anchorPoint, Constants.Graphics.UnitBoxType.split2, currentLabel2Style);
+                            }
+
+                        }
+                    }
+                    else
+                    {
+                        //Symbolize
+                        labelUnitBoxElement = AddLabelInUnitBox(currentLabel1, currentElementObject, anchorPoint, Constants.Graphics.UnitBoxType.normal, currentLabel1Style);
+                        demUnitBoxElement = SetPolygonFill(currentElementObject, currentStyle1, true, true, anchorPoint, currentStyle2);
+                    }
+
+                    //CASE - UNIT INDENT: Move items (label, description and unit box) for unit indent items
+                    if (currentElementName == Constants.Graphics.unitindent1 || currentElementName == Constants.Graphics.unitindent2)
+                    {
+                        MoveElement(newDescriptionElement, xSpacing, 0);
+                        MoveElement(labelUnitBoxElement, xSpacing, 0);
+                        MoveElement(demUnitBoxElement, xSpacing, 0);
+
+                        if (_legendDEM && demPictureElementObject != null)
+                        {
+                            MoveElement(demPictureElementObject, xSpacing, 0);
+                        }
+                    }
+
+                    //CASE - UNIT DEM needs to be send all the way back
+                    if (_legendDEM && demPictureElementObject != null && demUnitBoxElement != null)
+                    {
+                        demPictureElementObject.SetTOCPositionRelative(demUnitBoxElement, false);
+                    }
+
+                    //Keep element if for bracket
+                    if (currentColumn == 0)
+                    {
+                        bracketMapUnit = new Tuple<Element, Element, Element, Element>(demUnitBoxElement, labelUnitBoxElement, newDescriptionElement, demUnitBoxElement);
+
+                        //Reset anchor point
+                        anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 + ySpacing);
+                    }
+
+                }
+            }
+            catch (Exception AddMapUnitException)
+            {
+                new ErrorService(AddMapUnitException).WriteToFile();
+            }
+        }
+
+        public async Task AddThinUnit(Row thinUnitRow)
+        {
+            try
+            {
+                if (currentElementObject != null && currentElementName == Constants.Graphics.unitLine)
+                {
+                    Element originalParent = currentElementObject;
+
+                    //Set new anchor
+                    anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - ySpacing); //New anchor point with proper move inside it
+                    PositionElement(currentElementObject, anchorPoint.Item1, anchorPoint.Item2, Anchor.TopLeftCorner); 
+
+                    Element thinUnitElement = SetThinUnitSymbol(currentElementObject, currentStyle1, currentStyle2);
+
+                    //Add label if needed
+                    if (currentLabel1 != null && currentLabel1 != string.Empty && currentLabel1 != " ")
+                    {
+                        Element thinUnitLabel = AddLabelInUnitBox(currentLabel1, thinUnitElement, anchorPoint, Constants.Graphics.UnitBoxType.line, currentLabel1Style);
+                    }
+
+                    //Add header if needed
+                    if (currentHeading != null && currentHeading != string.Empty && currentHeading != " ")
+                    {
+                        currentDescription = Constants.TextConfiguration.tagBold + currentHeading + Constants.TextConfiguration.endTagBold + " " + currentDescription;
+                    }
+
+                    //Add Description
+                    Element newDescriptionElement = AddDescription(currentDescription, originalParent, anchorPoint, currentElementName);
+                    double descriptionHeight = currentElementObject.GetHeight();
+                    if (descriptionHeight > smallDescriptionHeight)
+                    {
+                        //Reset anchor point for next element
+                        anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - descriptionHeight); //New anchor point with proper move inside it
+
+                    }
+
+                }
+            }
+            catch (Exception AddThinUnitException)
+            {
+                new ErrorService(AddThinUnitException).WriteToFile();
+            }
+        }
         #endregion
     }
 }

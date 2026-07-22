@@ -186,6 +186,24 @@ namespace GSCLegendRendererPro.Utilities
 
         }
 
+        /// <summary>
+        /// Default style for line symbol that are missing in a style
+        /// </summary>
+        /// <param name="parentSymbol">Can be null, font config will be taken from it, else arial 10 is the default.</param>
+        /// <returns></returns>
+        public static GraphicElement SetMissingLineSymbol(GraphicElement parentSymbol)
+        {
+            CIMGraphic cimGraphic = parentSymbol.GetGraphic();
+            if (cimGraphic != null)
+            {
+                CIMLineGraphic cimLineSymbol = cimGraphic as CIMLineGraphic;
+                cimLineSymbol.Symbol.Symbol.SetColor(ColorFactory.Instance.RedRGB);
+                parentSymbol.SetGraphic(cimGraphic);
+            }
+            return parentSymbol;
+
+        }
+
         ///// <summary>
         ///// Will return as a color object from given symbol, no matter symbol type
         ///// </summary>
