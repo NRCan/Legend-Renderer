@@ -680,7 +680,8 @@ namespace GSCLegendRendererPro.ProWindows
 
                                                 await GatherCurrentRowInformation(legendRow);
 
-                                                await CleanupDescription();
+                                                ///Seems irrelevant under ArcPro now.
+                                                //await CleanupDescription();
 
                                                 //Get related graphic from template layout dictionary
                                                 if (templateGraphicDico.ContainsKey(currentElementName))
