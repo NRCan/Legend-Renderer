@@ -77,7 +77,7 @@ namespace GSCLegendRendererPro.Utilities
             public const string dunes = "DUNES";
             public const string moraines = "MORAINES";
             public const string annotationBreak = "ANNO_BREAK";
-            public const string legendBoxDEM = "LegendBoxDEM";
+            public const string legendBoxDEM = "UNIT_BOX_DEM";
 
             public const string topNote = "TOP_NOTE";
             public const string note = "NOTE";
@@ -145,7 +145,7 @@ namespace GSCLegendRendererPro.Utilities
             public const string jsonYSpacingEmbeddedFile = "Configuration_Y_Spacings.json";
             public const string jsonXSpacingEmbeddedFile = "Configuration_X_Spacings.json";
             public const string jsonStyleFontsOtherEmbeddedFile = "Configuration_Other.json";
-            public const string demPicture = "LegendBoxDEM.png";
+            public const string demPicture = "UNIT_BOX_DEM.png";
             public const string gscSymbolStandardStyle = "GSC_SymbolStandard.stylx";
         }
 

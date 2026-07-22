@@ -5258,7 +5258,7 @@
       {
         "type" : "CIMGraphicElement",
         "anchor" : "TopLeftCorner",
-        "name" : "LegendBoxDEM",
+        "name" : "UNIT_BOX_DEM",
         "visible" : true,
         "rotationCenter" : {
           "x" : 23.8979999999992287,

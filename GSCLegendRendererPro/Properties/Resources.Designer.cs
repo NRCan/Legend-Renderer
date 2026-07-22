@@ -452,16 +452,6 @@ namespace GSCLegendRendererPro.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        public static byte[] LegendBoxDEM {
-            get {
-                object obj = ResourceManager.GetObject("LegendBoxDEM", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Label.
         /// </summary>
         public static string LegendItemLabelName {
@@ -486,6 +476,16 @@ namespace GSCLegendRendererPro.Properties {
         public static string ResultLegendRendererGroupName {
             get {
                 return ResourceManager.GetString("ResultLegendRendererGroupName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] UNIT_BOX_DEM {
+            get {
+                object obj = ResourceManager.GetObject("UNIT_BOX_DEM", resourceCulture);
+                return ((byte[])(obj));
             }
         }
         

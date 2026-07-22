@@ -214,9 +214,6 @@
   <data name="Configuration_Y_Spacings" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Assets\Configuration_Y_Spacings.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="LegendBoxDEM" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Assets\LegendBoxDEM.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
   <data name="ErrorFileNotFound" xml:space="preserve">
     <value>File not found {0}.</value>
   </data>
@@ -261,5 +258,8 @@
   </data>
   <data name="ErrorMissingLabel" xml:space="preserve">
     <value>Missing</value>
+  </data>
+  <data name="UNIT_BOX_DEM" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Assets\UNIT_BOX_DEM.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
 </root>

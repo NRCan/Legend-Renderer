@@ -110,7 +110,9 @@ namespace GSCLegendRendererPro.ProWindows
         string currentLabel1Style = string.Empty;
         string currentLabel2Style = string.Empty;
         public Element currentElementObject { get; set; }
+        public Element demPictureElementObject { get; set; }
         List<Element> legendElementList = new List<Element>(); //Will hold all legend items to group them at the end of the process.
+        List<String> legendOrderPrefixList = new List<string>();
 
         //TABLE
         int elementFieldIndex = -1;
@@ -731,6 +733,7 @@ namespace GSCLegendRendererPro.ProWindows
                             }
 
                             //Finalize whole process
+                            await GroupByOrder();
                             await OrderElementsInTOC();
                             await GroupLegendElements();
 
@@ -2277,50 +2280,6 @@ namespace GSCLegendRendererPro.ProWindows
                         currentLabel2 = Constants.TextConfiguration.missingText;
                     }
 
-                    //Symbolize
-                    GroupElement inGroupElement = currentElementObject as GroupElement;
-
-                    if (inGroupElement != null)
-                    {
-                        //Check geometry of inner elements, if it's all lines
-                        List<Element> groupElements = inGroupElement.GetElementsAsFlattenedList().ToList();
-
-                        for (int el = 0; el < groupElements.Count(); el++)
-                        {
-                            Element innerElement = groupElements[el];
-
-                            if (el == 0)
-                            {
-                                SetPolygonFill(innerElement, currentStyle1, true);
-
-                                labelUnitBoxElement = AddLabelInUnitBox(currentLabel1, innerElement, anchorPoint, Constants.Graphics.UnitBoxType.split1, currentLabel1Style);
-
-                            }
-                            else if (el > 0)
-                            {
-                                SetPolygonFill(innerElement, currentStyle2, true);
-
-                                labelUnitBoxElement2 = AddLabelInUnitBox(currentLabel2, innerElement, anchorPoint, Constants.Graphics.UnitBoxType.split2, currentLabel2Style);
-                            }
-
-                        }
-                    }
-                    else
-                    {
-                        //Symbolize
-                        demUnitBoxElement = SetPolygonFill(currentElementObject, currentStyle1, true, true, anchorPoint, currentStyle2);
-
-                        labelUnitBoxElement = AddLabelInUnitBox(currentLabel1, currentElementObject, anchorPoint, Constants.Graphics.UnitBoxType.normal, currentLabel1Style);
-
-                    }
-
-                    //Move label and/or dem
-                    if (currentElementName == Constants.Graphics.unitindent1 || currentElementName == Constants.Graphics.unitindent2)
-                    {
-                        MoveElement(labelUnitBoxElement, xSpacing, 0);
-                        MoveElement(demUnitBoxElement, xSpacing, 0);
-                    }
-
                     //Add header if needed
                     if (currentHeading != null && currentHeading != string.Empty && currentHeading != " ")
                     {
@@ -2356,10 +2315,58 @@ namespace GSCLegendRendererPro.ProWindows
 
                     }
 
-                    //Move description
+                    //Symbolize
+                    GroupElement inGroupElement = currentElementObject as GroupElement;
+
+                    if (inGroupElement != null)
+                    {
+                        //Check geometry of inner elements, if it's all lines
+                        List<Element> groupElements = inGroupElement.GetElementsAsFlattenedList().ToList();
+
+                        for (int el = 0; el < groupElements.Count(); el++)
+                        {
+                            Element innerElement = groupElements[el];
+
+                            if (el == 0)
+                            {
+                                SetPolygonFill(innerElement, currentStyle1, true);
+                                labelUnitBoxElement = AddLabelInUnitBox(currentLabel1, innerElement, anchorPoint, Constants.Graphics.UnitBoxType.split1, currentLabel1Style);
+
+                            }
+                            else if (el > 0)
+                            {
+                                SetPolygonFill(innerElement, currentStyle2, true);
+                                labelUnitBoxElement2 = AddLabelInUnitBox(currentLabel2, innerElement, anchorPoint, Constants.Graphics.UnitBoxType.split2, currentLabel2Style);
+                            }
+
+                        }
+                    }
+                    else
+                    {
+                        //Symbolize
+                        labelUnitBoxElement = AddLabelInUnitBox(currentLabel1, currentElementObject, anchorPoint, Constants.Graphics.UnitBoxType.normal, currentLabel1Style);
+                        demUnitBoxElement = SetPolygonFill(currentElementObject, currentStyle1, true, true, anchorPoint, currentStyle2);
+                    }
+
+                    //CASE - UNIT INDENT: Move items (label, description and unit box) for unit indent items
                     if (currentElementName == Constants.Graphics.unitindent1 || currentElementName == Constants.Graphics.unitindent2)
                     {
                         MoveElement(newDescriptionElement, xSpacing, 0);
+                        MoveElement(labelUnitBoxElement, xSpacing, 0);
+                        MoveElement(demUnitBoxElement, xSpacing, 0);
+
+                        if (_legendDEM && demPictureElementObject != null)
+                        {
+                            MoveElement(demPictureElementObject, xSpacing, 0);
+                        }
+                    }
+
+                    //CASE - UNIT DEM needs to be send all the way back
+                    if (_legendDEM && demPictureElementObject != null)
+                    {
+                        //await Task.Delay(1000);
+                        //List<Element> currentBlockElement = pPage.GetElements().Where(e => e.Name.StartsWith(currentOrder.ToString() + " ")).ToList();
+                        demPictureElementObject.SetTOCPositionRelative(demUnitBoxElement, false);
                     }
 
                     //Keep element if for bracket
@@ -2387,37 +2394,57 @@ namespace GSCLegendRendererPro.ProWindows
         /// <returns></returns>
         private async Task OrderElementsInTOC()
         {
-            legendElementList.Reverse();
-            foreach (Element legendElement in legendElementList)
+            legendOrderPrefixList.Reverse();
+            foreach (string legendOrder in legendOrderPrefixList)
             {
-                //All except what is within groups
-                Element parentElement = legendElement.GetParent(false) as Element;
-                GroupElement parentGroupElement = parentElement as GroupElement;
-                if (!(parentGroupElement is GroupElement))
+                Element orderGroupElement = pPage.GetElements().Where(x => x is GroupElement && x.Name == legendOrder).FirstOrDefault();
+
+                if (orderGroupElement != null)
                 {
-                    pPage.SelectElement(legendElement);
-                    if (pPage.CanBringForward(legendElement))
+                    pPage.SelectElement(orderGroupElement);
+                    if (pPage.CanBringForward(orderGroupElement))
                     {
-                        pPage.BringToFront(legendElement);
+                        pPage.BringToFront(orderGroupElement);
                     }
-                }   
+                }
             }
         }
 
         /// <summary>
-        /// Will select all legend items and group them all into a single element 
+        /// Will select all grouped order graphics and add them to a new group
         /// for ease of work after tool is done (ex. move, delete)
         /// </summary>
         /// <returns></returns>
         private async Task GroupLegendElements()
         {
+            List<Element> groupedElements = pPage.GetElements().Where(x => x is GroupElement).ToList();
+
             //Need to select elements first
-            pPage.SelectElements(legendElementList);
+            pPage.SelectElements(groupedElements);
 
             //Group
             ElementFactory.Instance.CreateGroupElement(pPage, pPage.GetSelectedElements(), Properties.Resources.ResultLegendRendererGroupName, false);
         }
 
+        /// <summary>
+        /// Will group each added items by their name prefix which is set as the user order for each table record from the legend table
+        /// </summary>
+        /// <returns></returns>
+        private async Task GroupByOrder()
+        {
+            //Group by order
+            List<List<Element>> groupedOrderList = legendElementList.GroupBy(x => x.Name.Split(" ")[0]).Select(g => g.ToList()).ToList();
+
+            //Iterate through groups and select them and create a new group
+            foreach (List<Element> group in groupedOrderList)
+            {
+                string groupName = group.First().Name.Split(" ")[0];
+                legendOrderPrefixList.Add(groupName); //Keep for later
+                pPage.SelectElements(group);
+                ElementFactory.Instance.CreateGroupElement(pPage, pPage.GetSelectedElements(), groupName, false);
+            }
+        
+        }
 
         /// <summary>
         /// Will set the background color for given element with given style
@@ -2431,27 +2458,6 @@ namespace GSCLegendRendererPro.ProWindows
                 GraphicElement graphicElement = inElement as GraphicElement;
                 if (graphicElement != null)
                 {
-                    //Symbolize if symbol can be found in style file
-                    //IGroupElement3 groupShapeElement = GetGroupLegendElement(Constants.Graphics.legendBoxDEM);
-                    //IFillShapeElement intShapeElement = inElement as IFillShapeElement;
-
-                    //Detect cartographic line and force rounded joins
-                    ///Special case found for UNIT_SPLIT having the wrong join and showing a bad rendering.
-                    //IMultiLayerLineSymbol multiLineSymbol = intShapeElement.Symbol.Outline as IMultiLayerLineSymbol;
-                    //if (multiLineSymbol != null && style2 != "")
-                    //{
-                    //    for (int i = 0; i < multiLineSymbol.LayerCount; i++)
-                    //    {
-                    //        ICartographicLineSymbol cartoLineSymbol = multiLineSymbol.Layer[i] as ICartographicLineSymbol;
-                    //        if (cartoLineSymbol != null)
-                    //        {
-                    //            cartoLineSymbol.Join = esriLineJoinStyle.esriLJSRound;
-                    //        }
-
-                    //    }
-                    //}
-
-                    //ILineSymbol inOutline = intShapeElement.Symbol.Outline; //Cast to keep actual outline
 
                     if (fillSymbolDico.ContainsKey(style) && isSimpleFill)
                     {
@@ -2465,10 +2471,6 @@ namespace GSCLegendRendererPro.ProWindows
                         {
                             //Detect tranparent color and force it white
                             Element demElement = SetPolygonDEM(fillSymbol.Symbol.GetColor(), inAnchor);
-
-                            //Group and send beneath unit box then group it and reset current object as a new grouped graphic
-                            OrderElement(demElement);
-                            //GroupElement(inElement, demElement, inElement.Name + "_DEM", false);
 
                             return inElement;
                         }
@@ -2521,7 +2523,6 @@ namespace GSCLegendRendererPro.ProWindows
                     }
                     else if (fillSymbolDico.ContainsKey(style) && !isSimpleFill)
                     {
-                        //intShapeElement.Symbol = fillSymbolDico[style] as IFillSymbol;
                         return inElement;
                     }
                     else
@@ -2609,6 +2610,8 @@ namespace GSCLegendRendererPro.ProWindows
 
                 legendElementList.Add(demElement);
 
+                demPictureElementObject = demElement;
+
                 //Move if needed
                 if (inAnchor != null)
                 {
@@ -2617,6 +2620,8 @@ namespace GSCLegendRendererPro.ProWindows
                     SetRectangularPolygonFromAnchorType(demElement, newDEMAnchor);
 
                 }
+
+                OrderElement(demElement, false);
 
                 return demElement;
 

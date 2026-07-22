@@ -68,7 +68,7 @@ namespace GSCLegendRendererPro.Services
             }
 
             string demPictureFilePath = System.IO.Path.Combine(_userConfigurationSetup.DefaultPath, Constants.Assets.demPicture);
-            byte[] demBytes = Properties.Resources.LegendBoxDEM;
+            byte[] demBytes = Properties.Resources.UNIT_BOX_DEM;
             if (!System.IO.File.Exists(demPictureFilePath))
             {
                 Services.FileService.WriteStreamResource(demBytes, demPictureFilePath);
