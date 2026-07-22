@@ -710,11 +710,13 @@ namespace GSCLegendRendererPro.ProWindows
 
                                                 #region GRAPHIC HANDLING
 
-                                                await AddHeading(legendRow);
+                                                await AddHeading();
 
-                                                await AddMapUnit(legendRow);
+                                                await AddMapUnit();
 
-                                                await AddThinUnit(legendRow);
+                                                await AddThinUnit();
+
+                                                await AddEmbeddedMapUnit();
 
                                                 #endregion
 
@@ -2485,7 +2487,10 @@ namespace GSCLegendRendererPro.ProWindows
                         double centerY = (3 * inAnchor.Item2 - 2 * parentHeight) / 3.0;
                         MoveElement(unitBoxLabelElement, centerX - inAnchor.Item1, -(Math.Abs(centerY - inAnchor.Item2)));//Move accordingly to anchor point which is center center
                     }
-
+                    else if (unitBoxType == Constants.Graphics.UnitBoxType.parent)
+                    {
+                        MoveElement(unitBoxLabelElement, parentWidth / 2.0, (-parentHeight / 4.0));
+                    }
                     //Order
                     OrderElement(unitBoxLabelElement);
 
@@ -2814,7 +2819,7 @@ namespace GSCLegendRendererPro.ProWindows
                         Element innerElement = groupElements[el];
                         GraphicElement graphicElement = innerElement as GraphicElement;
 
-                        if (innerElement.Name == Constants.Graphics.subUnitLine)
+                        if (innerElement.Name.StartsWith(Constants.Graphics.subUnitLine))
                         {
                             CIMGraphic graphic = graphicElement.GetGraphic();
                             if (graphic != null && graphic is CIMLineGraphic)
@@ -2882,7 +2887,7 @@ namespace GSCLegendRendererPro.ProWindows
         /// Will add a heading element to the legend based on the current row information
         /// </summary>
         /// <returns></returns>
-        private async Task AddHeading(Row headingRow)
+        private async Task AddHeading()
         {
             try
             {
@@ -2991,7 +2996,7 @@ namespace GSCLegendRendererPro.ProWindows
         /// </summary>
         /// <param name="mapUnitRow"></param>
         /// <returns></returns>
-        private async Task AddMapUnit(Row mapUnitRow)
+        private async Task AddMapUnit()
         {
             try
             {
@@ -3138,7 +3143,11 @@ namespace GSCLegendRendererPro.ProWindows
             }
         }
 
-        public async Task AddThinUnit(Row thinUnitRow)
+        /// <summary>
+        /// Will add a thin unit graphic
+        /// </summary>
+        /// <returns></returns>
+        public async Task AddThinUnit()
         {
             try
             {
@@ -3179,6 +3188,148 @@ namespace GSCLegendRendererPro.ProWindows
             catch (Exception AddThinUnitException)
             {
                 new ErrorService(AddThinUnitException).WriteToFile();
+            }
+        }
+
+        public async Task AddEmbeddedMapUnit()
+        {
+            try
+            {
+                if (currentElementObject != null && (currentElementName == Constants.Graphics.unitParent ||
+                    currentElementName == Constants.Graphics.subUnitParentChild ||
+                    currentElementName == Constants.Graphics.subUnitParentChildLine))
+                {
+
+                    //Reset element and grow parent if needed
+                    if (currentElementName == Constants.Graphics.unitParent)
+                    {
+                        //Reset parent element
+                        parentElement = null;
+                    }
+
+                    string originalElementName = currentElementName;
+
+                    //Apply conversion factor
+                    double parentHeight = 0;
+                    double parentChildHeight = currentElementObject.GetHeight();
+
+                    //Set new anchor
+                    if (parentElement != null && lastElement == parentElement)
+                    {
+                        parentHeight = parentElement.GetHeight();
+                        double newYSpacing = ySpacing + (parentHeight - parentChildHeight - templateGraphicDico[Constants.Graphics.unitBox].GetHeight());
+                        anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - newYSpacing); //New anchor point with proper move inside it
+                    }
+                    else
+                    {
+                        anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - ySpacing); //New anchor point with proper move inside it
+                    }
+
+                    if ((currentElementName == Constants.Graphics.subUnitParentChild || currentElementName == Constants.Graphics.subUnitParentChildLine) && parentElement != null)
+                    {
+                        if (lastElement != parentElement)
+                        {
+                            //Resize parent to match addition of child
+                            parentHeight = parentElement.GetHeight();
+
+                            double newHeightFromChild = parentChildHeight + parentHeight;
+
+                            SetRectangularPolygonFromAnchorTypeAndHeight(parentElement, anchorPointParent, newHeightFromChild);
+
+                            //Reset anchor point since height of the element has changed.
+                            anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - parentChildHeight);
+
+                            //Enforce position, especially for unit child line which has an anchor bottom left instead of top left
+                            PositionElement(currentElementObject, anchorPoint.Item1, anchorPoint.Item2, Anchor.TopLeftCorner);
+                        }
+
+                    }
+
+                    //Resize
+                    SetRectangularPolygonFromAnchorType(currentElementObject, anchorPoint);
+
+                    //Move
+                    MoveElement(currentElementObject, xSpacing, 0);
+
+                    //Symbolize
+                    Element labelParentChild = null;
+                    Constants.Graphics.UnitBoxType labelType = Constants.Graphics.UnitBoxType.normal;
+                    if (currentElementName == Constants.Graphics.subUnitParentChildLine)
+                    {
+                        SetThinUnitSymbol(currentElementObject, currentStyle1, currentStyle2);
+                        labelType = Constants.Graphics.UnitBoxType.child_line;
+                    }
+                    else if (currentElementName == Constants.Graphics.unitParent)
+                    {
+                        SetPolygonFill(currentElementObject, currentStyle1, true);
+                        labelType = Constants.Graphics.UnitBoxType.parent;
+                    }
+                    else
+                    {
+                        SetPolygonFill(currentElementObject, currentStyle1, true);
+                        labelType = Constants.Graphics.UnitBoxType.normal;
+                    }
+
+                    //Labelize
+                    if (currentLabel1 != null && currentLabel1 != string.Empty && currentLabel1 != " ")
+                    {
+                        labelParentChild = AddLabelInUnitBox(currentLabel1, currentElementObject, anchorPoint, labelType, currentLabel1Style);
+                    }
+                    else
+                    {
+                        labelParentChild = AddLabelInUnitBox(Constants.TextConfiguration.missingText, currentElementObject, anchorPoint, labelType, currentLabel1Style);
+                    }
+
+                    //Move label
+                    if (labelParentChild != null)
+                    {
+                        MoveElement(labelParentChild, xSpacing, 0);
+                    }
+
+                    //Add header if needed
+                    if (currentHeading != null && currentHeading != string.Empty && currentHeading != " ")
+                    {
+                        currentDescription = Constants.TextConfiguration.tagBold + currentHeading + Constants.TextConfiguration.endTagBold + " " + currentDescription;
+                    }
+
+                    //Add Description
+                    Element newDescriptionElement = AddDescription(currentDescription, currentElementObject, anchorPoint, originalElementName);
+                    double descriptionHeight = newDescriptionElement.GetHeight();
+                    if (descriptionHeight > smallDescriptionHeight)
+                    {
+                        //Keep name
+                        lastElement = newDescriptionElement;
+                        lastElementType = Constants.Graphics.description;
+
+                        //Reset height of unit parent
+                        if (currentElementName == Constants.Graphics.unitParent)
+                        {
+                            SetRectangularPolygonFromAnchorTypeAndHeight(currentElementObject, anchorPoint, descriptionHeight);
+                        }
+
+                        //Reset anchor for next unit to be added
+                        if (currentElementName == Constants.Graphics.subUnitParentChild || currentElementName == Constants.Graphics.subUnitParentChildLine)
+                        {
+                            double newDescriptionHeight = descriptionHeight - smallDescriptionHeight;
+                            double newParentHeight = parentElement.GetHeight() + newDescriptionHeight;
+                            SetRectangularPolygonFromAnchorTypeAndHeight(parentElement, anchorPointParent, newParentHeight); //Reset parent box height
+                            anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - newDescriptionHeight); //New anchor point with proper move inside it
+                        }
+
+                    }
+
+                    //Keep parent information
+                    if (currentElementName == Constants.Graphics.unitParent)
+                    {
+                        parentElement = currentElementObject;
+                        anchorPointParent = anchorPoint;
+                    }
+
+                }
+            }
+            catch (Exception AddEmbeddedMapUnitException)
+            {
+                new ErrorService(AddEmbeddedMapUnitException).WriteToFile();
             }
         }
         #endregion
