@@ -2362,7 +2362,7 @@ namespace GSCLegendRendererPro.ProWindows
                     }
 
                     //CASE - UNIT DEM needs to be send all the way back
-                    if (_legendDEM && demPictureElementObject != null)
+                    if (_legendDEM && demPictureElementObject != null && demUnitBoxElement != null)
                     {
                         //await Task.Delay(1000);
                         //List<Element> currentBlockElement = pPage.GetElements().Where(e => e.Name.StartsWith(currentOrder.ToString() + " ")).ToList();
