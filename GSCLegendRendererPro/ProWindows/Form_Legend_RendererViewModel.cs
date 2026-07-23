@@ -882,7 +882,8 @@ namespace GSCLegendRendererPro.ProWindows
                 //Heading 5 initialization
                 heading5Text = new List<string>();
 
-                await CLeanUpOldLegend();
+                //Delete previous results if any
+                await CleanUpOldLegend();
 
                 return true;
             }
@@ -899,7 +900,7 @@ namespace GSCLegendRendererPro.ProWindows
         /// to delete it each time they launches the tool.
         /// </summary>
         /// <returns></returns>
-        public async Task CLeanUpOldLegend()
+        public async Task CleanUpOldLegend()
         {
             await QueuedTask.Run(async () =>
             {
@@ -2744,7 +2745,8 @@ namespace GSCLegendRendererPro.ProWindows
                 //When description height is less then align its center on parent center
                 if (wantedTextHeight <= parentHeight || parentHeight <= 1.0)
                 {
-                    if (!IsElementAllNonFlatLines(parentElem) && !parentElem.Name.Contains(Constants.Graphics.blob) && !parentElem.Name.Contains(Constants.Graphics.unitParent))
+                    if (!IsElementAllNonFlatLines(parentElem) && !parentElem.Name.Contains(Constants.Graphics.blob) && !parentElem.Name.Contains(Constants.Graphics.unitParent)
+                        && !parentElem.Name.Contains(Constants.Graphics.pointAngle) && !parentElem.Name.Contains(Constants.Graphics.pointAngleLine))
                     {
                         MoveElement(descriptionElement, elementDescriptGapWidth + parentWidth, -(parentHeight / 2.0 - wantedTextHeight / 2.0)); //Anchor is upper left but needs to be centered on unit box.
                     }
@@ -2947,7 +2949,8 @@ namespace GSCLegendRendererPro.ProWindows
                         if (pointSymbol != null)
                         {
                             //Keep original angle (could be comming from POINT_CC_45), because style symbol doesn't have an angle by default.
-                            double originalAngle = pointSymbol.Angle;
+                            CIMMarker originalMarker = pointSymbol.SymbolLayers[0] as CIMMarker;
+                            double originalAngle = originalMarker.Rotation;
 
                             if (markerSymbolDico.ContainsKey(markerStyle))
                             {
@@ -2968,10 +2971,10 @@ namespace GSCLegendRendererPro.ProWindows
                                             newPointMarker.OffsetX = 0;
                                             newPointMarker.OffsetY = 0;
                                         }
-                                    }
 
-                                    //Reset original angle
-                                    newPointSymbol.Angle = originalAngle;
+                                        //Reset original angle
+                                        newPointMarker.Rotation = originalAngle;
+                                    }
 
                                     //Apply
                                     cimPoint.Symbol.Symbol = newPointSymbol;
@@ -3091,6 +3094,7 @@ namespace GSCLegendRendererPro.ProWindows
                     inElementType = Constants.Graphics.generationLabel;
                 }
                 markerLabelElement = CopyElementObject(templateGraphicDico[inElementType], currentOrder.ToString());
+                legendElementList.Add(markerLabelElement);
 
                 //Set style
                 TextElement labelElement = markerLabelElement as TextElement;
@@ -3143,35 +3147,38 @@ namespace GSCLegendRendererPro.ProWindows
                 double parentWidth = pointElement.GetBounds().Width;
                 double parentHeight = pointElement.GetBounds().Height;
 
+                //Original values
+                Anchor originPointAnchor = pointElement.GetAnchor();
+
                 //For label right on top of another label
                 switch (wantedPosition)
                 {
                     case Constants.Styles.MarkerLabelPositioning.FromCenterToUpperLeft:
 
-                        //Validate x since esri sends an integer instead of a double, for some reasons ...
-                        double doubleMin = parentElement.GetBounds().XMin;
-                        decimal _xmin = Convert.ToDecimal(parentElement.GetBounds().XMin);
-                        if (Decimal.Floor(_xmin) == _xmin)
-                        {
-                            doubleMin = doubleMin + 0.411; //This value was found by checking in Arc Map the true double xmin value in the properties of the parent element.
-                        }
-
-                        //Value were found from manually placing the label at wanted place and calculating the ratio for the best move. 
-                        xLabelAnchor = doubleMin - (markerWidth * 0.5541573);  //TODO move hardcoded value somewhere else
-                        yLabelAnchor = parentElement.GetBounds().YMin + (markerHeight * 0.5315338); //TODO move hardcoded value somewhere else
-
+                        //Set label center on upper left anchor of marker
+                        pointElement.SetAnchor(Anchor.TopLeftCorner);
+                        Coordinate2D topLeftCorner = pointElement.GetAnchorPoint();
+                        xLabelAnchor = topLeftCorner.X;
+                        yLabelAnchor = topLeftCorner.Y;
+                        
                         break;
 
                     case Constants.Styles.MarkerLabelPositioning.FromCenterToUpperRight:
-                        //Value were found from manually placing the label at wanted place and calculating the ratio for the best move. 
-                        xLabelAnchor = parentElement.GetBounds().XMin + (markerWidth / 2.0) * 2.18849;  //TODO move hardcoded value somewhere else
-                        yLabelAnchor = parentElement.GetBounds().YMin + (markerHeight) * 0.59923; //TODO move hardcoded value somewhere else
+
+                        pointElement.SetAnchor(Anchor.TopRightCorner);
+                        Coordinate2D topRighCorner = pointElement.GetAnchorPoint();
+                        xLabelAnchor = (topRighCorner.X + markerWidth / 2.0) - 0.5;
+                        yLabelAnchor = (topRighCorner.Y + markerHeight / 2.0) - 0.5;
+
                         break;
 
                     case Constants.Styles.MarkerLabelPositioning.FromCenterToUpperRightTight:
-                        //Value were found from manually placing the label at wanted place and calculating the ratio for the best move. 
-                        xLabelAnchor = parentElement.GetBounds().XMin + (markerWidth / 2.0) * 0.94849;  //TODO move hardcoded value somewhere else
-                        yLabelAnchor = parentElement.GetBounds().YMin + (markerHeight) * 0.59923; //TODO move hardcoded value somewhere else
+
+                        pointElement.SetAnchor(Anchor.TopRightCorner);
+                        Coordinate2D topRightCorner = pointElement.GetAnchorPoint();
+                        xLabelAnchor = (topRightCorner.X + markerWidth / 2.0) - 0.75;
+                        yLabelAnchor = (topRightCorner.Y + markerHeight / 2.0) - 0.75;
+
                         break;
 
                     //This case is meant for when two labels must be added around a marker point
@@ -3180,22 +3187,25 @@ namespace GSCLegendRendererPro.ProWindows
                         //Force y move on parent for a better fit of the two labels
                         if (parentPosition == Constants.Styles.MarkerLabelPositioning.FromCenterToUpperLeft)
                         {
-                            MoveElement(parentElement, -0.47, -parentHeight * 0.5);
+                            MoveElement(pointElement, -0.47, -parentHeight * 0.5);
                         }
                         else
                         {
-                            MoveElement(parentElement, 0, -parentHeight * 0.5);
+                            MoveElement(pointElement, 0, -parentHeight * 0.5);
                         }
 
                         //Value were found from manually placing the label at wanted place and calculating the ratio for the best move. 
-                        xLabelAnchor = parentElement.GetBounds().XMin + parentWidth / 2.0;
-                        yLabelAnchor = parentElement.GetBounds().YMax + markerHeight / 4.0;
+                        xLabelAnchor = pointElement.GetBounds().XMin + parentWidth / 2.0;
+                        yLabelAnchor = pointElement.GetBounds().YMax + markerHeight / 4.0;
 
                         break;
 
                     default:
                         break;
                 }
+
+                //Reset anchor to original
+                pointElement.SetAnchor(originPointAnchor);
 
                 Tuple<double, double> labelAnchor = new Tuple<double, double>(xLabelAnchor, yLabelAnchor);
                 PositionElement(markerLabelElement, labelAnchor.Item1, labelAnchor.Item2);
