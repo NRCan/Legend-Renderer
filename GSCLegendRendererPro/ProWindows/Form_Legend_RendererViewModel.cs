@@ -3,6 +3,7 @@ using ArcGIS.Core.Data;
 using ArcGIS.Core.Data.DDL;
 using ArcGIS.Core.Geometry;
 using ArcGIS.Core.Internal.CIM;
+using ArcGIS.Core.Internal.Geometry;
 using ArcGIS.Desktop.Core;
 using ArcGIS.Desktop.Framework;
 using ArcGIS.Desktop.Framework.Contracts;
@@ -32,6 +33,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using System.Windows.Navigation;
+using System.Windows.Shapes;
 using static ArcGIS.Desktop.Editing.Templates.EditingGroupTemplate;
 using static ArcGIS.Desktop.Internal.GeoProcessing.Controls.rtbEditor;
 using static GSCLegendRendererPro.Utilities.Layers;
@@ -723,6 +725,8 @@ namespace GSCLegendRendererPro.ProWindows
                                                 await AddEmbeddedMapUnit();
 
                                                 await AddMarker();
+
+                                                await AddLine();
 
                                                 #endregion
 
@@ -2055,7 +2059,7 @@ namespace GSCLegendRendererPro.ProWindows
                 for (int el = 0; el < inGroupElement.GetElementsAsFlattenedList().Count(); el++)
                 {
                     Element innerElement = inGroupElement.GetElementsAsFlattenedList()[el];
-                if (innerElement.GetGeometry().GeometryType != GeometryType.Polyline)
+                    if (innerElement.GetGeometry().GeometryType != GeometryType.Polyline)
                     {
                         allLines = false;
                         break;
@@ -3217,6 +3221,155 @@ namespace GSCLegendRendererPro.ProWindows
 
             return markerLabelElement;
         }
+
+        /// <summary>
+        /// From a given element will calculate a new line geometry to fit anchor point so the element can
+        /// be set at the right place on the layout before being moved.
+        /// NOTE Anchor Point type doesnt' change a thing on the placement of the element.
+        /// </summary>
+        /// <param name="inElement"></param>
+        /// <param name="inAnchor">Without embedded y spacing</param>
+        /// <returns></returns>
+        public void SetLineFromAnchorType(Element inElement, Element inParentElement, Tuple<double, double> inAnchor, double length)
+        {
+            try
+            {
+                double height = 0;
+                double polycurveWidth = 0;
+                double polycurveHeight = 0;
+
+                //Get line
+                ArcGIS.Core.Geometry.Polyline inPolyline = inElement.GetGeometry() as ArcGIS.Core.Geometry.Polyline;
+                if (inPolyline != null)
+                {
+                    //Get height
+                    height = inPolyline.Extent.Height;
+                }
+                
+                //Apply conversion factor
+                ArcGIS.Core.Geometry.Multipart polycurveElement = inElement.GetGeometry() as ArcGIS.Core.Geometry.Multipart;
+                if (polycurveElement != null)
+                {
+                    polycurveWidth = polycurveElement.Extent.Width;
+                    polycurveHeight = polycurveElement.Extent.Height;
+                }
+
+                if (height == 0 && inPolyline != null)
+                {
+                    //Set new starting point to be center
+                    Coordinate2D fromPoint = new Coordinate2D(inAnchor.Item1, inAnchor.Item2);
+                    Coordinate2D toPoint = new Coordinate2D(inAnchor.Item1 + length, inAnchor.Item2);
+                    List<Coordinate2D> coordList = new List<Coordinate2D>() { fromPoint, toPoint };
+                    ArcGIS.Core.Geometry.Polyline newPolyline = PolylineBuilder.CreatePolyline(coordList);
+                    inElement.SetGeometry(newPolyline);
+                }
+                else
+                {
+                    if (polycurveElement != null)
+                    {
+                        //NOTE: This situation is for lines that has heights. In that case, it's easier to
+                        //Move the whole element then trying to reset anchor point, else we need to move
+                        // all curves start/end points inside the polycurve object and that is a pain.
+
+                        //Calculate distance between current location and new anchor point
+                        double oriCenterX = polycurveElement.Extent.XMin + polycurveWidth / 2.0;
+                        double oriCenterY = polycurveElement.Extent.YMin + polycurveHeight; //It behaves like bottom left anchor...weird
+                        double dX = 0;
+                        double dY = 0;
+
+                        if (inElement.GetAnchor() == Anchor.CenterPoint)
+                        {
+                            #region CENTER POINT
+
+                            //Calculate distance between current location and new anchor point
+                            if (oriCenterX < inAnchor.Item1)
+                            {
+                                dX = -(oriCenterX) + inAnchor.Item1 + polycurveWidth / 2.0;
+                                dY = (oriCenterY) - inAnchor.Item2 - polycurveHeight / 2.0;
+
+                                //In cases where the element is smaller in width then the element column itself
+                                if (polycurveWidth < elementWidth)
+                                {
+                                    dX = -(oriCenterX) + inAnchor.Item1 + elementWidth / 2.0;
+                                    dY = (oriCenterY) - inAnchor.Item2 - polycurveHeight / 2.0;
+                                }
+
+                            }
+                            else if (oriCenterX > inAnchor.Item1)
+                            {
+                                dX = (oriCenterX) - inAnchor.Item1 - polycurveWidth / 2.0;
+                                dY = (oriCenterY) - inAnchor.Item2 - polycurveHeight / 2.0;
+
+                                //In cases where the element is smaller in width then the element column itself
+                                if (polycurveWidth < elementWidth)
+                                {
+                                    dX = (oriCenterX) - inAnchor.Item1 - elementWidth / 2.0;
+                                    dY = (oriCenterY) - inAnchor.Item2 - polycurveHeight / 2.0;
+                                }
+                            }
+                            #endregion
+                        }
+                        else if (inElement.GetAnchor() == Anchor.BottomRightCorner)
+                        {
+                            #region BOTTOM RIGHT
+
+
+                            if (oriCenterX < inAnchor.Item1)
+                            {
+                                dX = -(oriCenterX) + inAnchor.Item1 + polycurveWidth;
+                                dY = (oriCenterY) - inAnchor.Item2 - polycurveHeight;
+
+                                //In cases where the element is smaller in width then the element column itself
+                                if (polycurveWidth < elementWidth)
+                                {
+                                    dX = -(oriCenterX) + inAnchor.Item1 + elementWidth;
+                                    dY = (oriCenterY) - inAnchor.Item2 - polycurveHeight;
+                                }
+                            }
+                            else if (oriCenterX > inAnchor.Item1)
+                            {
+                                dX = (oriCenterX) - inAnchor.Item1 - polycurveWidth;
+                                dY = (oriCenterY) - inAnchor.Item2 - polycurveHeight;
+
+                                //In cases where the element is smaller in width then the element column itself
+                                if (polycurveWidth < elementWidth)
+                                {
+                                    dX = (oriCenterX) - inAnchor.Item1 - elementWidth;
+                                    dY = (oriCenterY) - inAnchor.Item2 - polycurveHeight;
+                                }
+                            }
+                            #endregion
+                        }
+
+                        //Move
+                        if (oriCenterX < inAnchor.Item1 && oriCenterY < inAnchor.Item2)
+                        {
+                            MoveElement(inElement, dX, Math.Abs(dY));//Move accordingly to anchor point which is center center
+                        }
+                        else if (oriCenterX > inAnchor.Item1 && oriCenterY < inAnchor.Item2)
+                        {
+                            MoveElement(inElement, -dX, Math.Abs(dY));
+                        }
+                        else if (oriCenterX > inAnchor.Item1 && oriCenterY > inAnchor.Item2)
+                        {
+                            MoveElement(inElement, -dX, -dY);
+                        }
+                        else if (oriCenterX < inAnchor.Item1 && oriCenterY > inAnchor.Item2)
+                        {
+                            MoveElement(inElement, dX, -dY);
+                        }
+                    }
+                    
+                }
+            }
+            catch (Exception SetLineFromAnchorTypeException)
+            {
+                new ErrorService(SetLineFromAnchorTypeException).WriteToFile();
+            }
+
+            
+        }
+
         #endregion
 
         #region ADD GRAPHIC METHODS
@@ -3744,6 +3897,142 @@ namespace GSCLegendRendererPro.ProWindows
             }
         }
 
+        public async Task AddLine()
+        {
+            try
+            {
+                if (currentElementObject != null && (currentElementName == Constants.Graphics.beach || currentElementName == Constants.Graphics.moraines || currentElementName == Constants.Graphics.dunes
+                    || currentElementName == Constants.Graphics.landslide || currentElementName == Constants.Graphics.line || currentElementName == Constants.Graphics.wave
+                    || currentElementName == Constants.Graphics.lineDouble || currentElementName == Constants.Graphics.lineDoubleFLow || currentElementName == Constants.Graphics.lineDoubleFlip))
+                {
+
+                    //Set new anchor
+                    anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - ySpacing); //New anchor point with proper move inside it
+                    Geometry lineGeometry = currentElementObject.GetGeometry();
+                    //PositionElement(currentElementObject, anchorPoint.Item1, anchorPoint.Item2);
+                    //SetRectangularPolygonFromAnchorType(currentElementObject, anchorPoint);
+                    if (lineGeometry.GeometryType == GeometryType.Polygon)
+                    {
+                        SetRectangularPolygonFromAnchorType(currentElementObject, anchorPoint);
+                    }
+                    else if (lineGeometry.GeometryType == GeometryType.Polyline)
+                    {
+                        SetLineFromAnchorType(currentElementObject, lastElement, anchorPoint, elementWidth);
+                    }
+
+                    PositionElement(currentElementObject, anchorPoint.Item1, anchorPoint.Item2);
+
+                    ////Set symbol
+                    //GroupElement inGroupElement = currentElementObject as GroupElement;
+                    //if (inGroupElement != null)
+                    //{
+                    //    //Check geometry of inner elements, if it's all lines
+                    //    for (int el = 0; el < inGroupElement.ElementCount; el++)
+                    //    {
+                    //        ILineElement currentShapeElement = inGroupElement.Element[el] as ILineElement;
+                    //        IElementProperties currentShapeProp = inGroupElement.Element[el] as IElementProperties;
+                    //        double currentLineWidth = currentShapeElement.Symbol.Width;
+
+                    //        if (currentShapeProp.Name != Constants.Graphics.subLineDoubleFLowBottom && currentShapeProp.Name != Constants.Graphics.subLineDoubleFLowMiddle)
+                    //        {
+                    //            if (lineSymbolDico.ContainsKey(currentStyle1))
+                    //            {
+                    //                currentShapeElement.Symbol = Services.ObjectManagement.CopyInputObject(lineSymbolDico[currentStyle1]) as ILineSymbol;
+
+                    //            }
+                    //            else
+                    //            {
+                    //                //Apply missing style
+                    //                ISimpleLineSymbol missingFillSymbol = Services.Symbols.GetMissingLineSymbol();
+                    //                currentShapeElement.Symbol = missingFillSymbol;
+                    //            }
+
+                    //        }
+                    //        if (currentShapeProp.Name == Constants.Graphics.subLineDoubleFLowBottom)
+                    //        {
+                    //            //If something isn't found in style2 revert to first one
+                    //            if (currentStyle2 != string.Empty && currentStyle2 != " " && currentStyle2 != null)
+                    //            {
+                    //                // For double line, two style might be used if it's not inside a double line flow symbol
+                    //                if (lineSymbolDico.ContainsKey(currentStyle2))
+                    //                {
+                    //                    currentShapeElement.Symbol = Services.ObjectManagement.CopyInputObject(lineSymbolDico[currentStyle2]) as ILineSymbol;
+
+                    //                    if (currentElement == Constants.Graphics.lineDoubleFLow)
+                    //                    {
+                    //                        //For double line flow symbol keep bottom line just like the top one and take style2 field for the flow symbol
+                    //                        currentShapeElement.Symbol = Services.ObjectManagement.CopyInputObject(lineSymbolDico[currentStyle1]) as ILineSymbol;
+                    //                    }
+                    //                }
+
+                    //            }
+                    //            else
+                    //            {
+                    //                currentShapeElement.Symbol = Services.ObjectManagement.CopyInputObject(lineSymbolDico[currentStyle1]) as ILineSymbol;
+                    //            }
+
+                    //        }
+
+                    //        if (currentShapeProp.Name == Constants.Graphics.subLineDoubleFLowMiddle)
+                    //        {
+                    //            if (currentStyle2 != null && lineSymbolDico.ContainsKey(currentStyle2))
+                    //            {
+                    //                currentShapeElement.Symbol = Services.ObjectManagement.CopyInputObject(lineSymbolDico[currentStyle2]) as ILineSymbol;
+                    //            }
+                    //            else
+                    //            {
+                    //                //Apply missing style
+                    //                ISimpleLineSymbol missingFillSymbol = Services.Symbols.GetMissingLineSymbol();
+                    //                currentShapeElement.Symbol = missingFillSymbol;
+                    //            }
+                    //        }
+
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    ILineElement areaLineElement = lineElement as ILineElement;
+                    //    if (lineSymbolDico.ContainsKey(currentStyle1))
+                    //    {
+                    //        areaLineElement.Symbol = Services.ObjectManagement.CopyInputObject(lineSymbolDico[currentStyle1]) as ILineSymbol;
+
+                    //    }
+                    //    else
+                    //    {
+                    //        //Apply missing style
+                    //        ISimpleLineSymbol missingFillSymbol = Services.Symbols.GetMissingLineSymbol();
+                    //        areaLineElement.Symbol = missingFillSymbol;
+                    //    }
+                    //}
+                    //#endregion
+
+                    ////Add Description
+                    ////NOTES: Usually lines have anchors in the center, that needs special attention
+                    //IElement newDescriptionElement = AddDescription(currentDescription, lineElement, anchorPoint, originalElementName, true);
+                    //double descriptionHeight = newDescriptionElement.Geometry.Envelope.Height;
+                    //if (descriptionHeight >= smallDescriptionHeightLine)
+                    //{
+                    //    double descriptionAdjustement = descriptionHeight;
+                    //    if (lineElement.Geometry.Envelope.Height == 0)
+                    //    {
+                    //        descriptionAdjustement = descriptionAdjustement - Constants.YSpacings.lineHeight0DescriptionHeightAdjustement;
+                    //    }
+                    //    else
+                    //    {
+                    //        descriptionAdjustement = descriptionAdjustement - (lineElement.Geometry.Envelope.Height / 2.0);
+                    //    }
+
+                    //    //Reset anchor point for next element
+                    //    anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - descriptionAdjustement); //New anchor point with proper move inside it
+
+                    //}
+                }
+            }
+            catch (Exception AddLineException)
+            {
+                new ErrorService(AddLineException).WriteToFile();
+            }
+        }
 
         #endregion
     }
