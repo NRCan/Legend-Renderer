@@ -32,6 +32,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using System.Windows.Navigation;
+using static ArcGIS.Desktop.Editing.Templates.EditingGroupTemplate;
 using static ArcGIS.Desktop.Internal.GeoProcessing.Controls.rtbEditor;
 using static GSCLegendRendererPro.Utilities.Layers;
 using static System.Net.Mime.MediaTypeNames;
@@ -696,7 +697,7 @@ namespace GSCLegendRendererPro.ProWindows
                                                 //Manage null order
                                                 await ManageNullOrder(legendRow);
 
-                                                //Set heading5 trigger for special style symbols
+                                                //EDGE CASE: Set heading5 trigger for special style symbols
                                                 await Heading5Preparation(legendRow);
 
                                                 //Get spacings in x and Y for current row
@@ -705,6 +706,9 @@ namespace GSCLegendRendererPro.ProWindows
 
                                                 //Manage column change and spacing
                                                 await ManageColumn(legendRow);
+
+                                                //EDGE CASE: Manage UNIT_PARENT graphics that needs to be sent below childs, even though ordering is before
+                                                //await ManageUnitParentOrder();
 
                                                 #endregion
 
@@ -773,6 +777,43 @@ namespace GSCLegendRendererPro.ProWindows
             catch (Exception CreateLegendException)
             {
                 new ErrorService(CreateLegendException).WriteToFile();
+            }
+        }
+
+        /// <summary>
+        /// Will rename unit parent graphic so that it's being ordered right
+        /// at the end. Else since unit_parent are always first in order, they
+        /// will be placed above any child units coming after it.
+        /// Eg: 16 UNIT_PARENT --> 20 (16) UNIT_PARENT
+        /// </summary>
+        /// <returns></returns>
+        public async Task ManageUnitParentOrder()
+        {
+            if (lastElementType.Contains(Constants.Graphics.subUnitParentChild) || lastElementType.Contains(Constants.Graphics.subUnitParentChildLine))
+            {
+                //Select parent related elements (description, label and unit box)
+                if (parentElement != null)
+                {
+                    //Select all graphics that start with the same parent order
+                    string[] parentOrderSplit = parentElement.Name.Split(" ");
+                    List<Element> parentElements = pPage.GetElementsAsFlattenedList().Where(e => e.Name.StartsWith(parentOrderSplit[0].Split(".")[0])).ToList();
+
+                    //Calculate new name
+                    string lastElementOrder = lastElement.Name.Split(" ")[0];
+                    string parentOrder = parentOrderSplit[0];
+                    if (parentOrder.Contains("("))
+                    {
+                        //Strip out parenthesis
+                        parentOrder = parentOrder.Substring(parentOrder.IndexOf("(") + 1).Replace(")", "");
+                    }
+
+                    string newElementNamePrefix = lastElementOrder + " (" + parentOrder + ") ";
+                    foreach (Element parentElement in parentElements)
+                    {
+                        string parentElementSuffix = parentElement.Name.Split(" ")[1];
+                        parentElement.SetName(newElementNamePrefix + " " + parentElementSuffix);
+                    }
+                }
             }
         }
 
@@ -2136,7 +2177,9 @@ namespace GSCLegendRendererPro.ProWindows
         /// <returns></returns>
         private async Task OrderElementsInTOC()
         {
-            legendOrderPrefixList.Reverse();
+            //Sort by the order value
+            legendOrderPrefixList = legendOrderPrefixList.OrderByDescending(x => {double.TryParse(x.Split(' ')[0], out double value);return value;}).ToList();
+
             foreach (string legendOrder in legendOrderPrefixList)
             {
                 Element orderGroupElement = pPage.GetElements().Where(x => x is GroupElement && x.Name == legendOrder).FirstOrDefault();
@@ -2147,6 +2190,26 @@ namespace GSCLegendRendererPro.ProWindows
                     if (pPage.CanBringForward(orderGroupElement))
                     {
                         pPage.BringToFront(orderGroupElement);
+                    }
+                }
+            }
+
+            //EDGE CASE - UNIT_PARENT needs to be send lower than their child
+            List<Element> parentElements = pPage.GetElementsAsFlattenedList().Where(e => e.Name.Contains(Constants.Graphics.unitParent)).ToList();
+            if (parentElements != null && parentElements.Count() > 0)
+            {
+                foreach (Element pe in parentElements)
+                {
+                    //Select the whole group
+                    string groupPrefix = pe.Name.Split(" ")[0];
+                    Element parentGroupElement = pPage.GetElements().Where(e => (e is GroupElement) && e.Name == groupPrefix).FirstOrDefault();
+                    if (parentGroupElement != null) 
+                    {
+                        pPage.SelectElement(parentGroupElement);
+                        if (pPage.CanSendBackward(parentGroupElement))
+                        {
+                            pPage.SendToBack(parentGroupElement);
+                        }
                     }
                 }
             }
@@ -2656,7 +2719,6 @@ namespace GSCLegendRendererPro.ProWindows
             }
 
             //Get width and height of parent
-            //ArcGIS.Core.Internal.CIM.Geometry parentGeom = parentElem.GetBounds().ToCIMGeometry();
             double parentHeight = 1.0;
             double parentWidth = elementWidth;
 
@@ -2670,17 +2732,6 @@ namespace GSCLegendRendererPro.ProWindows
             {
                 parentHeight = parentElem.GetHeight();
             }
-
-            //Parent height setting based on anchor position
-            //double parentHeightCalculated = parentHeight;
-            //if (parentProperties.AnchorPoint == esriAnchorPointEnum.esriCenterPoint || parentProperties.AnchorPoint == esriAnchorPointEnum.esriLeftMidPoint || parentProperties.AnchorPoint == esriAnchorPointEnum.esriRightMidPoint)
-            //{
-            //    parentHeightCalculated = parentHeightCalculated / 2.0;
-            //}
-            ////else if (parentProperties.AnchorPoint == esriAnchorPointEnum.esriBottomLeftCorner || parentProperties.AnchorPoint == esriAnchorPointEnum.esriBottomMidPoint || parentProperties.AnchorPoint == esriAnchorPointEnum.esriBottomRightCorner)
-            ////{
-            ////    parentHeightCalculated
-            ////}
 
             //Set width and height and manage group description for heading 5        
             ArcGIS.Core.Geometry.Geometry descriptionGeometry = descriptionElement.GetGeometry();
@@ -2707,9 +2758,13 @@ namespace GSCLegendRendererPro.ProWindows
                 //When description height is less then align its center on parent center
                 if (wantedTextHeight <= parentHeight || parentHeight <= 1.0)
                 {
-                    if (!IsElementAllNonFlatLines(parentElem) && !parentElem.Name.Contains(Constants.Graphics.blob))
+                    if (!IsElementAllNonFlatLines(parentElem) && !parentElem.Name.Contains(Constants.Graphics.blob) && !parentElem.Name.Contains(Constants.Graphics.unitParent))
                     {
                         MoveElement(descriptionElement, elementDescriptGapWidth + parentWidth, -(parentHeight / 2.0 - wantedTextHeight / 2.0)); //Anchor is upper left but needs to be centered on unit box.
+                    }
+                    else if (parentElem.Name.Contains(Constants.Graphics.unitParent))
+                    {
+                        MoveElement(descriptionElement, elementDescriptGapWidth + parentWidth, -(parentHeight / 4.0 - wantedTextHeight / 2.0));
                     }
                     else
                     {
