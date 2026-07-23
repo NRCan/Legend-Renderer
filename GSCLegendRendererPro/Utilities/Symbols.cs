@@ -204,75 +204,20 @@ namespace GSCLegendRendererPro.Utilities
 
         }
 
-        ///// <summary>
-        ///// Will return as a color object from given symbol, no matter symbol type
-        ///// </summary>
-        ///// <param name="inSymbol">The input symbol object to validate from</param>
-        ///// <param name="symbolTypeName"> Output of symbol type name</param>
-        ///// <returns></returns>
-        //public static Color GetPolygonSymbolColor(SymbolStyleItem inSymbol, out string symbolTypeName)
-        //{
-        //    StyleItemType styleItemType = inSymbol.ItemType;
+        /// <summary>
+        /// Get a grey point symbol for default values or null values
+        /// </summary>
+        /// <returns></returns>
+        public static CIMPointSymbol GetMissingPointSymbol()
+        {
 
-        //    switch (styleItemType) 
-        //    {
-        //        case StyleItemType.LineSymbol:
-        //            break;
-        //        case StyleItemType.PolygonSymbol:
-        //            break;
-        //        case StyleItemType.PointSymbol: 
-        //            break;
-        //        case StyleItemType.
+            CIMMarker missingMarker = SymbolFactory.Instance.ConstructMarker(103, "Arial", "Regular", 10,ColorFactory.Instance.RedRGB);
+            missingMarker.Rotation = 180;
 
-        //    }
+            CIMPointSymbol missingSymbol = SymbolFactory.Instance.ConstructPointSymbol(missingMarker);
 
-        //    //Cast input symbol into all kinds of line symbol types
-        //    IGradientFillSymbol gradientFill = inSymbol as GradientFillSymbol;
-        //    ILineFillSymbol lineFill = inSymbol as LineFillSymbol;
-        //    IMarkerFillSymbol markerFil = inSymbol as MarkerFillSymbol;
-        //    IPictureFillSymbol pictureFill = inSymbol as PictureFillSymbol;
-        //    ISimpleFillSymbol simpleFill = inSymbol as SimpleFillSymbol;
-        //    IMultiLayerFillSymbol multiFill = inSymbol as IMultiLayerFillSymbol;
-
-        //    //Init a new object that will contain the correct symbol type
-        //    IColor symbolColor = GetDefaultPolygonSymbol().Color;
-
-        //    //Init symbol type name 
-        //    symbolTypeName = "";
-
-        //    if (gradientFill != null)
-        //    {
-        //        symbolColor = gradientFill.Color;
-        //        symbolTypeName = Constants.ObjectNames.fillTypeGradient;
-        //    }
-        //    else if (lineFill != null)
-        //    {
-        //        symbolColor = lineFill.Color;
-        //        symbolTypeName = Constants.ObjectNames.fillTypeLine;
-        //    }
-        //    else if (markerFil != null)
-        //    {
-        //        symbolColor = markerFil.Color;
-        //        symbolTypeName = Constants.ObjectNames.fillTypeMarker;
-        //    }
-        //    else if (pictureFill != null)
-        //    {
-        //        symbolColor = pictureFill.Color;
-        //        symbolTypeName = Constants.ObjectNames.fillTypePicture;
-        //    }
-        //    else if (simpleFill != null)
-        //    {
-        //        symbolColor = simpleFill.Color;
-        //        symbolTypeName = Constants.ObjectNames.fillTypeSimple;
-        //    }
-        //    else if (multiFill != null)
-        //    {
-        //        symbolColor = multiFill.Color;
-        //        symbolTypeName = Constants.ObjectNames.fillTypeMultilayer;
-        //    }
-
-        //    return symbolColor;
-        //}
+            return missingSymbol;
+        }
 
     }
 }

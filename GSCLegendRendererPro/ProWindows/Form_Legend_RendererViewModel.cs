@@ -722,6 +722,8 @@ namespace GSCLegendRendererPro.ProWindows
 
                                                 await AddEmbeddedMapUnit();
 
+                                                await AddMarkers();
+
                                                 #endregion
 
                                                 #region FINALIZE
@@ -777,43 +779,6 @@ namespace GSCLegendRendererPro.ProWindows
             catch (Exception CreateLegendException)
             {
                 new ErrorService(CreateLegendException).WriteToFile();
-            }
-        }
-
-        /// <summary>
-        /// Will rename unit parent graphic so that it's being ordered right
-        /// at the end. Else since unit_parent are always first in order, they
-        /// will be placed above any child units coming after it.
-        /// Eg: 16 UNIT_PARENT --> 20 (16) UNIT_PARENT
-        /// </summary>
-        /// <returns></returns>
-        public async Task ManageUnitParentOrder()
-        {
-            if (lastElementType.Contains(Constants.Graphics.subUnitParentChild) || lastElementType.Contains(Constants.Graphics.subUnitParentChildLine))
-            {
-                //Select parent related elements (description, label and unit box)
-                if (parentElement != null)
-                {
-                    //Select all graphics that start with the same parent order
-                    string[] parentOrderSplit = parentElement.Name.Split(" ");
-                    List<Element> parentElements = pPage.GetElementsAsFlattenedList().Where(e => e.Name.StartsWith(parentOrderSplit[0].Split(".")[0])).ToList();
-
-                    //Calculate new name
-                    string lastElementOrder = lastElement.Name.Split(" ")[0];
-                    string parentOrder = parentOrderSplit[0];
-                    if (parentOrder.Contains("("))
-                    {
-                        //Strip out parenthesis
-                        parentOrder = parentOrder.Substring(parentOrder.IndexOf("(") + 1).Replace(")", "");
-                    }
-
-                    string newElementNamePrefix = lastElementOrder + " (" + parentOrder + ") ";
-                    foreach (Element parentElement in parentElements)
-                    {
-                        string parentElementSuffix = parentElement.Name.Split(" ")[1];
-                        parentElement.SetName(newElementNamePrefix + " " + parentElementSuffix);
-                    }
-                }
             }
         }
 
@@ -2934,6 +2899,294 @@ namespace GSCLegendRendererPro.ProWindows
             return inThinUnitElement;
         }
 
+        /// <summary>
+        /// Will create a marker symbol from given type, order and style. Will also return an offset parameter for linear markers
+        /// </summary>
+        /// <param name="markerType">element marker type (as stated in user table column element)</param>
+        /// <param name="markerOrder">element order (for naming purposes)</param>
+        /// <param name="markerStyle">element style</param>
+        /// <param name="offset">out offset for linear markers</param>
+        /// <returns></returns>
+        private Element BuildMarker(Element element, string markerType, double markerOrder, string markerStyle, out Tuple<double, double> offset)
+        {
+
+            offset = new Tuple<double, double>(0,0);
+
+            try
+            {
+                //Symbolize if symbol can be found in style file
+                GraphicElement graphicElement = element as GraphicElement;
+                if (graphicElement != null)
+                {
+                    CIMPointGraphic cimPoint = graphicElement.GetGraphic() as CIMPointGraphic;
+                    if (cimPoint != null)
+                    {
+                        CIMPointSymbol pointSymbol = cimPoint.Symbol.Symbol as CIMPointSymbol;
+                        
+                        if (pointSymbol != null)
+                        {
+                            //Keep original angle (could be comming from POINT_CC_45), because style symbol doesn't have an angle by default.
+                            double originalAngle = pointSymbol.Angle;
+
+                            if (markerSymbolDico.ContainsKey(markerStyle))
+                            {
+                                SymbolStyleItem markerStyleItem = markerSymbolDico[markerStyle];
+                                if (markerStyleItem != null && markerStyleItem.Symbol is CIMPointSymbol) 
+                                {
+                                    CIMPointSymbol newPointSymbol = markerStyleItem.Symbol as CIMPointSymbol;
+
+                                    //Get new style offset
+                                    CIMMarker newPointMarker = newPointSymbol.SymbolLayers[0] as CIMMarker;
+                                    if (newPointMarker != null)
+                                    {
+                                        offset = new Tuple<double, double>(newPointMarker.OffsetX, newPointMarker.OffsetY);
+
+                                        //Get rid of offset for linear markers
+                                        if (markerType == Constants.Graphics.pointAngleLine)
+                                        {
+                                            newPointMarker.OffsetX = 0;
+                                            newPointMarker.OffsetY = 0;
+                                        }
+                                    }
+
+                                    //Reset original angle
+                                    newPointSymbol.Angle = originalAngle;
+
+                                    //Apply
+                                    cimPoint.Symbol.Symbol = newPointSymbol;
+                                }
+
+                            }
+                            else
+                            {
+                                //Apply missing style
+                                cimPoint.Symbol.Symbol = Symbols.GetMissingPointSymbol();
+                            }
+                        }
+
+                        graphicElement.SetGraphic(cimPoint);
+                    }
+                }
+            }
+            catch (Exception BuildMarkerException)
+            {
+                new ErrorService(BuildMarkerException).WriteToFile();
+            }
+
+            return element;
+
+        }
+
+        /// <summary>
+        /// From a given element will calculate a new point geometry to fit anchor point so the element can
+        /// be set at the right place on the layout before being moved.
+        /// NOTE Anchor Point type doesnt' change a thing on the placement of the element.
+        /// </summary>
+        /// <param name="inElement"></param>
+        /// <param name="inAnchor">Without embedded y spacing</param>
+        /// <returns></returns>
+        public void SetPointFromAnchorType(Element inElement, Tuple<double, double> inAnchor, Tuple<double, double> offset)
+        {
+            try
+            {
+                //Get info
+                Coordinate2D anchorPoint = inElement.GetAnchorPoint();
+                Anchor anchorPointType = inElement.GetAnchor();
+                double inElementHeight = inElement.GetHeight();
+
+                //Get offset
+                double xOff = 0;
+                double yOff = 0;
+                if (offset != null)
+                {
+                    xOff = offset.Item1;
+                    yOff = offset.Item2;
+                }
+                else
+                {
+                    offset = new Tuple<double, double>(xOff, yOff);
+                }
+
+                switch (anchorPointType)
+                {
+                    case Anchor.TopLeftCorner:
+                        break;
+                    case Anchor.TopMidPoint:
+                        break;
+                    case Anchor.TopRightCorner:
+                        break;
+                    case Anchor.LeftMidPoint:
+                        break;
+                    case Anchor.CenterPoint:
+                        anchorPoint.X = inAnchor.Item1 + elementWidth / 2.0 + xOff;
+                        anchorPoint.Y = inAnchor.Item2 + offset.Item2;
+                        inElement.SetAnchorPoint(anchorPoint);
+                        break;
+                    case Anchor.RightMidPoint:
+                        break;
+                    case Anchor.BottomLeftCorner:
+                        break;
+                    case Anchor.BottomMidPoint:
+                        anchorPoint.X = inAnchor.Item1 + elementWidth / 2.0 + yOff;
+                        anchorPoint.Y = inAnchor.Item2 - inElementHeight / 2.0 + offset.Item2;
+                        inElement.SetAnchorPoint(anchorPoint);
+                        break;
+                    case Anchor.BottomRightCorner:
+                        break;
+                    default:
+                        break;
+                }
+            }
+            catch (Exception SetPointFromAnchorTypeException)
+            {
+                new ErrorService(SetPointFromAnchorTypeException).WriteToFile();
+            }
+
+        }
+
+        /// <summary>
+        /// Will add a text label around a marker.
+        /// </summary>
+        /// <param name="inLabelText">The text that will be added to the label</param>
+        /// <param name="parentElement">The element onto which a label will be added around it</param>
+        /// <param name="inDocument">The document in which the label will be added</param>
+        /// <param name="inAnchor">The anchor of the parent</param>
+        /// <param name="parentElemType">The parent original name (type) to parse where to put the label (POINT_CC_45 vs POINT_LC_45)</param>
+        /// <returns></returns>
+        private Element AddLabelToMarker(string inLabelText, Element pointElement, Tuple<double, double> inAnchor, 
+            Constants.Styles.MarkerLabelPositioning wantedPosition, string inLabelStyle = "", Constants.Styles.MarkerLabelPositioning parentPosition = Constants.Styles.MarkerLabelPositioning.FromCenterToUpperLeft)
+        {
+            Element markerLabelElement = null;
+
+            try
+            {
+                //Variables
+                string inElementType = Constants.Graphics.measurementLabel;
+
+                //Get appropriate element (measurement or generation)
+                int measurementValue = -1;
+                if (!Int32.TryParse(inLabelText, out measurementValue))
+                {
+                    inElementType = Constants.Graphics.generationLabel;
+                }
+                markerLabelElement = CopyElementObject(templateGraphicDico[inElementType], currentOrder.ToString());
+
+                //Set style
+                TextElement labelElement = markerLabelElement as TextElement;
+                if (labelElement != null && inLabelStyle != null && inLabelStyle != "")
+                {
+                    if (textSymbolDico.ContainsKey(inLabelStyle))
+                    {
+                        SymbolStyleItem inStyleSymbol = textSymbolDico[inLabelStyle];
+
+                        if (labelElement != null)
+                        {
+                            CIMGraphic cimGraphic = labelElement.GetGraphic();
+                            if (cimGraphic != null)
+                            {
+                                CIMTextSymbol cIMTextSymbol = cimGraphic.Symbol.Symbol as CIMTextSymbol;
+
+                                if (cIMTextSymbol != null)
+                                {
+                                    cIMTextSymbol.SetColor(cIMTextSymbol.GetColor());
+                                    cIMTextSymbol.FontFamilyName = cIMTextSymbol.FontFamilyName;
+                                    cIMTextSymbol.SetSize(cIMTextSymbol.GetSize());
+                                    cIMTextSymbol.VerticalAlignment = cIMTextSymbol.VerticalAlignment;
+                                    labelElement.SetGraphic(cimGraphic);
+                                }
+                            }
+                        }
+
+                    }
+                    else
+                    {
+                        //Missing or wrong style 
+                        labelElement = Symbols.SetMissingTextSymbol(labelElement);
+                    }
+                }
+
+                //Manage missing
+                if (inLabelText == null || inLabelText == string.Empty || inLabelText == " ")
+                {
+                    labelElement = Symbols.SetMissingTextSymbol(labelElement);
+                }
+                labelElement.SetTextProperties(new TextProperties(inLabelText, labelElement.TextProperties.Font, labelElement.TextProperties.FontSize, labelElement.TextProperties.FontStyle));
+
+                //Move to right anchor
+                double xLabelAnchor = inAnchor.Item1;
+                double yLabelAnchor = inAnchor.Item2;
+
+                //Apply conversion factor
+                double markerWidth = markerLabelElement.GetBounds().Width;
+                double markerHeight = markerLabelElement.GetBounds().Height;
+                double parentWidth = pointElement.GetBounds().Width;
+                double parentHeight = pointElement.GetBounds().Height;
+
+                //For label right on top of another label
+                switch (wantedPosition)
+                {
+                    case Constants.Styles.MarkerLabelPositioning.FromCenterToUpperLeft:
+
+                        //Validate x since esri sends an integer instead of a double, for some reasons ...
+                        double doubleMin = parentElement.GetBounds().XMin;
+                        decimal _xmin = Convert.ToDecimal(parentElement.GetBounds().XMin);
+                        if (Decimal.Floor(_xmin) == _xmin)
+                        {
+                            doubleMin = doubleMin + 0.411; //This value was found by checking in Arc Map the true double xmin value in the properties of the parent element.
+                        }
+
+                        //Value were found from manually placing the label at wanted place and calculating the ratio for the best move. 
+                        xLabelAnchor = doubleMin - (markerWidth * 0.5541573);  //TODO move hardcoded value somewhere else
+                        yLabelAnchor = parentElement.GetBounds().YMin + (markerHeight * 0.5315338); //TODO move hardcoded value somewhere else
+
+                        break;
+
+                    case Constants.Styles.MarkerLabelPositioning.FromCenterToUpperRight:
+                        //Value were found from manually placing the label at wanted place and calculating the ratio for the best move. 
+                        xLabelAnchor = parentElement.GetBounds().XMin + (markerWidth / 2.0) * 2.18849;  //TODO move hardcoded value somewhere else
+                        yLabelAnchor = parentElement.GetBounds().YMin + (markerHeight) * 0.59923; //TODO move hardcoded value somewhere else
+                        break;
+
+                    case Constants.Styles.MarkerLabelPositioning.FromCenterToUpperRightTight:
+                        //Value were found from manually placing the label at wanted place and calculating the ratio for the best move. 
+                        xLabelAnchor = parentElement.GetBounds().XMin + (markerWidth / 2.0) * 0.94849;  //TODO move hardcoded value somewhere else
+                        yLabelAnchor = parentElement.GetBounds().YMin + (markerHeight) * 0.59923; //TODO move hardcoded value somewhere else
+                        break;
+
+                    //This case is meant for when two labels must be added around a marker point
+                    case Constants.Styles.MarkerLabelPositioning.RightAboveCenter:
+
+                        //Force y move on parent for a better fit of the two labels
+                        if (parentPosition == Constants.Styles.MarkerLabelPositioning.FromCenterToUpperLeft)
+                        {
+                            MoveElement(parentElement, -0.47, -parentHeight * 0.5);
+                        }
+                        else
+                        {
+                            MoveElement(parentElement, 0, -parentHeight * 0.5);
+                        }
+
+                        //Value were found from manually placing the label at wanted place and calculating the ratio for the best move. 
+                        xLabelAnchor = parentElement.GetBounds().XMin + parentWidth / 2.0;
+                        yLabelAnchor = parentElement.GetBounds().YMax + markerHeight / 4.0;
+
+                        break;
+
+                    default:
+                        break;
+                }
+
+                Tuple<double, double> labelAnchor = new Tuple<double, double>(xLabelAnchor, yLabelAnchor);
+                PositionElement(markerLabelElement, labelAnchor.Item1, labelAnchor.Item2);
+
+            }
+            catch (Exception AddLabelToMarkerException)
+            {
+                new ErrorService(AddLabelToMarkerException).WriteToFile();
+            }
+
+            return markerLabelElement;
+        }
         #endregion
 
         #region ADD GRAPHIC METHODS
@@ -3246,6 +3499,10 @@ namespace GSCLegendRendererPro.ProWindows
             }
         }
 
+        /// <summary>
+        /// Will add embedded units (parents, child and child line)
+        /// </summary>
+        /// <returns></returns>
         public async Task AddEmbeddedMapUnit()
         {
             try
@@ -3387,6 +3644,78 @@ namespace GSCLegendRendererPro.ProWindows
                 new ErrorService(AddEmbeddedMapUnitException).WriteToFile();
             }
         }
+
+        /// <summary>
+        /// Will add points/markers symbols
+        /// </summary>
+        /// <returns></returns>
+        public async Task AddMarkers()
+        {
+            try
+            {
+                if (currentElementObject != null && (currentElementName == Constants.Graphics.point || currentElementName == Constants.Graphics.pointAngle || currentElementName == Constants.Graphics.pointAngleLine))
+                {
+                    //Build marker element
+                    Tuple<double, double> offset = null;
+                    Element pointElement = BuildMarker(currentElementObject, currentElementName, currentOrder, currentStyle1, out offset);
+
+                    //Set new anchor
+                    anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - ySpacing); //New anchor point with proper move inside it
+                    SetPointFromAnchorType(pointElement, anchorPoint, offset);
+
+                    //Add measurement value label
+                    if (currentLabel1 != null && currentLabel1 != string.Empty && currentLabel1 != " ")
+                    {
+
+                        //Find proper placement for label
+                        Constants.Styles.MarkerLabelPositioning placement = Constants.Styles.MarkerLabelPositioning.FromCenterToUpperLeft;
+                        if (currentElementName == Constants.Graphics.pointAngleLine)
+                        {
+                            placement = Constants.Styles.MarkerLabelPositioning.FromCenterToUpperRight;
+                        }
+                        else if (currentElementName == Constants.Graphics.point)
+                        {
+                            placement = Constants.Styles.MarkerLabelPositioning.FromCenterToUpperRightTight;
+                        }
+
+                        if (currentLabel1Style == null || currentLabel1Style == " ")
+                        {
+                            currentLabel1Style = string.Empty;
+                        }
+                        Element markerLabel1 = AddLabelToMarker(currentLabel1, pointElement, anchorPoint, placement, currentLabel1Style);
+
+                        //Add second label if any
+                        if (currentLabel2 != null && currentLabel2 != string.Empty && currentLabel2 != " ")
+                        {
+                            if (currentLabel2Style == null || currentLabel2Style == " ")
+                            {
+                                currentLabel2Style = string.Empty;
+                            }
+
+                            AddLabelToMarker(currentLabel2, markerLabel1, anchorPoint, Constants.Styles.MarkerLabelPositioning.RightAboveCenter, currentLabel2Style, placement);
+                        }
+                    }
+
+                    //Add Description
+                    Element newDescriptionElement = AddDescription(currentDescription, pointElement, anchorPoint, lastElementType, true);
+                    double descriptionHeight = newDescriptionElement.GetHeight();
+                    if (descriptionHeight > smallDescriptionHeightLine)
+                    {
+                        //Reset anchor point for next element
+                        double descriptionAdjustement = descriptionHeight - Constants.YSpacings.markerMeanHeight;
+
+                        anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - descriptionAdjustement); //New anchor point with proper move inside it
+
+                    }
+                }
+            }
+            catch (Exception AddMarkersException)
+            {
+                new ErrorService(AddMarkersException).WriteToFile();
+            }
+        }
+
+
         #endregion
     }
 }
