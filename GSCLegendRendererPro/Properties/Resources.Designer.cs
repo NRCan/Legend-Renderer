@@ -452,6 +452,15 @@ namespace GSCLegendRendererPro.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Legend Graphics.
+        /// </summary>
+        public static string LegendGroupName {
+            get {
+                return ResourceManager.GetString("LegendGroupName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Label.
         /// </summary>
         public static string LegendItemLabelName {
@@ -467,15 +476,6 @@ namespace GSCLegendRendererPro.Properties {
             get {
                 object obj = ResourceManager.GetObject("LegendRendererTemplate", resourceCulture);
                 return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Legend.
-        /// </summary>
-        public static string ResultLegendRendererGroupName {
-            get {
-                return ResourceManager.GetString("ResultLegendRendererGroupName", resourceCulture);
             }
         }
         

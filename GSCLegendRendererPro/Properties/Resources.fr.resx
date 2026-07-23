@@ -231,8 +231,8 @@
   <data name="ErrorHeadingMissingText" xml:space="preserve">
     <value>Texte ou style  indisponible.</value>
   </data>
-  <data name="ResultLegendRendererGroupName" xml:space="preserve">
-    <value>Légende</value>
+  <data name="LegendGroupName" xml:space="preserve">
+    <value>Graphiques de légende</value>
   </data>
   <data name="LegendItemLabelName" xml:space="preserve">
     <value>Étiquette</value>

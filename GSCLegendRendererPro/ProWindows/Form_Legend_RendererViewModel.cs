@@ -882,6 +882,8 @@ namespace GSCLegendRendererPro.ProWindows
                 //Heading 5 initialization
                 heading5Text = new List<string>();
 
+                await CLeanUpOldLegend();
+
                 return true;
             }
             catch (Exception SetupLayoutAndGraphicsException)
@@ -889,6 +891,25 @@ namespace GSCLegendRendererPro.ProWindows
                 new ErrorService(SetupLayoutAndGraphicsException).WriteToFile();
                 return false;
             }
+
+        }
+
+        /// <summary>
+        /// Will search for the default legend group name and remove it, so user doesn't have
+        /// to delete it each time they launches the tool.
+        /// </summary>
+        /// <returns></returns>
+        public async Task CLeanUpOldLegend()
+        {
+            await QueuedTask.Run(async () =>
+            {
+                //Cleanup - Delete previous legend if any
+                Element legendElement = pPage.GetElements().Where(e => e.Name == Properties.Resources.LegendGroupName).FirstOrDefault();
+                if (legendElement != null)
+                {
+                    pPage.DeleteElement(legendElement);
+                }
+            });
 
         }
 
@@ -2193,7 +2214,7 @@ namespace GSCLegendRendererPro.ProWindows
             pPage.SelectElements(groupedElements);
 
             //Group
-            ElementFactory.Instance.CreateGroupElement(pPage, pPage.GetSelectedElements(), Properties.Resources.ResultLegendRendererGroupName, false);
+            ElementFactory.Instance.CreateGroupElement(pPage, pPage.GetSelectedElements(), Properties.Resources.LegendGroupName, false);
         }
 
         /// <summary>
