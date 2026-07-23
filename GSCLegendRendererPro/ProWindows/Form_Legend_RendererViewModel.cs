@@ -722,7 +722,7 @@ namespace GSCLegendRendererPro.ProWindows
 
                                                 await AddEmbeddedMapUnit();
 
-                                                await AddMarkers();
+                                                await AddMarker();
 
                                                 #endregion
 
@@ -2669,18 +2669,17 @@ namespace GSCLegendRendererPro.ProWindows
             {
                 descriptionElement = CopyElementObject(templateGraphicDico[Constants.Graphics.description_indent2] as Element, currentOrder.ToString());
             }
-            else
-            {
-                descriptionElement = CopyElementObject(templateGraphicDico[Constants.Graphics.description] as Element, currentOrder.ToString());
-            }
-
-            //If description is meant for a group 5 heading, then modify style
-            if (heading5Text.Count >= 1)
+            else if (heading5Text.Count >= 1)
             {
                 descriptionElement = CopyElementObject(templateGraphicDico[Constants.Graphics.heading5Description] as Element, currentOrder.ToString());
                 double indentation = GetXSpacing(Constants.Graphics.heading5Description) - GetXSpacing(Constants.Graphics.description);
                 inAnchor = new Tuple<double, double>(inAnchor.Item1 + indentation, inAnchor.Item2);
             }
+            else
+            {
+                descriptionElement = CopyElementObject(templateGraphicDico[Constants.Graphics.description] as Element, currentOrder.ToString());
+            }
+
 
             //Create new text graphic with default style
             TextElement dtElement = descriptionElement as TextElement;
@@ -3378,6 +3377,38 @@ namespace GSCLegendRendererPro.ProWindows
                         currentLabel2 = Constants.TextConfiguration.missingText;
                     }
 
+                    //Symbolize
+                    GroupElement inGroupElement = currentElementObject as GroupElement;
+                    if (inGroupElement != null)
+                    {
+                        //Check geometry of inner elements, if it's all lines
+                        List<Element> groupElements = inGroupElement.GetElementsAsFlattenedList().ToList();
+
+                        for (int el = 0; el < groupElements.Count(); el++)
+                        {
+                            Element innerElement = groupElements[el];
+
+                            if (el == 0)
+                            {
+                                SetPolygonFill(innerElement, currentStyle1, true);
+                                labelUnitBoxElement = AddLabelInUnitBox(currentLabel1, innerElement, anchorPoint, Constants.Graphics.UnitBoxType.split1, currentLabel1Style);
+
+                            }
+                            else if (el > 0)
+                            {
+                                SetPolygonFill(innerElement, currentStyle2, true);
+                                labelUnitBoxElement2 = AddLabelInUnitBox(currentLabel2, innerElement, anchorPoint, Constants.Graphics.UnitBoxType.split2, currentLabel2Style);
+                            }
+
+                        }
+                    }
+                    else
+                    {
+                        //Symbolize
+                        labelUnitBoxElement = AddLabelInUnitBox(currentLabel1, currentElementObject, anchorPoint, Constants.Graphics.UnitBoxType.normal, currentLabel1Style);
+                        demUnitBoxElement = SetPolygonFill(currentElementObject, currentStyle1, true, true, anchorPoint, currentStyle2);
+                    }
+
                     //Add header if needed
                     if (currentHeading != null && currentHeading != string.Empty && currentHeading != " ")
                     {
@@ -3411,39 +3442,6 @@ namespace GSCLegendRendererPro.ProWindows
                         lastElement = newDescriptionElement;
                         lastElementType = Constants.Graphics.description;
 
-                    }
-
-                    //Symbolize
-                    GroupElement inGroupElement = currentElementObject as GroupElement;
-
-                    if (inGroupElement != null)
-                    {
-                        //Check geometry of inner elements, if it's all lines
-                        List<Element> groupElements = inGroupElement.GetElementsAsFlattenedList().ToList();
-
-                        for (int el = 0; el < groupElements.Count(); el++)
-                        {
-                            Element innerElement = groupElements[el];
-
-                            if (el == 0)
-                            {
-                                SetPolygonFill(innerElement, currentStyle1, true);
-                                labelUnitBoxElement = AddLabelInUnitBox(currentLabel1, innerElement, anchorPoint, Constants.Graphics.UnitBoxType.split1, currentLabel1Style);
-
-                            }
-                            else if (el > 0)
-                            {
-                                SetPolygonFill(innerElement, currentStyle2, true);
-                                labelUnitBoxElement2 = AddLabelInUnitBox(currentLabel2, innerElement, anchorPoint, Constants.Graphics.UnitBoxType.split2, currentLabel2Style);
-                            }
-
-                        }
-                    }
-                    else
-                    {
-                        //Symbolize
-                        labelUnitBoxElement = AddLabelInUnitBox(currentLabel1, currentElementObject, anchorPoint, Constants.Graphics.UnitBoxType.normal, currentLabel1Style);
-                        demUnitBoxElement = SetPolygonFill(currentElementObject, currentStyle1, true, true, anchorPoint, currentStyle2);
                     }
 
                     //CASE - UNIT INDENT: Move items (label, description and unit box) for unit indent items
@@ -3680,7 +3678,7 @@ namespace GSCLegendRendererPro.ProWindows
         /// Will add points/markers symbols
         /// </summary>
         /// <returns></returns>
-        public async Task AddMarkers()
+        public async Task AddMarker()
         {
             try
             {
