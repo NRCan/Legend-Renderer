@@ -193,13 +193,17 @@ namespace GSCLegendRendererPro.Utilities
         /// <returns></returns>
         public static GraphicElement SetMissingLineSymbol(GraphicElement parentSymbol)
         {
-            CIMGraphic cimGraphic = parentSymbol.GetGraphic();
-            if (cimGraphic != null)
+            if (parentSymbol != null)
             {
-                CIMLineGraphic cimLineSymbol = cimGraphic as CIMLineGraphic;
-                cimLineSymbol.Symbol.Symbol.SetColor(ColorFactory.Instance.RedRGB);
-                parentSymbol.SetGraphic(cimGraphic);
+                CIMGraphic cimGraphic = parentSymbol.GetGraphic();
+                if (cimGraphic != null)
+                {
+                    CIMLineGraphic cimLineSymbol = cimGraphic as CIMLineGraphic;
+                    cimLineSymbol.Symbol.Symbol.SetColor(ColorFactory.Instance.RedRGB);
+                    parentSymbol.SetGraphic(cimGraphic);
+                }
             }
+
             return parentSymbol;
 
         }

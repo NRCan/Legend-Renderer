@@ -201,6 +201,9 @@
   <data name="ErrorMissingTable" xml:space="preserve">
     <value>Veuillez sélectionner une table.</value>
   </data>
+  <data name="ErrorFileNotFound" xml:space="preserve">
+    <value>Fichier non trouvé {0}.</value>
+  </data>
   <data name="ErrorValidationFailed" xml:space="preserve">
     <value>Une erreur est survenue durant une ronde de configuration.</value>
   </data>

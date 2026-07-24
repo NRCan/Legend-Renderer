@@ -1225,15 +1225,22 @@
           "camera" : {
             "type" : "CIMViewCamera",
             "pitch" : -90,
+            "scale" : 327790.04360530764,
             "x" : 500,
             "y" : 500,
             "z" : "NaN",
-            "viewportHeight" : -1,
-            "viewportWidth" : -1
+            "viewportHeight" : 9634.2410666253109,
+            "viewportWidth" : 65280.206659106087
           },
           "verticalExaggerationScaleFactor" : 1,
+          "timeDisplay" : {
+            "type" : "CIMMapTimeDisplay",
+            "defaultTimeIntervalUnits" : "esriTimeUnitsUnknown",
+            "timeRelation" : "esriTimeRelationOverlaps"
+          },
           "sceneDrawingMode" : "Perspective",
           "fieldOfView" : 55,
+          "pauseAnimatedSymbols" : true,
           "colorVisionDeficiencyMode" : "None"
         },
         "extentIndicatorsExpanded" : true,
@@ -9595,6 +9602,7 @@
           "x" : 12.1524000000008527,
           "y" : 103.247596155749321
         },
+        "expanded" : true,
         "frame" : {
           "rings" : [
             [
@@ -9990,6 +9998,7 @@
           "y" : 85.21050505501492
         },
         "lockedAspectRatio" : true,
+        "expanded" : true,
         "frame" : {
           "rings" : [
             [
@@ -10267,6 +10276,7 @@
           "x" : 11.7978999999995722,
           "y" : 69.832378245076427
         },
+        "expanded" : true,
         "frame" : {
           "rings" : [
             [

@@ -165,10 +165,6 @@
   <data name="GenericWarningTitle" xml:space="preserve">
     <value>Warning</value>
   </data>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="GSC_SymbolStandard" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Assets\GSC_SymbolStandard.stylx;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
   <data name="FormRendererFieldLabel1" xml:space="preserve">
     <value>Label 1</value>
   </data>
@@ -205,15 +201,6 @@
   <data name="ErrorMissingTable" xml:space="preserve">
     <value>Please select a table first.</value>
   </data>
-  <data name="Configuration_Other" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Assets\Configuration_Other.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Configuration_X_Spacings" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Assets\Configuration_X_Spacings.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Configuration_Y_Spacings" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Assets\Configuration_Y_Spacings.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
   <data name="ErrorFileNotFound" xml:space="preserve">
     <value>File not found {0}.</value>
   </data>
@@ -228,9 +215,6 @@
   </data>
   <data name="FormRendererPageUnitsWarning" xml:space="preserve">
     <value>Page units can only be millimeters. Will automatically set current page units to it.</value>
-  </data>
-  <data name="LegendRendererTemplate" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Assets\LegendRendererTemplate.pagx;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="ErrorLayoutLoading" xml:space="preserve">
     <value>An error occured during the loading of the template layout.</value>
@@ -258,6 +242,22 @@
   </data>
   <data name="ErrorMissingLabel" xml:space="preserve">
     <value>Missing</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="Configuration_Other" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Assets\Configuration_Other.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Configuration_X_Spacings" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Assets\Configuration_X_Spacings.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Configuration_Y_Spacings" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Assets\Configuration_Y_Spacings.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="GSC_SymbolStandard" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Assets\GSC_SymbolStandard.stylx;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="LegendRendererTemplate" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Assets\LegendRendererTemplate.pagx;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="UNIT_BOX_DEM" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Assets\UNIT_BOX_DEM.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>

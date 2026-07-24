@@ -39,7 +39,7 @@ namespace GSCLegendRendererPro.Models
         public string BEACH { get; set; }
         public string DUNES { get; set; }
         public string LANDSLIDE { get; set; }
-        public string MORAINE { get; set; }
+        public string MORAINES { get; set; }
         public string POINT_CC { get; set; }
         public string POINT_CC_45 { get; set; }
         public string POINT_LC_45 { get; set; }
@@ -79,7 +79,7 @@ namespace GSCLegendRendererPro.Models
         public ConfigurationBase BEACH { get; set; }
         public ConfigurationBase DUNES { get; set; }
         public ConfigurationBase LANDSLIDE { get; set; }
-        public ConfigurationBase MORAINE { get; set; }
+        public ConfigurationBase MORAINES { get; set; }
         public ConfigurationBase POINT_CC { get; set; }
         public ConfigurationBase POINT_CC_45 { get; set; }
         public ConfigurationBase POINT_LC_45 { get; set; }
