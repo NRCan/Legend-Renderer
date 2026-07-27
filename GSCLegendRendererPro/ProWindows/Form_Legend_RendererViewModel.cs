@@ -10,6 +10,7 @@ using ArcGIS.Desktop.Core;
 using ArcGIS.Desktop.Framework;
 using ArcGIS.Desktop.Framework.Contracts;
 using ArcGIS.Desktop.Framework.Threading.Tasks;
+using ArcGIS.Desktop.Internal.KnowledgeGraph;
 using ArcGIS.Desktop.Internal.Mapping.Symbology;
 using ArcGIS.Desktop.Internal.Reports;
 using ArcGIS.Desktop.Layouts;
@@ -18,6 +19,7 @@ using GSCLegendRendererPro.Models;
 using GSCLegendRendererPro.Services;
 using GSCLegendRendererPro.Utilities;
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
@@ -731,6 +733,8 @@ namespace GSCLegendRendererPro.ProWindows
                                                 await AddLine();
 
                                                 await AddOverlay();
+
+                                                await AddBreakLine();
 
                                                 #endregion
 
@@ -3758,6 +3762,10 @@ namespace GSCLegendRendererPro.ProWindows
             }
         }
 
+        /// <summary>
+        /// Will add a line symbol
+        /// </summary>
+        /// <returns></returns>
         public async Task AddLine()
         {
             try
@@ -3915,6 +3923,10 @@ namespace GSCLegendRendererPro.ProWindows
             }
         }
 
+        /// <summary>
+        /// Will add a polygon symbol tha represents overlays and blobs
+        /// </summary>
+        /// <returns></returns>
         public async Task AddOverlay()
         {
             try
@@ -4025,6 +4037,50 @@ namespace GSCLegendRendererPro.ProWindows
             }
         }
 
+        /// <summary>
+        /// Will add a break line used mainly for headers
+        /// </summary>
+        /// <returns></returns>
+        public async Task AddBreakLine()
+        {
+            try
+            {
+                if (currentElementObject != null && currentElementName == Constants.Graphics.breakLine)
+                {
+                    //Set new anchor
+                    anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - ySpacing); //New anchor point with proper move inside it
+                    PositionElement(currentElementObject, anchorPoint.Item1, anchorPoint.Item2);
+
+                    //Set symbol
+                    GraphicElement graphicElement= currentElementObject as GraphicElement;
+                    if (graphicElement != null)
+                    {
+                        CIMGraphic cimGraphic = graphicElement.GetGraphic();
+                        if (cimGraphic != null )
+                        {
+                            CIMLineGraphic cIMLineGraphic = cimGraphic as CIMLineGraphic;
+                            if (cIMLineGraphic != null)
+                            {
+                                if (lineSymbolDico.ContainsKey(currentStyle1))
+                                {
+                                    CIMLineSymbol newLineSymbol = lineSymbolDico[currentStyle1].Symbol as CIMLineSymbol;
+                                    cIMLineGraphic.Symbol.Symbol = newLineSymbol;
+                                    graphicElement.SetGraphic(cIMLineGraphic);
+                                }
+                                else
+                                {
+                                    Symbols.SetMissingLineSymbol(graphicElement);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception AddBreakLineException)
+            {
+                new ErrorService(AddBreakLineException).WriteToFile();
+            }    
+        }
         #endregion
     }
 }
