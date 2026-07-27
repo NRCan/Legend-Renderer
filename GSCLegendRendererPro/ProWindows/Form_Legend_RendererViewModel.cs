@@ -27,6 +27,7 @@ using System.Drawing.Imaging;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -735,6 +736,8 @@ namespace GSCLegendRendererPro.ProWindows
                                                 await AddOverlay();
 
                                                 await AddBreakLine();
+
+                                                await AddBreakLineAnnotation();
 
                                                 #endregion
 
@@ -2212,6 +2215,7 @@ namespace GSCLegendRendererPro.ProWindows
                     }
                 }
             }
+
         }
 
         /// <summary>
@@ -4052,34 +4056,73 @@ namespace GSCLegendRendererPro.ProWindows
                     PositionElement(currentElementObject, anchorPoint.Item1, anchorPoint.Item2);
 
                     //Set symbol
-                    GraphicElement graphicElement= currentElementObject as GraphicElement;
-                    if (graphicElement != null)
+                    if (currentStyle1 != null && currentStyle1 != string.Empty && currentStyle1 != " ")
                     {
-                        CIMGraphic cimGraphic = graphicElement.GetGraphic();
-                        if (cimGraphic != null )
+                        GraphicElement graphicElement = currentElementObject as GraphicElement;
+                        if (graphicElement != null)
                         {
-                            CIMLineGraphic cIMLineGraphic = cimGraphic as CIMLineGraphic;
-                            if (cIMLineGraphic != null)
+                            CIMGraphic cimGraphic = graphicElement.GetGraphic();
+                            if (cimGraphic != null)
                             {
-                                if (lineSymbolDico.ContainsKey(currentStyle1))
+                                CIMLineGraphic cIMLineGraphic = cimGraphic as CIMLineGraphic;
+                                if (cIMLineGraphic != null)
                                 {
-                                    CIMLineSymbol newLineSymbol = lineSymbolDico[currentStyle1].Symbol as CIMLineSymbol;
-                                    cIMLineGraphic.Symbol.Symbol = newLineSymbol;
-                                    graphicElement.SetGraphic(cIMLineGraphic);
-                                }
-                                else
-                                {
-                                    Symbols.SetMissingLineSymbol(graphicElement);
+                                    if (lineSymbolDico.ContainsKey(currentStyle1))
+                                    {
+                                        CIMLineSymbol newLineSymbol = lineSymbolDico[currentStyle1].Symbol as CIMLineSymbol;
+                                        cIMLineGraphic.Symbol.Symbol = newLineSymbol;
+                                        graphicElement.SetGraphic(cIMLineGraphic);
+                                    }
+                                    else
+                                    {
+                                        Symbols.SetMissingLineSymbol(graphicElement);
+                                    }
                                 }
                             }
                         }
                     }
+
                 }
             }
             catch (Exception AddBreakLineException)
             {
                 new ErrorService(AddBreakLineException).WriteToFile();
             }    
+        }
+
+        /// <summary>
+        /// Will add a break line annotation if any needed
+        /// </summary>
+        /// <returns></returns>
+        public async Task AddBreakLineAnnotation()
+        {
+            try
+            {
+                if ( currentElementObject != null && currentElementName == Constants.Graphics.annotationBreak)
+                {
+                    //Set new anchor
+                    anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - ySpacing);
+                    PositionElement(currentElementObject, anchorPoint.Item1, anchorPoint.Item2);
+
+                    //Move
+                    MoveElement(currentElementObject, xSpacing, 0);
+
+                    //Set Heading text
+                    TextElement tElement = currentElementObject as TextElement;
+                    if (tElement != null)
+                    {
+                        tElement.SetTextProperties(new TextProperties(currentLabel1, tElement.TextProperties.Font, tElement.TextProperties.FontSize, tElement.TextProperties.FontStyle));
+                        if (currentLabel1 == null || currentLabel1 == string.Empty || currentLabel1 == " ")
+                        {
+                            tElement = Symbols.SetMissingTextSymbol(tElement);
+                        }
+                    }
+                }
+            }
+            catch (Exception AddBreakLineAnnotationException)
+            {
+                new ErrorService(AddBreakLineAnnotationException).WriteToFile();
+            }
         }
         #endregion
     }
