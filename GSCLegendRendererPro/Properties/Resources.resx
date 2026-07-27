@@ -250,9 +250,6 @@
   <data name="Configuration_X_Spacings" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Assets\Configuration_X_Spacings.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="Configuration_Y_Spacings" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Assets\Configuration_Y_Spacings.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
   <data name="GSC_SymbolStandard" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Assets\GSC_SymbolStandard.stylx;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
@@ -261,5 +258,8 @@
   </data>
   <data name="UNIT_BOX_DEM" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Assets\UNIT_BOX_DEM.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Configuration_Y_Spacings" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Assets\Configuration_Y_Spacings.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
 </root>
