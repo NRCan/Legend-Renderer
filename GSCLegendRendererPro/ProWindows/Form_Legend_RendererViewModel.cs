@@ -1,4 +1,5 @@
-﻿using ArcGIS.Core.CIM;
+﻿using ActiproSoftware.Windows.Media;
+using ArcGIS.Core.CIM;
 using ArcGIS.Core.Data;
 using ArcGIS.Core.Data.Analyst3D;
 using ArcGIS.Core.Data.DDL;
@@ -728,6 +729,8 @@ namespace GSCLegendRendererPro.ProWindows
                                                 await AddMarker();
 
                                                 await AddLine();
+
+                                                await AddOverlay();
 
                                                 #endregion
 
@@ -2271,38 +2274,35 @@ namespace GSCLegendRendererPro.ProWindows
 
                             return inElement;
                         }
-                        ////Overlay fill type 
-                        //else if (symbolTypeName == Constants.ObjectNames.fillTypeMultilayer)
-                        //{
-                        //    ////Will act as a non simple fill
-                        //    //IFillSymbol fillMulti = iFillSymbol;
+                        //Overlay fill type 
+                        else if (symbolTypeName == Constants.ObjectNames.fillTypeMultilayer)
+                        {
+                            CIMGraphic graphic = graphicElement.GetGraphic();
+                            CIMPolygonSymbol cimPolySymbol = graphic.Symbol.Symbol as CIMPolygonSymbol;
 
-                        //    ////Set color if needed
-                        //    //if (style2 != string.Empty && style2 != null && fillSymbolDico.ContainsKey(style2))
-                        //    //{
-                        //    //    string symbolTypeName2 = string.Empty;
-                        //    //    ISymbol fillSymbol2 = fillSymbolDico[style2] as ISymbol;
-                        //    //    IColor symbolColor2 = Services.Symbols.GetPolygonSymbolColor(fillSymbol2, out symbolTypeName2);
+                            if (graphic != null)
+                            {
+                                graphic.Symbol.Symbol = fillSymbol.Symbol;
+                            }
 
-                        //    //    fillMulti.Color = symbolColor2;
-                        //    //}
+                            //Set color if needed
+                            if (style2 != string.Empty && style2 != null && fillSymbolDico.ContainsKey(style2))
+                            {
+                                SymbolStyleItem fillSymbol2 = fillSymbolDico[style2];
+                                cimPolySymbol.SetColor(fillSymbol2.Symbol.GetColor());
+                            }
 
-                        //    ////Manage outline
-                        //    //if (isOutlineNullColor)
-                        //    //{
-                        //    //    //Apply black outline 
-                        //    //    fillMulti.Outline = inOutline;
-                        //    //}
-                        //    //else
-                        //    //{
-                        //    //    //Keep wanted outline
-                        //    //    fillMulti.Outline = multiLineSymbol;
+                            //Manage outline
+                            if (cimPolySymbol.GetOutlineColor() == CIMColor.NoColor())
+                            {
+                                //Apply black outline 
+                                cimPolySymbol.SetOutlineColor(CIMColor.CreateRGBColor(0, 0, 0));
+                            }
 
-                        //    //}
-                        //    //intShapeElement.Symbol = fillMulti;
+                            graphicElement.SetGraphic(graphic);
 
-                        //    return inElement;
-                        //}
+                            return inElement;
+                        }
                         else
                         {
                             //Set background color
@@ -2320,6 +2320,14 @@ namespace GSCLegendRendererPro.ProWindows
                     }
                     else if (fillSymbolDico.ContainsKey(style) && !isSimpleFill)
                     {
+                        SymbolStyleItem fillSymbol = fillSymbolDico[style];
+                        CIMGraphic graphic = graphicElement.GetGraphic();
+                        if (graphic != null)
+                        {
+                            graphic.Symbol.Symbol = fillSymbol.Symbol;
+                            graphicElement.SetGraphic(graphic);
+                        }
+
                         return inElement;
                     }
                     else
@@ -3308,13 +3316,13 @@ namespace GSCLegendRendererPro.ProWindows
                             if (cimGraphic != null)
                             {
                                 CIMTextSymbol cIMTextSymbol = cimGraphic.Symbol.Symbol as CIMTextSymbol;
-
-                                if (cIMTextSymbol != null)
+                                CIMTextSymbol styleText = inStyleSymbol.Symbol as CIMTextSymbol;
+                                if (cIMTextSymbol != null && styleText != null)
                                 {
-                                    cIMTextSymbol.SetColor(cIMTextSymbol.GetColor());
-                                    cIMTextSymbol.FontFamilyName = cIMTextSymbol.FontFamilyName;
-                                    cIMTextSymbol.SetSize(cIMTextSymbol.GetSize());
-                                    cIMTextSymbol.VerticalAlignment = cIMTextSymbol.VerticalAlignment;
+                                    cIMTextSymbol.SetColor(inStyleSymbol.Symbol.GetColor());
+                                    cIMTextSymbol.FontFamilyName = styleText.FontFamilyName;
+                                    cIMTextSymbol.SetSize(styleText.GetSize());
+                                    cIMTextSymbol.VerticalAlignment = styleText.VerticalAlignment;
                                     tElement.SetGraphic(cimGraphic);
                                 }
 
@@ -3904,6 +3912,116 @@ namespace GSCLegendRendererPro.ProWindows
             catch (Exception AddLineException)
             {
                 new ErrorService(AddLineException).WriteToFile();
+            }
+        }
+
+        public async Task AddOverlay()
+        {
+            try
+            {
+                if (currentElementObject != null && (currentElementName == Constants.Graphics.overlay || currentElementName == Constants.Graphics.blob))
+                {
+
+                    //Set new anchor
+                    anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - ySpacing); //New anchor point with proper move inside it
+                    PositionElement(currentElementObject, anchorPoint.Item1, anchorPoint.Item2);
+
+                    //Move on x axis smaller symbols and those that have a different anchor
+                    if (currentElementName == Constants.Graphics.blob)
+                    {
+                        MoveElement(currentElementObject, (xSpacings.ELEMENT_WIDTH / 2.0), 0, Anchor.LeftMidPoint);
+                    }
+
+                    //Symbolize
+                    SetPolygonFill(currentElementObject, currentStyle1, false);
+
+                    //Add annotation or a marker in the middle if needed
+                    if ((currentLabel1 != null && currentLabel1Style != string.Empty) || (currentStyle2 != null && currentStyle2 != string.Empty))
+                    {
+                        Tuple<double, double> offset = new Tuple<double, double>(0, 0);
+
+                        //For a label in the middle
+                        if (currentLabel1Style != null && textSymbolDico != null && textSymbolDico.Count() > 0 && textSymbolDico.ContainsKey(currentLabel1Style))
+                        {
+
+                            //Get appropriate element
+                            Element symAreaPointElement = CopyElementObject(templateGraphicDico[Constants.Graphics.annotationBlob], currentOrder.ToString());
+                            legendElementList.Add(symAreaPointElement);
+
+                            SymbolStyleItem inStyleSymbol = textSymbolDico[currentLabel1Style];
+
+                            GraphicElement pointGraphicElement = symAreaPointElement as GraphicElement;
+                            CIMGraphic cimGraphic = pointGraphicElement.GetGraphic();
+                            if (cimGraphic != null)
+                            {
+                                CIMMultiLayerSymbol cIMLayerSymbol = cimGraphic.Symbol.Symbol as CIMMultiLayerSymbol;
+
+                                if (cIMLayerSymbol != null)
+                                {
+                                    CIMCharacterMarker cimCharact = cIMLayerSymbol.SymbolLayers[0] as CIMCharacterMarker;
+
+                                    int labelCharset = 0;
+                                    if (int.TryParse(currentLabel1, out labelCharset))
+                                    {
+                                        cimCharact.CharacterIndex = Convert.ToInt16(currentLabel1);
+
+                                        //Make sure needed style font style is copied over new annotation, else leave default
+                                        CIMTextSymbol inStyleTextSymbol = inStyleSymbol.Symbol as CIMTextSymbol;
+                                        cimCharact.FontFamilyName = inStyleTextSymbol.FontFamilyName;
+                                    }
+                                    else
+                                    {
+                                        cimCharact.CharacterIndex = labelCharset;
+                                    }
+
+                                    pointGraphicElement.SetGraphic(cimGraphic);
+
+                                }
+
+                            }
+
+                            //Set new anchor
+                            SetPointFromAnchorType(symAreaPointElement, anchorPoint, offset);
+
+                        }
+
+
+                        //For a marker in the middle
+                        if (currentStyle2 != null && markerSymbolDico != null && markerSymbolDico.Count > 0 && markerSymbolDico.ContainsKey(currentStyle2))
+                        {
+                            //Build marker element
+                            Element symAreaPointElement = CopyElementObject(templateGraphicDico[Constants.Graphics.point], currentOrder.ToString());
+                            symAreaPointElement = BuildMarker(symAreaPointElement, Constants.Graphics.point, currentOrder, currentStyle2, out offset);
+                            legendElementList.Add(symAreaPointElement);
+
+                            //Set new anchor
+                            Tuple<double, double> overlayPointAnchor = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - currentElementObject.GetHeight() / 2.0);
+                            SetPointFromAnchorType(symAreaPointElement, overlayPointAnchor, offset);
+                        }
+
+                        //For a new color fill on the symbol
+                        if (currentStyle2 != null && fillSymbolDico != null && fillSymbolDico.Count > 0 && fillSymbolDico.ContainsKey(currentStyle2))
+                        {
+                            //Symbolize
+                            Element symAreaPointElement = SetPolygonFill(currentElementObject, currentStyle1, false, false, anchorPoint, currentStyle2);
+                        }
+
+                    }
+
+                    Element newDescriptionElement = AddDescription(currentDescription, currentElementObject, anchorPoint, currentElementName);
+                    double descriptionHeight = currentElementObject.GetHeight();
+                    if (descriptionHeight > smallDescriptionHeight)
+                    {
+                        //Reset anchor point for next element
+                        anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - descriptionHeight); //New anchor point with proper move inside it
+
+                    }
+                }
+
+            }
+            catch (Exception AddOverlayException)
+            {
+                new ErrorService(AddOverlayException).WriteToFile();
             }
         }
 
