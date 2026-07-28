@@ -220,6 +220,7 @@ namespace GSCLegendRendererPro.Utilities
             public const double lineDescriptionHeightAdjustement = 0.5; //Aligning lines with long description with their top introduces a small gap because text as some slight margin at the top
             public const double lineHeight0DescriptionHeightAdjustement = 1.5; //Flat lines symbols have a height of 0, take this instead when a height is needed.
             public const double markerMeanHeight = 2.5; //Used to position subsequent element after a long marker description
+            public const double minimumHeightBetweenTextElement = 2.0;
         }
 
         public static class TextConfiguration

@@ -745,6 +745,8 @@ namespace GSCLegendRendererPro.ProWindows
 
                                                 await AddRightBracket();
 
+                                                await AddNote();
+
                                                 #endregion
 
                                                 #region FINALIZE
@@ -1761,6 +1763,11 @@ namespace GSCLegendRendererPro.ProWindows
                             y = fromElement.GetBounds().Height + Convert.ToDouble(ySpacingToElement.Split(' ')[0], CultureInfo.InvariantCulture);
                         }
                     }
+                }
+                else
+                {
+                    //EDGE CASE - If element is not present and still need some space between the current and next element (usually meant for TOP_NOTE element)
+                    y = fromElement.GetBounds().Height + Constants.YSpacings.minimumHeightBetweenTextElement;
                 }
             }
 
@@ -3250,62 +3257,6 @@ namespace GSCLegendRendererPro.ProWindows
             return markerLabelElement;
         }
 
-        /// <summary>
-        /// Will move a given element to an anchor point by creating a vector line
-        /// </summary>
-        /// <param name="inElement"></param>
-        /// <param name="inAnchor"></param>
-        public void MoveItemToAnchorPoint(Element inElement, Tuple<double, double> inAnchor)
-        {
-            //Create new vector line
-            Line moveVector = new Line();
-
-            //Apply conversion factor
-            double inElementWidth = inElement.GetWidth();
-            double inElementHeight = inElement.GetHeight();
-
-            //Create new start point
-            Coordinate2D startPoint = new Coordinate2D(inElement.GetGeometry().Extent.XMax, inElement.GetGeometry().Extent.YMax);
-
-            if (inElement.GetAnchor() == Anchor.BottomRightCorner || inElement.GetAnchor() == Anchor.TopRightCorner)
-            {
-                startPoint = new Coordinate2D(inElement.GetGeometry().Extent.XMax, inElement.GetGeometry().Extent.YMax);
-            }
-            if (inElement.GetAnchor() == Anchor.RightMidPoint)
-            {
-                //Create new start point
-                startPoint = new Coordinate2D(inElement.GetGeometry().Extent.XMax, inElement.GetGeometry().Extent.YMax - inElementHeight / 2.0);
-            }
-            if (inElement.GetAnchor() == Anchor.BottomLeftCorner)
-            {
-                //Create new start point
-                startPoint = new Coordinate2D(inElement.GetGeometry().Extent.XMin, inElement.GetGeometry().Extent.YMin);
-            }
-            if (inElement.GetAnchor() == Anchor.TopLeftCorner)
-            {
-                //Create new start point
-                startPoint = new Coordinate2D(inElement.GetGeometry().Extent.XMin, inElement.GetGeometry().Extent.YMax);
-            }
-            if (inElement.GetAnchor() == Anchor.LeftMidPoint)
-            {
-                //Create new start point
-                startPoint = new Coordinate2D(inElement.GetGeometry().Extent.XMin, inElement.GetGeometry().Extent.YMax - inElementHeight / 2.0);
-            }
-            if (inElement.GetAnchor() == Anchor.CenterPoint)
-            {
-                //Create new start point
-                startPoint = new Coordinate2D(inElement.GetGeometry().Extent.XMin + inElementWidth / 2.0, inElement.GetGeometry().Extent.YMax - inElementHeight / 2.0);
-            }
-
-            //Create new end point
-            Coordinate2D endPoint = new Coordinate2D(inAnchor.Item1, inAnchor.Item2);
-
-            //Move
-            Coordinate2D newAnchorPoint = new Coordinate2D(endPoint.X - startPoint.X, endPoint.Y - startPoint.Y);
-            inElement.SetAnchorPoint(newAnchorPoint);
-        }
-
-
         #endregion
 
         #region ADD GRAPHIC METHODS
@@ -4232,7 +4183,7 @@ namespace GSCLegendRendererPro.ProWindows
                 #endregion
 
                 #region LOWER ELEMENT
-                if (currentElementName == Constants.Graphics.bracketLeftLower)
+                if (currentElementName == Constants.Graphics.bracketLeftLower && lastElement != null)
                 {
                     #region END BRACKET NOTCH
 
@@ -4520,6 +4471,70 @@ namespace GSCLegendRendererPro.ProWindows
             catch (Exception AddRightBracketException)
             {
                 new ErrorService(AddRightBracketException).WriteToFile();
+            }
+        }
+
+        public async Task AddNote()
+        {
+            try
+            {
+                if (currentElementName == Constants.Graphics.topNote || currentElementName == Constants.Graphics.note)
+                {
+
+                    //Get appropriate element
+                    if (templateGraphicDico.ContainsKey(currentElementName))
+                    {
+                        //Set text
+                        TextElement noteTextElement = currentElementObject as TextElement;
+                        if (noteTextElement != null)
+                        {
+                            //Add description and header if needed
+                            if (currentHeading != null && currentHeading != string.Empty && currentHeading != " ")
+                            {
+                                currentDescription = Constants.TextConfiguration.tagBold + currentHeading + Constants.TextConfiguration.endTagBold + " " + currentDescription;
+                            }
+
+                            if (currentDescription == null || currentDescription == string.Empty || currentDescription == " ")
+                            {
+                                noteTextElement = Symbols.SetMissingTextSymbol(noteTextElement, Properties.Resources.ErrorMissingLabel);
+                            }
+                            else
+                            {
+                                noteTextElement.SetTextProperties(new TextProperties(currentDescription, noteTextElement.TextProperties.Font,
+                                    noteTextElement.TextProperties.FontSize, noteTextElement.TextProperties.FontStyle));
+                            }
+                        }
+
+                        //Set width and height
+                        double wantedTextHeight = GetTextHeight(currentDescription, columnWidth);
+
+                        Coordinate2D lowerLeftNote = new Coordinate2D(anchorPoint.Item1, anchorPoint.Item2);
+                        Coordinate2D upperRightNote = new Coordinate2D(anchorPoint.Item1 + columnWidth, anchorPoint.Item2 - wantedTextHeight);
+
+                        Envelope llEnvelope = EnvelopeBuilderEx.CreateEnvelope(lowerLeftNote, upperRightNote);
+                        ArcGIS.Core.Geometry.Polygon notePoly = PolygonBuilderEx.CreatePolygon(llEnvelope);
+                        currentElementObject.SetGeometry(notePoly);
+
+                        //Set new anchor
+                        anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - ySpacing);
+                        PositionElement(currentElementObject, anchorPoint.Item1, anchorPoint.Item2);
+
+                        //Move
+                        MoveElement(currentElementObject, xSpacing, 0);
+
+                        //Keep name
+                        double noteHeight = currentElementObject.GetHeight();
+                        double noteYMin = currentElementObject.GetBounds().YMin;
+                        double noteYMax = currentElementObject.GetBounds().YMax;
+
+                    }
+
+                }
+
+            }
+            catch (Exception AddNoteException)
+            {
+                new ErrorService(AddNoteException).WriteToFile();
             }
         }
         #endregion
