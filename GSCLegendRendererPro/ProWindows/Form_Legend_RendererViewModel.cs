@@ -690,9 +690,6 @@ namespace GSCLegendRendererPro.ProWindows
 
                                                 await GatherCurrentRowInformation(legendRow);
 
-                                                ///Seems irrelevant under ArcPro now.
-                                                //await CleanupDescription();
-
                                                 //Get related graphic from template layout dictionary
                                                 if (templateGraphicDico.ContainsKey(currentElementName))
                                                 {
@@ -715,9 +712,6 @@ namespace GSCLegendRendererPro.ProWindows
 
                                                 //Manage column change and spacing
                                                 await ManageColumn(legendRow);
-
-                                                //EDGE CASE: Manage UNIT_PARENT graphics that needs to be sent below childs, even though ordering is before
-                                                //await ManageUnitParentOrder();
 
                                                 #endregion
 
@@ -886,7 +880,7 @@ namespace GSCLegendRendererPro.ProWindows
                 SetPageUnits();
 
                 //Force delay update
-                //TODO: didn't find equivalent under ArcPro
+                //Was in ArcMap, no equivalent for ArcPro
                 //currentDoc.DelayUpdateContents = true;
 
                 //Get template graphics
@@ -4474,6 +4468,10 @@ namespace GSCLegendRendererPro.ProWindows
             }
         }
 
+        /// <summary>
+        /// Will add a note or a top note element to the legend
+        /// </summary>
+        /// <returns></returns>
         public async Task AddNote()
         {
             try
