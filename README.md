@@ -1,28 +1,24 @@
 # Legend Renderer
 ([Français](#Rendu-de-légende))
 
-This tool was develop to assist any user creating a standard Canadian Geoscience Map (CGM) legend. By reading the data from an input legend table, the tool will be able to add proper graphic elements inside an ArcMapTM layout view. The legend will be fully compliant with standard procedure, from element ordering, text, description, labels, spacing between elements, and so on. Using a tool like this one can be a real time saver in which cartography workflow will be speed-up. It also offers flexibility whenever updates needs to be conducted on the legend without forcing cartographer to manually do the edits. The tool only needs to be run again.
+This tool was develop to assist any user creating a standard Canadian Geoscience Map (CGM) legend. By reading the data from an input legend table, the tool will be able to add proper graphic elements inside an ArcGIS Pro&trade; layout view. The legend will be fully compliant with standard procedure, from element ordering, text, description, labels, spacing between elements, and so on. Using a tool like this one can be a real time saver in which cartography workflow will be speed-up. It also offers flexibility whenever updates needs to be conducted on the legend without forcing cartographer to manually do the edits. The tool only needs to be run again.
 
 ## Requirements
 
-The tools were developed on ArcGIS Desktop version 10.7.
+The tools were developed on ArcGIS Pro version 3.5.X and higher.
 
 ## Installation
 Please refer to the original ESRI method for pluggin installation:
-[Installation](https://desktop.arcgis.com/en/arcmap/latest/analyze/python-addins/sharing-and-installing-add-ins.htm)
+[Installation](https://doc.esri.com/en/arcgis-pro/latest/get-started/manage-add-ins.html)
 
 
 ## Latest Version
 
-Please download the latest version from the [Release page](https://github.com/NRCan/Legend-Renderer).
+Please download the latest version from the [Release page](https://github.com/NRCan/Legend-Renderer/releases).
 
 ## Wiki
 
-The [Github Wiki](https://github.com/NRCan/Legend-Renderer/wiki) has helpful documentation and videos for your use including a [technical video](https://www.youtube.com/watch?v=bpSkPNBQ3gg).
-
-## Data Format
-
-The current tool supports multiple format, like Excel (.xlsx), File Geodatabase (.gbd), Comma seperated values (.csv), etc.
+The [Github Wiki](https://github.com/NRCan/Legend-Renderer/wiki) has helpful documentation.
 
 
 ## Contacts
@@ -48,29 +44,25 @@ ______________________
 # Rendu de légende
 ([English](#Legend-Renderer))
 
-Cet outil a été dévelopé afin d'assiter à la création d'une légende standard d'une Carte Géoscientifique Canadienne. En interprétant les données d'entrée dans une table de légende, cet outil créera des éléments graphiques à l'intérieux d'une vue de d'habillage de carte dans ArcMapTM. La légende ainsi créée sera compatible avec les procédure standard d'alignement, de texte, de description d'unités géologiques, d'étiquette et d'espacement entre les graphiques. Utiliser un tel outil permet de gagner en efficacité et en temps lors d'un travail de cartographie. Puisque la légende se construit à partir d'une table, un effort d'édition manuelle des éléments graphiques et requis au cartographe.
+Cet outil a été dévelopé afin d'assiter à la création d'une légende standard d'une Carte Géoscientifique Canadienne. En interprétant les données d'entrée dans une table de légende, cet outil créera des éléments graphiques à l'intérieux d'une vue de d'habillage de carte dans ArcGIS Pro&trade;. La légende ainsi créée sera compatible avec les procédure standard d'alignement, de texte, de description d'unités géologiques, d'étiquette et d'espacement entre les graphiques. Utiliser un tel outil permet de gagner en efficacité et en temps lors d'un travail de cartographie. Puisque la légende se construit à partir d'une table, un effort d'édition manuelle des éléments graphiques et requis au cartographe.
 
 ## Pré-requis
 
-Cet outil a été developé et testé sous ArcGIS Desktop TM version 10.7.
+Cet outil a été developé et testé sous ArcGIS Pro version 3.5.X.
 
 ## Installation
 
 Veuillez-vous référer au document d'origine d'ESRI en ce qui concerne l'installation des .esriaddin:
-[Installation](https://desktop.arcgis.com/en/arcmap/latest/analyze/python-addins/sharing-and-installing-add-ins.htm)
+[Installation](https://doc.esri.com/en/arcgis-pro/latest/get-started/manage-add-ins.html)
 
 
 ## Dernière version
 
-Veuillez télécharger la dernière version depuis la [page des versions](https://github.com/NRCan/Legend-Renderer).
+Veuillez télécharger la dernière version depuis la [page des versions](https://github.com/NRCan/Legend-Renderer/releases).
 
 ## Wiki
 
-Le [Github Wiki](https://github.com/NRCan/Legend-Renderer/wiki) contient une documentation et des vidéos utiles, notamment une [une vidéo technique](https://www.youtube.com/watch?v=bpSkPNBQ3gg) de l'application de terrain du CGS.
-
-## Format des données
-
-L'outil supporte plusieurs format d'entrée tel que les fichiers Excel (.xlsx), File Geodatabase (.gdb), Comma seperated values (.csv), etc.
+Le [Github Wiki](https://github.com/NRCan/Legend-Renderer/wiki) contient une documentation.
 
 ## Contacts
 
