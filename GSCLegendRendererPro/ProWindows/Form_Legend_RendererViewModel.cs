@@ -743,6 +743,8 @@ namespace GSCLegendRendererPro.ProWindows
 
                                                 await AddLeftBracket();
 
+                                                await AddRightBracket();
+
                                                 #endregion
 
                                                 #region FINALIZE
@@ -751,12 +753,13 @@ namespace GSCLegendRendererPro.ProWindows
                                                 legendElementList.Add(currentElementObject);
 
                                                 //Keep name
+                                                //EDGE CASE - No bracket elements, because they wrap around other elements and do not interact
+                                                //With the ordering and rendering of other legend items
                                                 if (!currentElementName.Contains(Constants.Graphics.keywordBracket))
                                                 {
                                                     lastElement = currentElementObject;
                                                     lastElementType = currentElementName;
                                                 }
-
 
                                                 #endregion
                                             }
@@ -4280,7 +4283,7 @@ namespace GSCLegendRendererPro.ProWindows
                     #endregion
 
                     #region BRACKET SPINE 2
-                    Element spine1BracketElement2 = CopyElementObject(templateGraphicDico[Constants.Graphics.bracketSpine], currentOrder.ToString(), " LOWER");
+                    Element spine1BracketElement2 = CopyElementObject(templateGraphicDico[Constants.Graphics.bracketSpine], currentOrder.ToString(), "_LOWER");
 
                     //Resize and adjust straight line so that it touches the bracket curly lines
                     Coordinate2D startPointLine2 = new Coordinate2D(middleBracketElement.GetBounds().XMax, middleBracketElement.GetBounds().YMin);
@@ -4361,6 +4364,21 @@ namespace GSCLegendRendererPro.ProWindows
             }
         }
 
+        /// <summary>
+        /// Will add a right bracket that wraps around a block of unit boxes and display another one a the far right
+        /// </summary>
+        /// <returns></returns>
+        public async Task AddRightBracket()
+        {
+            try
+            {
+
+            }
+            catch (Exception AddRightBracketException)
+            {
+                new ErrorService(AddRightBracketException).WriteToFile();
+            }
+        }
         #endregion
     }
 }
