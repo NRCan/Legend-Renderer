@@ -4267,7 +4267,7 @@ namespace GSCLegendRendererPro.ProWindows
                     #endregion
 
                     #region BRACKET SPINE 1
-                    Element spine1BracketElement = CopyElementObject(templateGraphicDico[Constants.Graphics.bracketSpine], currentOrder.ToString());
+                    Element spine1BracketElement = CopyElementObject(templateGraphicDico[Constants.Graphics.bracketSpine], currentOrder.ToString(), "_UPPER");
 
                     //Resize and adjust straight line so that it touches the bracket curly lines
                     Coordinate2D startPointLine = new Coordinate2D(upLeftBracket.GetBounds().XMin, upLeftBracket.GetBounds().YMin);
@@ -4372,6 +4372,149 @@ namespace GSCLegendRendererPro.ProWindows
         {
             try
             {
+                //Process left bracket that was waiting to have Y spacing
+                if (waitingRightBracket != null && !currentElementName.Contains(Constants.Graphics.keywordBracket))
+                {
+                    MoveElement(waitingRightBracket, GetXSpacing(Constants.Graphics.bracketRightUpper) + (currentColumn * GetXSpacing(Constants.Graphics.columnWidth)), -ySpacing);
+
+                    waitingRightBracket = null;
+
+                    howManyRightBrackets = howManyRightBrackets + 1;
+                }
+
+                #region UPPER ELEMENT
+                if (currentElementName == Constants.Graphics.bracketRightUpper)
+                {
+                    //Get appropriate element
+                    if (templateGraphicDico.ContainsKey(currentElementName) && lastElement != null)
+                    {
+                        Element rightBracketElement = currentElementObject;
+
+                        //Set new anchor
+                        Tuple<double, double> rightBracketAnchor = new Tuple<double, double>(anchorPoint.Item1, lastElement.GetBounds().YMax);
+                        PositionElement(currentElementObject, rightBracketAnchor.Item1, rightBracketAnchor.Item2, Anchor.BottomLeftCorner);
+
+                        //Keep in waiting line, to be move in Y axis
+                        waitingRightBracket = rightBracketElement;
+                        upRightBracket = rightBracketElement;
+
+                    }
+                }
+
+                #endregion
+
+                #region LOWER ELEMENT
+                if (currentElementName == Constants.Graphics.bracketRightLower)
+                {
+                    //Get appropriate element
+                    if (templateGraphicDico.ContainsKey(currentElementName) && upRightBracket != null)
+                    {
+                        #region END BRACKET NOTCH
+                        Element rightEndBracketElement = currentElementObject;
+
+                        //Set new anchor
+                        Tuple<double, double> bottomBracketAnchor = new Tuple<double, double>(anchorPoint.Item1, lastElement.GetBounds().YMin + rightEndBracketElement.GetHeight());
+                        PositionElement(rightEndBracketElement, bottomBracketAnchor.Item1, bottomBracketAnchor.Item2);
+
+                        //Move
+                        MoveElement(rightEndBracketElement, xSpacing + (currentColumn * GetXSpacing(Constants.Graphics.columnWidth)), 0);
+
+                        #endregion
+
+                        #region MIDDLE BRACKET NOTCH
+                        Element rightMiddleBracketElement = CopyElementObject(templateGraphicDico[Constants.Graphics.bracketRightCenter], currentOrder.ToString());
+
+                        //Set new anchor
+                        double rightMiddleBracketY = upRightBracket.GetBounds().YMin - Math.Abs(((rightEndBracketElement.GetBounds().YMax - upRightBracket.GetBounds().YMin) / 2.0));
+                        Tuple<double, double> rightMiddleBracketAnchor = new Tuple<double, double>(anchorPoint.Item1, rightMiddleBracketY);
+                        PositionElement(rightMiddleBracketElement, rightMiddleBracketAnchor.Item1, rightMiddleBracketAnchor.Item2, Anchor.LeftMidPoint);
+
+                        //Move
+                        MoveElement(rightMiddleBracketElement, GetXSpacing(Constants.Graphics.bracketRightCenter) + (currentColumn * GetXSpacing(Constants.Graphics.columnWidth)), 0); //Move accordingly to x spacing if any
+
+                        //Add to legend list
+                        legendElementList.Add(rightMiddleBracketElement);
+
+                        //Keep element to use with bracket annotation
+                        waitingCenterRightBracket = rightMiddleBracketElement;
+
+                        #endregion
+
+                        #region BRACKET SPINE 1
+                        Element rightSpine1BracketElement = CopyElementObject(templateGraphicDico[Constants.Graphics.bracketSpine], currentOrder.ToString(), "_UPPER");
+
+                        //Set new anchor
+                        Coordinate2D rightStartPointLine = new Coordinate2D(upRightBracket.GetBounds().XMax, upRightBracket.GetBounds().YMin);
+                        Coordinate2D rightEndPointLine = new Coordinate2D(rightMiddleBracketElement.GetBounds().XMin, rightMiddleBracketElement.GetBounds().YMax);
+
+                        List<Coordinate2D> spineLineVertices = new List<Coordinate2D>() { rightStartPointLine, rightEndPointLine };
+                        Polyline spineLine = PolylineBuilderEx.CreatePolyline(spineLineVertices);
+
+                        rightSpine1BracketElement.SetGeometry(spineLine);
+
+                        //Add to legend list
+                        legendElementList.Add(rightSpine1BracketElement);
+                        #endregion
+
+                        #region BRACKET SPINE 2
+                        Element rightSpine2BracketElement = CopyElementObject(templateGraphicDico[Constants.Graphics.bracketSpine], currentOrder.ToString(), "_LOWER");
+
+                        //Set new anchor
+                        Coordinate2D rightStartPointLine2 = new Coordinate2D(rightMiddleBracketElement.GetBounds().XMin, rightMiddleBracketElement.GetBounds().YMin);
+                        Coordinate2D rightEndPointLine2 = new Coordinate2D(rightEndBracketElement.GetBounds().XMax, rightEndBracketElement.GetBounds().YMax);
+
+                        List<Coordinate2D> spineLineVertices2 = new List<Coordinate2D>() { rightStartPointLine2, rightEndPointLine2 };
+                        Polyline spineLine2 = PolylineBuilderEx.CreatePolyline(spineLineVertices2);
+
+                        rightSpine2BracketElement.SetGeometry(spineLine2);
+
+                        //Add to legend list
+                        legendElementList.Add(rightSpine2BracketElement);
+                        #endregion
+                    }
+                }
+
+                #endregion
+
+                #region UNIT BOX ELEMENT
+                //Process left bracket annotation waiting to have the right anchor point
+                if (waitingCenterRightBracket != null && bracketMapUnit.Item3 != null)
+                {
+                    //Set new anchor for unit box
+                    //double xUnitBoxBracketAnchor = anchorPoint.Item1 + GetXSpacing(Constants.Graphics.bracketRightGap) + waitingCenterRightBracket.Geometry.Envelope.Width + GetXSpacing(Constants.Graphics.unitBoxBracket) -10;
+                    double xUnitBoxBracketAnchor = waitingCenterRightBracket.GetBounds().XMax + GetXSpacing(Constants.Graphics.unitBoxBracket);
+                    double yUnitBoxBracketAnchor = waitingCenterRightBracket.GetBounds().YMin + (waitingCenterRightBracket.GetBounds().YMax - waitingCenterRightBracket.GetBounds().YMin) / 2.0 + bracketMapUnit.Item1.GetHeight() / 2.0;
+                    Tuple<double, double> mapUnitBracketAnchor = new Tuple<double, double>(xUnitBoxBracketAnchor, yUnitBoxBracketAnchor);
+                    PositionElement(bracketMapUnit.Item1, mapUnitBracketAnchor.Item1, mapUnitBracketAnchor.Item2);
+                    
+                    //MoveItemToAnchorPoint(bracketMapUnit.Item1, mapUnitBracketAnchor);
+                    //SetRectangularPolygonFromAnchorType(bracketMapUnit.Item1, mapUnitBracketAnchor);
+                    //Set new anchor for unit box dem if any
+                    if (bracketMapUnit.Item4 != null)
+                    {
+                        //MoveItemToAnchorPoint(bracketMapUnit.Item4, mapUnitBracketAnchor);
+                        PositionElement(bracketMapUnit.Item4, mapUnitBracketAnchor.Item1, mapUnitBracketAnchor.Item2);
+                    }
+
+                    //Set new anchor for label
+                    double xLabelBracketAnchor = mapUnitBracketAnchor.Item1 + bracketMapUnit.Item1.GetWidth() / 2.0;
+                    double yLabelBracketAnchor = mapUnitBracketAnchor.Item2 - bracketMapUnit.Item1.GetHeight() / 2.0;
+                    Tuple<double, double> labelBracketAnchor = new Tuple<double, double>(xLabelBracketAnchor, yLabelBracketAnchor);
+                    PositionElement(bracketMapUnit.Item2, labelBracketAnchor.Item1, labelBracketAnchor.Item2);
+                    //MoveItemToAnchorPoint(bracketMapUnit.Item2, labelBracketAnchor);
+
+                    //Set new anchor for description
+                    double xDescBracketAnchor = bracketMapUnit.Item1.GetBounds().XMax + GetXSpacing(Constants.Graphics.elementDescriptionGapWidth);
+                    Tuple<double, double> descBracketAnchor = new Tuple<double, double>(xDescBracketAnchor, yUnitBoxBracketAnchor);
+                    //AddDescriptionFromElement(bracketMapUnit.Item3, bracketMapUnit.Item1, currentDoc, mapUnitBracketAnchor, Constants.Graphics.unitBox);
+                    //(bracketMapUnit.Item1.GetHeight() / 2.0) + bracketMapUnit.Item1.GetBounds().YMin
+                    PositionElement(bracketMapUnit.Item3, descBracketAnchor.Item1, descBracketAnchor.Item2 - (bracketMapUnit.Item1.GetHeight() / 2.0), Anchor.LeftMidPoint);
+                    //MoveElement(bracketMapUnit.Item3, descBracketAnchor.Item1, 0);
+
+                    waitingCenterRightBracket = null;
+                    bracketMapUnit = new Tuple<Element, Element, Element, Element>(null, null, null, null);
+                }
+                #endregion
 
             }
             catch (Exception AddRightBracketException)
