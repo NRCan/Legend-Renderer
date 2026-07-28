@@ -10,6 +10,7 @@ using ArcGIS.Desktop.Core;
 using ArcGIS.Desktop.Framework;
 using ArcGIS.Desktop.Framework.Contracts;
 using ArcGIS.Desktop.Framework.Threading.Tasks;
+using ArcGIS.Desktop.Internal.Catalog.PropertyPages.NetworkDataset;
 using ArcGIS.Desktop.Internal.KnowledgeGraph;
 using ArcGIS.Desktop.Internal.Mapping.Symbology;
 using ArcGIS.Desktop.Internal.Reports;
@@ -82,6 +83,7 @@ namespace GSCLegendRendererPro.ProWindows
         //LAYOUT
         Layout pPage = null;
         LayoutView pLayoutView = null;
+        LinearUnit originalPageUnits = null;
 
         //GRAPHICS PROCESSING
         public Dictionary<string, Element> templateGraphicDico { get; set; }
@@ -757,6 +759,8 @@ namespace GSCLegendRendererPro.ProWindows
                                                     lastElementType = currentElementName;
                                                 }
 
+                                                await AutomaticColumnsCalculation();
+
                                                 #endregion
                                             }
                                         }
@@ -769,6 +773,7 @@ namespace GSCLegendRendererPro.ProWindows
                             await GroupByOrder();
                             await OrderElementsInTOC();
                             await GroupLegendElements();
+                            SetPageUnits(originalPageUnits);
 
                         });
 
@@ -877,7 +882,7 @@ namespace GSCLegendRendererPro.ProWindows
                 arialCharactersWidth = GetArialCharacterWidth();
 
                 //Set document units, else if it's not in mm the legend will be looking bad...
-                SetPageUnits();
+                SetPageUnits(LinearUnit.Millimeters);
 
                 //Force delay update
                 //Was in ArcMap, no equivalent for ArcPro
@@ -1201,7 +1206,7 @@ namespace GSCLegendRendererPro.ProWindows
         /// Checks that page units are only in mm. All spacings between graphics within the configuration files are in mm.
         /// in the tool internal settings
         /// </summary>
-        public void SetPageUnits()
+        public void SetPageUnits(LinearUnit units)
         {
             try
             {
@@ -1209,20 +1214,26 @@ namespace GSCLegendRendererPro.ProWindows
                 {
                     if (pPage != null)
                     {
-
                         CIMPage cIMPage = pPage.GetPage();
                         if (cIMPage != null)
                         {
-                            if (cIMPage.Units.Name != LinearUnit.Millimeters.Name)
+                            if (units == null)
                             {
-                                MessageBoxResult msgBoxResult = MessageBox.Show(Properties.Resources.FormRendererPageUnitsWarning, Properties.Resources.GenericWarningTitle, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Exclamation);
-                                if (msgBoxResult == MessageBoxResult.OK)
-                                {
-                                    //Enforce centimeters
-                                    cIMPage.Units = LinearUnit.Millimeters;
-                                    pPage.SetPage(cIMPage);
+                                //Set default to mm
+                                units = LinearUnit.Millimeters;
+                            }
 
-                                }
+                            if (originalPageUnits == null)
+                            {
+                                originalPageUnits = cIMPage.Units;
+                            }
+
+                            if (cIMPage.Units != units)
+                            {
+                                //Enforce centimeters
+                                cIMPage.Units = units;
+                                cIMPage.StretchElements = true;
+                                pPage.SetPage(cIMPage);
                             }
                         }
                     }
@@ -1481,18 +1492,14 @@ namespace GSCLegendRendererPro.ProWindows
                 {
                     await QueuedTask.Run(async () =>
                     {
-                        Element referenceLegendElement = pPage.Elements.Where(e => e.Name == Constants.Graphics.cgmLegendElement ||
-                        e.Name.Contains(Constants.Graphics.cgmDetectorKeyword)).FirstOrDefault();
+                        Element referenceLegendElement = pPage.Elements.Where(e => e.Name == Constants.Graphics.cgmLegendElement).FirstOrDefault();
 
                         //Case when CGM blue legend box is detected, get new anchor
                         if (referenceLegendElement != null && referenceLegendElement.GetBounds() != null)
                         {
                             anchorPoint = new Tuple<double, double>(referenceLegendElement.GetBounds().XMin, referenceLegendElement.GetBounds().YMax);
-                            if (referenceLegendElement.Name.Contains(Constants.Graphics.cgmDetectorKeyword))
-                            {
-                                isCGMTemplateMXD = true;
-                            }
-                            
+                            isCGMTemplateMXD = true;
+
                         }
                         //Case when nothing has been save relative to cgm blue legend box, default to upper left of paper layout with a margin of 10
                         else if (anchorPoint.Item2 == 0.0 || isCGMTemplateMXD == false)
@@ -2238,9 +2245,20 @@ namespace GSCLegendRendererPro.ProWindows
         private async Task GroupLegendElements()
         {
             List<Element> groupedElements = pPage.GetElements().Where(x => x is GroupElement).ToList();
+            List<Element> desiredGroupedElements = new List<Element>();
+
+            //Validate that groups are associated to legend and not something else by the user
+            foreach (Element element in groupedElements)
+            {
+                double elementOrder = 0.0;
+                if (double.TryParse(element.Name, out elementOrder))
+                {
+                    desiredGroupedElements.Add(element);
+                }
+            }
 
             //Need to select elements first
-            pPage.SelectElements(groupedElements);
+            pPage.SelectElements(desiredGroupedElements);
 
             //Group
             ElementFactory.Instance.CreateGroupElement(pPage, pPage.GetSelectedElements(), Properties.Resources.LegendGroupName, false);
@@ -2259,9 +2277,18 @@ namespace GSCLegendRendererPro.ProWindows
             foreach (List<Element> group in groupedOrderList)
             {
                 string groupName = group.First().Name.Split(" ")[0];
-                legendOrderPrefixList.Add(groupName); //Keep for later
-                pPage.SelectElements(group);
-                ElementFactory.Instance.CreateGroupElement(pPage, pPage.GetSelectedElements(), groupName, false);
+
+                //Check as to not incorporate anything else that could exist on user layout
+                //If the prefix is only numbers, make a group
+                double orderGroup = 0.0;
+                if (double.TryParse(groupName, out orderGroup))
+                {
+                    legendOrderPrefixList.Add(groupName); //Keep for later
+                    pPage.SelectElements(group);
+                    ElementFactory.Instance.CreateGroupElement(pPage, pPage.GetSelectedElements(), groupName, false);
+                }
+
+
             }
         
         }
@@ -3251,6 +3278,33 @@ namespace GSCLegendRendererPro.ProWindows
             return markerLabelElement;
         }
 
+        /// <summary>
+        /// Will automatically calculate the column number needed. Usually, meant for CGM mapping 
+        /// publication where the legend is confined within a given box.
+        /// </summary>
+        /// <returns></returns>
+        private async Task AutomaticColumnsCalculation()
+        {
+            try
+            {
+                if (_legendAutoCalculateColumn)
+                {
+                    //Track column change with auto-calculate
+                    if (legendYLowerBound != 0.0)
+                    {
+                        if ((anchorPoint.Item2 - ySpacing - currentElementObject.GetHeight()) < legendYLowerBound)
+                        {
+                            currentColumn++;
+                        }
+                    }
+
+                }
+            }
+            catch (Exception AutomaticColumnsCalculationException)
+            {
+                new ErrorService(AutomaticColumnsCalculationException).WriteToFile();
+            }
+        }
         #endregion
 
         #region ADD GRAPHIC METHODS

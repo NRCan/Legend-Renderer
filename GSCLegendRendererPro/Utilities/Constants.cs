@@ -129,7 +129,7 @@ namespace GSCLegendRendererPro.Utilities
             public enum UnitBoxType { normal, split1, split2, parent, child, line, child_line }; //Will be used to correctly place label inside unit boxes
 
             //CGM template elements
-            public const string cgmLegendElement = "Legend";
+            public const string cgmLegendElement = "Legend (Delete me)";
             public const string cgmCitation = "Citation";
             public const string cgmDetectorKeyword = "CGM";
 
