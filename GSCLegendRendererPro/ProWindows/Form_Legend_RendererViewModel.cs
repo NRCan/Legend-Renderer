@@ -47,6 +47,7 @@ using Color = ArcGIS.Core.Internal.CIM.Color;
 using Envelope = ArcGIS.Core.Geometry.Envelope;
 using Field = ArcGIS.Core.Data.Field;
 using Geometry = ArcGIS.Core.Geometry.Geometry;
+using Line = ArcGIS.Core.Internal.CIM.Line;
 using LinearUnit = ArcGIS.Core.Geometry.LinearUnit;
 using Polyline = ArcGIS.Core.Geometry.Polyline;
 using Table = ArcGIS.Core.Data.Table;
@@ -750,8 +751,12 @@ namespace GSCLegendRendererPro.ProWindows
                                                 legendElementList.Add(currentElementObject);
 
                                                 //Keep name
-                                                lastElement = currentElementObject;
-                                                lastElementType = currentElementName;
+                                                if (!currentElementName.Contains(Constants.Graphics.keywordBracket))
+                                                {
+                                                    lastElement = currentElementObject;
+                                                    lastElementType = currentElementName;
+                                                }
+
 
                                                 #endregion
                                             }
@@ -3242,6 +3247,62 @@ namespace GSCLegendRendererPro.ProWindows
             return markerLabelElement;
         }
 
+        /// <summary>
+        /// Will move a given element to an anchor point by creating a vector line
+        /// </summary>
+        /// <param name="inElement"></param>
+        /// <param name="inAnchor"></param>
+        public void MoveItemToAnchorPoint(Element inElement, Tuple<double, double> inAnchor)
+        {
+            //Create new vector line
+            Line moveVector = new Line();
+
+            //Apply conversion factor
+            double inElementWidth = inElement.GetWidth();
+            double inElementHeight = inElement.GetHeight();
+
+            //Create new start point
+            Coordinate2D startPoint = new Coordinate2D(inElement.GetGeometry().Extent.XMax, inElement.GetGeometry().Extent.YMax);
+
+            if (inElement.GetAnchor() == Anchor.BottomRightCorner || inElement.GetAnchor() == Anchor.TopRightCorner)
+            {
+                startPoint = new Coordinate2D(inElement.GetGeometry().Extent.XMax, inElement.GetGeometry().Extent.YMax);
+            }
+            if (inElement.GetAnchor() == Anchor.RightMidPoint)
+            {
+                //Create new start point
+                startPoint = new Coordinate2D(inElement.GetGeometry().Extent.XMax, inElement.GetGeometry().Extent.YMax - inElementHeight / 2.0);
+            }
+            if (inElement.GetAnchor() == Anchor.BottomLeftCorner)
+            {
+                //Create new start point
+                startPoint = new Coordinate2D(inElement.GetGeometry().Extent.XMin, inElement.GetGeometry().Extent.YMin);
+            }
+            if (inElement.GetAnchor() == Anchor.TopLeftCorner)
+            {
+                //Create new start point
+                startPoint = new Coordinate2D(inElement.GetGeometry().Extent.XMin, inElement.GetGeometry().Extent.YMax);
+            }
+            if (inElement.GetAnchor() == Anchor.LeftMidPoint)
+            {
+                //Create new start point
+                startPoint = new Coordinate2D(inElement.GetGeometry().Extent.XMin, inElement.GetGeometry().Extent.YMax - inElementHeight / 2.0);
+            }
+            if (inElement.GetAnchor() == Anchor.CenterPoint)
+            {
+                //Create new start point
+                startPoint = new Coordinate2D(inElement.GetGeometry().Extent.XMin + inElementWidth / 2.0, inElement.GetGeometry().Extent.YMax - inElementHeight / 2.0);
+            }
+
+            //Create new end point
+            Coordinate2D endPoint = new Coordinate2D(inAnchor.Item1, inAnchor.Item2);
+
+            //Move
+            Coordinate2D newAnchorPoint = new Coordinate2D(endPoint.X - startPoint.X, endPoint.Y - startPoint.Y);
+            inElement.SetAnchorPoint(newAnchorPoint);
+        }
+
+
         #endregion
 
         #region ADD GRAPHIC METHODS
@@ -4139,7 +4200,7 @@ namespace GSCLegendRendererPro.ProWindows
                 //Process left bracket that was waiting to have Y spacing
                 if (waitingLeftBracket != null && !currentElementName.Contains(Constants.Graphics.keywordBracket))
                 {
-                    MoveElement(currentElementObject, 0, -ySpacing);
+                    MoveElement(waitingLeftBracket, 0, -ySpacing);
                     waitingLeftBracket = null;
                 }
 
@@ -4155,7 +4216,7 @@ namespace GSCLegendRendererPro.ProWindows
 
                     //Set new anchor
                     Tuple<double, double> leftBracketAnchor = new Tuple<double, double>(anchorPoint.Item1, upperElementY);
-                    PositionElement(currentElementObject, leftBracketAnchor.Item1, leftBracketAnchor.Item2);
+                    PositionElement(currentElementObject, leftBracketAnchor.Item1, leftBracketAnchor.Item2, Anchor.TopRightCorner);
 
                     //Move
                     MoveElement(currentElementObject, GetXSpacing(currentElementName), 0);
@@ -4189,7 +4250,7 @@ namespace GSCLegendRendererPro.ProWindows
                     //Set new anchor
                     double middleBracketY = upLeftBracket.GetBounds().YMin - Math.Abs(((leftEndBracketElement.GetBounds().YMax - upLeftBracket.GetBounds().YMin) / 2.0));
                     Tuple<double, double> middleBracketAnchor = new Tuple<double, double>(anchorPoint.Item1, middleBracketY);
-                    PositionElement(middleBracketElement, middleBracketAnchor.Item1, middleBracketAnchor.Item2);
+                    PositionElement(middleBracketElement, middleBracketAnchor.Item1, middleBracketAnchor.Item2, Anchor.RightMidPoint);
 
                     //Move
                     MoveElement(middleBracketElement, GetXSpacing(Constants.Graphics.bracketLeftCenter), 0);
@@ -4219,13 +4280,13 @@ namespace GSCLegendRendererPro.ProWindows
                     #endregion
 
                     #region BRACKET SPINE 2
-                    Element spine1BracketElement2 = CopyElementObject(templateGraphicDico[Constants.Graphics.bracketSpine], currentOrder.ToString());
+                    Element spine1BracketElement2 = CopyElementObject(templateGraphicDico[Constants.Graphics.bracketSpine], currentOrder.ToString(), " LOWER");
 
                     //Resize and adjust straight line so that it touches the bracket curly lines
                     Coordinate2D startPointLine2 = new Coordinate2D(middleBracketElement.GetBounds().XMax, middleBracketElement.GetBounds().YMin);
-                    Coordinate2D endPointLine2 = new Coordinate2D(leftEndBracketElement.GetBounds().XMax, leftEndBracketElement.GetBounds().YMax);
-                    List<Coordinate2D> spineLineVertices2 = new List<Coordinate2D>() { startPointLine, endPointLine };
-                    Polyline spineLine2 = PolylineBuilderEx.CreatePolyline(spineLineVertices);
+                    Coordinate2D endPointLine2 = new Coordinate2D(leftEndBracketElement.GetBounds().XMin, leftEndBracketElement.GetBounds().YMax);
+                    List<Coordinate2D> spineLineVertices2 = new List<Coordinate2D>() { startPointLine2, endPointLine2 };
+                    Polyline spineLine2 = PolylineBuilderEx.CreatePolyline(spineLineVertices2);
 
                     spine1BracketElement2.SetGeometry(spineLine2);
 
@@ -4241,23 +4302,42 @@ namespace GSCLegendRendererPro.ProWindows
                 #region ANNOTATION ELEMENT
                 if (currentElementName == Constants.Graphics.annoBracket)
                 {
-                    //Set text
-                    TextElement tElement = currentElementObject as TextElement;
-                    if (tElement != null)
+                    
+                    GraphicElement tGraphicElement = currentElementObject as GraphicElement;
+                    if (tGraphicElement != null)
                     {
-                        tElement.SetTextProperties(new TextProperties(Constants.TextConfiguration.tagAllCaps + currentLabel1 + Constants.TextConfiguration.endTagAllCaps, tElement.TextProperties.Font, tElement.TextProperties.FontSize, tElement.TextProperties.FontStyle));
-                        if (currentLabel1 == null || currentLabel1 == string.Empty || currentLabel1 == " ")
+                        //Set rotation so the graphic is vertical instead of horizontal
+                        tGraphicElement.SetRotation(90);
+
+                        //Set text
+                        TextElement tElement = currentElementObject as TextElement;
+                        if (tElement != null)
                         {
-                            tElement = Symbols.SetMissingTextSymbol(tElement);
+                            //Reset text rotation, within the graphic, to 0 instead of 90.
+                            //ArcMap used to have a different way of doing this
+                            CIMGraphic cimGraphic = tElement.GetGraphic();
+                            if (cimGraphic != null)
+                            {
+                                CIMTextSymbol cIMTextSymbol = cimGraphic.Symbol.Symbol as CIMTextSymbol;
+                                cIMTextSymbol.Angle = 0;
+                                tElement.SetGraphic(cimGraphic);
+                            }
+
+                            tElement.SetTextProperties(new TextProperties(Constants.TextConfiguration.tagAllCaps + currentLabel1 + Constants.TextConfiguration.endTagAllCaps, tElement.TextProperties.Font, tElement.TextProperties.FontSize, tElement.TextProperties.FontStyle));
+                            if (currentLabel1 == null || currentLabel1 == string.Empty || currentLabel1 == " ")
+                            {
+                                tElement = Symbols.SetMissingTextSymbol(tElement);
+                            }
                         }
+
+                        
+
+                        //Move to current anchor for a start
+                        MoveElement(currentElementObject, anchorPoint.Item1, anchorPoint.Item2);
+
+                        //Keep
+                        annotationBracket = currentElementObject;
                     }
-
-                    //Move to current anchor for a start
-                    MoveElement(currentElementObject, anchorPoint.Item1, anchorPoint.Item2);
-
-                    //Keep
-                    annotationBracket = currentElementObject;
-
                 }
                 #endregion
 
@@ -4266,15 +4346,10 @@ namespace GSCLegendRendererPro.ProWindows
                 {
                     //Set new anchor
                     Tuple<double, double> annoBracketAnchor = new Tuple<double, double>(waitingCenterLeftBracket.GetBounds().XMin, waitingCenterLeftBracket.GetBounds().YMax - waitingCenterLeftBracket.GetHeight() / 2.0);
-                    PositionElement(annotationBracket, annoBracketAnchor.Item1, annoBracketAnchor.Item2);
+                    PositionElement(annotationBracket, annoBracketAnchor.Item1, annoBracketAnchor.Item2, Anchor.BottomMidPoint); //Bottom mid because anchors rotates with the graphic
+                    
                     //Move at the right anchor
-                    double xMove = Math.Abs(waitingCenterLeftBracket.GetBounds().XMin - annotationBracket.GetBounds().XMax);
-                    MoveElement(annotationBracket, xMove, 0);
-
-                    //Move because flipping 90 degree text is done around mid-center, but doesn't impact coordinates, only visually
-                    MoveElement(annotationBracket, annotationBracket.GetWidth() / 2.0, 0);
-                    MoveElement(annotationBracket, -annotationBracket.GetHeight() / 2.0, 0);
-                    MoveElement(annotationBracket, GetXSpacing(currentElementName), 0);
+                    MoveElement(annotationBracket, xSpacing, 0);
 
                     waitingCenterLeftBracket = null;
                     annotationBracket = null;
