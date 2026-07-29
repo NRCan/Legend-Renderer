@@ -1919,6 +1919,11 @@ namespace GSCLegendRendererPro.ProWindows
                 new ErrorService(GetTextHeightException).WriteToFile();
             }
 
+            //Final validation
+            if (tHeight == 0)
+            {
+                tHeight = Constants.TextConfiguration.lineHeight;
+            }
 
             return tHeight;
 
@@ -2939,7 +2944,7 @@ namespace GSCLegendRendererPro.ProWindows
                                     if (styleLineSymbolCode != null && lineSymbolDico.ContainsKey(styleLineSymbolCode))
                                     {
                                         cimLineSymbol.Symbol.Symbol = lineSymbolDico[styleLineSymbolCode].Symbol;
-
+                                        graphicElement.SetGraphic(graphic);
                                     }
                                     else
                                     {
@@ -2952,19 +2957,15 @@ namespace GSCLegendRendererPro.ProWindows
                                     {
                                         SymbolStyleItem fillSymbol = fillSymbolDico[styleLineColorCode];
                                         cimLineSymbol.Symbol.Symbol.SetColor(fillSymbolDico[styleLineColorCode].Symbol.GetColor());
+                                        graphicElement.SetGraphic(graphic);
                                     }
                                     else
                                     {
                                         //Apply missing style
                                         Symbols.SetMissingLineSymbol(graphicElement);
                                     }
-
-                                    graphicElement.SetGraphic(graphic);
-
                                 }
-
                             }
-
                         }
                         else
                         {
@@ -3956,7 +3957,7 @@ namespace GSCLegendRendererPro.ProWindows
                     }
                     else
                     {
-                        Symbols.SetMissingLineSymbol(graphicLine);
+                        Symbols.SetMissingLineSymbol(currentElementObject);
                     }
 
                     //Add Description
@@ -4377,7 +4378,14 @@ namespace GSCLegendRendererPro.ProWindows
                 //Process left bracket that was waiting to have Y spacing
                 if (waitingRightBracket != null && !currentElementName.Contains(Constants.Graphics.keywordBracket))
                 {
-                    MoveElement(waitingRightBracket, GetXSpacing(Constants.Graphics.bracketRightUpper) + (currentColumn * GetXSpacing(Constants.Graphics.columnWidth)), -ySpacing);
+                    //Make sure to send bracket at the right place within the right column
+                    double columnShift = 1;
+                    if (currentColumn != 0)
+                    {
+                        columnShift = currentColumn;
+                    }
+
+                    MoveElement(waitingRightBracket, GetXSpacing(Constants.Graphics.bracketRightUpper) + (columnShift * GetXSpacing(Constants.Graphics.columnWidth)), -ySpacing);
 
                     waitingRightBracket = null;
 

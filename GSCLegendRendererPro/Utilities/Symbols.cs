@@ -209,15 +209,64 @@ namespace GSCLegendRendererPro.Utilities
         }
 
         /// <summary>
+        /// Default style for line symbol that are missing in a style
+        /// </summary>
+        /// <param name="parentSymbol">Can be null, font config will be taken from it, else arial 10 is the default.</param>
+        /// <returns></returns>
+        public static GraphicElement SetMissingLineSymbol(Element parentSymbol)
+        {
+            if (parentSymbol != null)
+            {
+                GroupElement groupParent = parentSymbol as GroupElement;
+                if (groupParent != null)
+                {
+                    //Check geometry of inner elements, if it's all lines
+                    for (int el = 0; el < groupParent.Elements.Count(); el++)
+                    {
+                        Element currentLine = groupParent.Elements[el];
+                        GraphicElement currentLineGraphic = currentLine as GraphicElement;
+                        if (currentLineGraphic != null)
+                        {
+                            CIMLineGraphic cimLine = currentLineGraphic.GetGraphic() as CIMLineGraphic;
+                            if (cimLine != null)
+                            {
+                                CIMLineGraphic cimLineSymbol = cimLine as CIMLineGraphic;
+                                cimLineSymbol.Symbol.Symbol.SetColor(ColorFactory.Instance.RedRGB);
+                                currentLineGraphic.SetGraphic(cimLine);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    GraphicElement currentLineGraphic = parentSymbol as GraphicElement;
+                    if (currentLineGraphic != null)
+                    {
+                        CIMGraphic cimGraphic = currentLineGraphic.GetGraphic();
+                        if (cimGraphic != null)
+                        {
+                            CIMLineGraphic cimLineSymbol = cimGraphic as CIMLineGraphic;
+                            cimLineSymbol.Symbol.Symbol.SetColor(ColorFactory.Instance.RedRGB);
+                            currentLineGraphic.SetGraphic(cimGraphic);
+                        }
+                    }
+
+                }
+
+            }
+
+            return parentSymbol as GraphicElement;
+
+        }
+
+        /// <summary>
         /// Get a grey point symbol for default values or null values
         /// </summary>
         /// <returns></returns>
         public static CIMPointSymbol GetMissingPointSymbol()
         {
 
-            CIMMarker missingMarker = SymbolFactory.Instance.ConstructMarker(103, "Arial", "Regular", 10,ColorFactory.Instance.RedRGB);
-            missingMarker.Rotation = 180;
-
+            CIMMarker missingMarker = SymbolFactory.Instance.ConstructMarker(ColorFactory.Instance.RedRGB,10,SimpleMarkerStyle.Circle);
             CIMPointSymbol missingSymbol = SymbolFactory.Instance.ConstructPointSymbol(missingMarker);
 
             return missingSymbol;
