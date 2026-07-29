@@ -262,4 +262,34 @@
   <data name="Configuration_Y_Spacings" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Assets\Configuration_Y_Spacings.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="FormHelpTitle" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="FormHelpFirstSection" xml:space="preserve">
+    <value>Add-in information</value>
+  </data>
+  <data name="FormHelpSecondSection" xml:space="preserve">
+    <value>Help</value>
+  </data>
+  <data name="FormHelpOpenProject" xml:space="preserve">
+    <value>Latest release</value>
+  </data>
+  <data name="FormHelpOpenIssue" xml:space="preserve">
+    <value>Report an issue</value>
+  </data>
+  <data name="FormHelpThirdSection" xml:space="preserve">
+    <value>More About</value>
+  </data>
+  <data name="FormHelpPrimaryContact" xml:space="preserve">
+    <value>Primary Contact: </value>
+  </data>
+  <data name="FormHelpSecondaryContact" xml:space="preserve">
+    <value>Secondary Contact: </value>
+  </data>
+  <data name="FormHelpLatestVersion" xml:space="preserve">
+    <value>Latest online version: {0} ({1}).</value>
+  </data>
+  <data name="FormHelpInstalledVersion" xml:space="preserve">
+    <value>Installed version: {0}</value>
+  </data>
 </root>

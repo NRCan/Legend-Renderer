@@ -36,7 +36,6 @@
           <tooltip heading="Help">
 				Help, about and more online resources<disabledText /></tooltip>
         </button>
-
       </controls>
     </insertModule>
   </modules>

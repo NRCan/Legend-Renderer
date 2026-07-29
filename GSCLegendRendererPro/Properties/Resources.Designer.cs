@@ -190,6 +190,96 @@ namespace GSCLegendRendererPro.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add-in information.
+        /// </summary>
+        public static string FormHelpFirstSection {
+            get {
+                return ResourceManager.GetString("FormHelpFirstSection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Installed version: {0}.
+        /// </summary>
+        public static string FormHelpInstalledVersion {
+            get {
+                return ResourceManager.GetString("FormHelpInstalledVersion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Latest online version: {0} ({1})..
+        /// </summary>
+        public static string FormHelpLatestVersion {
+            get {
+                return ResourceManager.GetString("FormHelpLatestVersion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Report an issue.
+        /// </summary>
+        public static string FormHelpOpenIssue {
+            get {
+                return ResourceManager.GetString("FormHelpOpenIssue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Latest release.
+        /// </summary>
+        public static string FormHelpOpenProject {
+            get {
+                return ResourceManager.GetString("FormHelpOpenProject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Primary Contact: .
+        /// </summary>
+        public static string FormHelpPrimaryContact {
+            get {
+                return ResourceManager.GetString("FormHelpPrimaryContact", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Secondary Contact: .
+        /// </summary>
+        public static string FormHelpSecondaryContact {
+            get {
+                return ResourceManager.GetString("FormHelpSecondaryContact", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Help.
+        /// </summary>
+        public static string FormHelpSecondSection {
+            get {
+                return ResourceManager.GetString("FormHelpSecondSection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to More About.
+        /// </summary>
+        public static string FormHelpThirdSection {
+            get {
+                return ResourceManager.GetString("FormHelpThirdSection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to About.
+        /// </summary>
+        public static string FormHelpTitle {
+            get {
+                return ResourceManager.GetString("FormHelpTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Auto-calculate number of columns (CGM only)..
         /// </summary>
         public static string FormRendererFieldAutoCalculateColumn {

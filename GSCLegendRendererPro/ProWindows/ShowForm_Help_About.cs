@@ -12,21 +12,31 @@ using ArcGIS.Desktop.Framework.Threading.Tasks;
 using ArcGIS.Desktop.KnowledgeGraph;
 using ArcGIS.Desktop.Layouts;
 using ArcGIS.Desktop.Mapping;
-using GSCLegendRendererPro.ProWindows;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GSCLegendRendererPro.Buttons
+namespace GSCLegendRendererPro.ProWindows
 {
-    internal class Button_Help : Button
+    internal class ShowForm_Help_About : Button
     {
+
+        private Form_Help_About _form_help_about = null;
+
         protected override void OnClick()
         {
-            Form_Help_About aboutForm = new Form_Help_About();
-            aboutForm.ShowDialog();
+            //already open?
+            if (_form_help_about != null)
+                return;
+            _form_help_about = new Form_Help_About();
+            _form_help_about.Owner = FrameworkApplication.Current.MainWindow;
+            _form_help_about.Closed += (o, e) => { _form_help_about = null; };
+            _form_help_about.Show();
+            //uncomment for modal
+            //_form_help_about.ShowDialog();
         }
+
     }
 }

@@ -243,4 +243,34 @@
   <data name="ErrorMissingLabel" xml:space="preserve">
     <value>Null</value>
   </data>
+  <data name="FormHelpTitle" xml:space="preserve">
+    <value>À propos</value>
+  </data>
+  <data name="FormHelpFirstSection" xml:space="preserve">
+    <value>Informations à propos du add-in</value>
+  </data>
+  <data name="FormHelpSecondSection" xml:space="preserve">
+    <value>Aide</value>
+  </data>
+  <data name="FormHelpOpenProject" xml:space="preserve">
+    <value>Dernière version</value>
+  </data>
+  <data name="FormHelpOpenIssue" xml:space="preserve">
+    <value>Rapporter un problème</value>
+  </data>
+  <data name="FormHelpThirdSection" xml:space="preserve">
+    <value>Plus</value>
+  </data>
+  <data name="FormHelpPrimaryContact" xml:space="preserve">
+    <value>Contact principal: </value>
+  </data>
+  <data name="FormHelpSecondaryContact" xml:space="preserve">
+    <value>Second contact: </value>
+  </data>
+  <data name="FormHelpLatestVersion" xml:space="preserve">
+    <value>Dernière version en ligne: {0} (En date du {1}).</value>
+  </data>
+  <data name="FormHelpInstalledVersion" xml:space="preserve">
+    <value>Version installée {0}</value>
+  </data>
 </root>
