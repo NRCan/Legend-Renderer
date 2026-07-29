@@ -1850,7 +1850,7 @@ namespace GSCLegendRendererPro.ProWindows
             try
             {
                 //Adjust with possible font GSCGeology2015. Need to have bigger box
-                if (otherComponents.GEOLOGY_FONT_NAME != null && inText.Contains(otherComponents.GEOLOGY_FONT_NAME))
+                if (otherComponents.GEOLOGY_FONT_NAME != null && inText != null && inText.Contains(otherComponents.GEOLOGY_FONT_NAME))
                 {
                     tHeight = tHeight + Constants.Fonts.geologyFontHeightAjustement;
 
@@ -1864,28 +1864,31 @@ namespace GSCLegendRendererPro.ProWindows
                 }
 
                 //Strip text of tags that could make it look longer then it is
-                inText = inText.Replace(Constants.TextConfiguration.tagAllCaps, "");
-                inText = inText.Replace(Constants.TextConfiguration.tagBold, "");
-                inText = inText.Replace(Constants.TextConfiguration.tagItalic, "");
-                inText = inText.Replace(Constants.TextConfiguration.endTagAllCaps, "");
-                inText = inText.Replace(Constants.TextConfiguration.endTagBold, "");
-                inText = inText.Replace(Constants.TextConfiguration.endTagItalic, "");
-                inText = inText.Replace(Constants.TextConfiguration.endTagFont, "");
-
-                for (int i = 0; i < inText.Length; i++)
+                if (inText != null)
                 {
-                    j = Encoding.Default.GetBytes(inText.Substring(i, 1))[0];
-                    if (j >= 32)
-                    {
-                        if (arialCharactersWidth.ContainsKey(j))
-                        {
-                            textWidth = textWidth + (fontSize * arialCharactersWidth[j]);
-                        }
-                        else
-                        {
-                            textWidth = textWidth + (fontSize * 1);
-                        }
+                    inText = inText.Replace(Constants.TextConfiguration.tagAllCaps, "");
+                    inText = inText.Replace(Constants.TextConfiguration.tagBold, "");
+                    inText = inText.Replace(Constants.TextConfiguration.tagItalic, "");
+                    inText = inText.Replace(Constants.TextConfiguration.endTagAllCaps, "");
+                    inText = inText.Replace(Constants.TextConfiguration.endTagBold, "");
+                    inText = inText.Replace(Constants.TextConfiguration.endTagItalic, "");
+                    inText = inText.Replace(Constants.TextConfiguration.endTagFont, "");
 
+                    for (int i = 0; i < inText.Length; i++)
+                    {
+                        j = Encoding.Default.GetBytes(inText.Substring(i, 1))[0];
+                        if (j >= 32)
+                        {
+                            if (arialCharactersWidth.ContainsKey(j))
+                            {
+                                textWidth = textWidth + (fontSize * arialCharactersWidth[j]);
+                            }
+                            else
+                            {
+                                textWidth = textWidth + (fontSize * 1);
+                            }
+
+                        }
                     }
                 }
 
@@ -2306,7 +2309,7 @@ namespace GSCLegendRendererPro.ProWindows
                 if (graphicElement != null)
                 {
 
-                    if (fillSymbolDico.ContainsKey(style) && isSimpleFill)
+                    if (style != null && fillSymbolDico.ContainsKey(style) && isSimpleFill)
                     {
 
                         //Get symbol type and color
@@ -2333,7 +2336,7 @@ namespace GSCLegendRendererPro.ProWindows
                             }
 
                             //Set color if needed
-                            if (style2 != string.Empty && style2 != null && fillSymbolDico.ContainsKey(style2))
+                            if (style2 != null && style2 != string.Empty && fillSymbolDico.ContainsKey(style2))
                             {
                                 SymbolStyleItem fillSymbol2 = fillSymbolDico[style2];
                                 cimPolySymbol.SetColor(fillSymbol2.Symbol.GetColor());
@@ -2365,7 +2368,7 @@ namespace GSCLegendRendererPro.ProWindows
                         }
 
                     }
-                    else if (fillSymbolDico.ContainsKey(style) && !isSimpleFill)
+                    else if (style != null && fillSymbolDico.ContainsKey(style) && !isSimpleFill)
                     {
                         SymbolStyleItem fillSymbol = fillSymbolDico[style];
                         CIMGraphic graphic = graphicElement.GetGraphic();
@@ -2933,7 +2936,7 @@ namespace GSCLegendRendererPro.ProWindows
                                     double currentLineWidth = cimLineSymbol.Symbol.Symbol.GetSize();
 
                                     //Set line style
-                                    if (lineSymbolDico.ContainsKey(styleLineSymbolCode))
+                                    if (styleLineSymbolCode != null && lineSymbolDico.ContainsKey(styleLineSymbolCode))
                                     {
                                         cimLineSymbol.Symbol.Symbol = lineSymbolDico[styleLineSymbolCode].Symbol;
 
@@ -3011,7 +3014,7 @@ namespace GSCLegendRendererPro.ProWindows
                             CIMMarker originalMarker = pointSymbol.SymbolLayers[0] as CIMMarker;
                             double originalAngle = originalMarker.Rotation;
 
-                            if (markerSymbolDico.ContainsKey(markerStyle))
+                            if (markerStyle != null && markerSymbolDico.ContainsKey(markerStyle))
                             {
                                 SymbolStyleItem markerStyleItem = markerSymbolDico[markerStyle];
                                 if (markerStyleItem != null && markerStyleItem.Symbol is CIMPointSymbol) 
@@ -3862,7 +3865,7 @@ namespace GSCLegendRendererPro.ProWindows
 
                     //Set symbol
                     GraphicElement graphicLine = currentElementObject as GraphicElement;
-                    if (lineSymbolDico.ContainsKey(currentStyle1))
+                    if (currentStyle1 != null && lineSymbolDico.ContainsKey(currentStyle1))
                     {
                         SymbolStyleItem lineStyleItem = lineSymbolDico[currentStyle1];
 
