@@ -1,5 +1,5 @@
 ﻿<ArcGIS defaultAssembly="GSCLegendRendererPro.dll" defaultNamespace="GSCLegendRendererPro" xmlns="http://schemas.esri.com/DADF/Registry" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://schemas.esri.com/DADF/Registry file:///C:/Users/ghuotvez/AppData/Local/Programs/ArcGIS/Pro/bin/ArcGIS.Desktop.Framework.xsd">
-  <AddInInfo id="{b7ab16a1-0c66-48dd-9d98-e39529ab9053}" version="2.0" desktopVersion="3.5.57366" product="ArcGISPro">
+  <AddInInfo id="{b7ab16a1-0c66-48dd-9d98-e39529ab9053}" version="2.0.1" desktopVersion="3.5.57366" product="ArcGISPro">
     <Name>GSC Legend Renderer</Name>
     <Description>This tool is meant to create a graphic legend inside ArcGIS, from a given legend table.</Description>
     <Image>Images\AddInDesktop32.png</Image>
