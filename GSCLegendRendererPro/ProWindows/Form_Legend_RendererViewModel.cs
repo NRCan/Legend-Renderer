@@ -3176,7 +3176,7 @@ namespace GSCLegendRendererPro.ProWindows
         /// <param name="inAnchor">The anchor of the parent</param>
         /// <param name="parentElemType">The parent original name (type) to parse where to put the label (POINT_CC_45 vs POINT_LC_45)</param>
         /// <returns></returns>
-        private Element AddLabelToMarker(string inLabelText, Element pointElement, Tuple<double, double> inAnchor, 
+        private Element AddLabelAroundElement(string inLabelText, Element pointElement, Tuple<double, double> inAnchor, 
             Constants.Styles.MarkerLabelPositioning wantedPosition, string inLabelStyle = "", Constants.Styles.MarkerLabelPositioning parentPosition = Constants.Styles.MarkerLabelPositioning.FromCenterToUpperLeft)
         {
             Element markerLabelElement = null;
@@ -3299,6 +3299,14 @@ namespace GSCLegendRendererPro.ProWindows
 
                         break;
 
+                    //This case is meant for when a label is needed above a line symbol, which has a height of 0
+                    case Constants.Styles.MarkerLabelPositioning.FromLineCenterToUpperRight:
+
+                        //Being that line symbol is center-center positioning
+                        xLabelAnchor = anchorPoint.Item1 + (parentWidth / 2.0) + 1.0;
+                        yLabelAnchor = anchorPoint.Item2 + 1.5;
+
+                        break;
                     default:
                         break;
                 }
@@ -3886,7 +3894,7 @@ namespace GSCLegendRendererPro.ProWindows
                         {
                             currentLabel1Style = string.Empty;
                         }
-                        Element markerLabel1 = AddLabelToMarker(currentLabel1, pointElement, anchorPoint, placement, currentLabel1Style);
+                        Element markerLabel1 = AddLabelAroundElement(currentLabel1, pointElement, anchorPoint, placement, currentLabel1Style);
 
                         //Add second label if any
                         if (currentLabel2 != null && currentLabel2 != string.Empty && currentLabel2 != " ")
@@ -3896,7 +3904,7 @@ namespace GSCLegendRendererPro.ProWindows
                                 currentLabel2Style = string.Empty;
                             }
 
-                            AddLabelToMarker(currentLabel2, markerLabel1, anchorPoint, Constants.Styles.MarkerLabelPositioning.RightAboveCenter, currentLabel2Style, placement);
+                            AddLabelAroundElement(currentLabel2, markerLabel1, anchorPoint, Constants.Styles.MarkerLabelPositioning.RightAboveCenter, currentLabel2Style, placement);
                         }
                     }
 
@@ -4041,6 +4049,21 @@ namespace GSCLegendRendererPro.ProWindows
                     else
                     {
                         Symbols.SetMissingLineSymbol(currentElementObject);
+                    }
+
+                    //Add label
+                    if (currentLabel1 != null && currentLabel1 != string.Empty && currentLabel1 != " ")
+                    {
+                        //Default positioning
+                        Constants.Styles.MarkerLabelPositioning placement = Constants.Styles.MarkerLabelPositioning.FromLineCenterToUpperRight;
+
+                        //Styling
+                        if (currentLabel1Style == null || currentLabel1Style == " ")
+                        {
+                            currentLabel1Style = string.Empty;
+                        }
+                        Element markerLabel1 = AddLabelAroundElement(currentLabel1, currentElementObject, anchorPoint, placement, currentLabel1Style);
+
                     }
 
                     //Add Description

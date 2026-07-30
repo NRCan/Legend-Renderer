@@ -206,7 +206,7 @@ namespace GSCLegendRendererPro.Utilities
             /// <summary>
             /// A list of possible position of label surrounding marker points.
             /// </summary>
-            public enum MarkerLabelPositioning { FromCenterToUpperLeft, FromCenterToUpperRight, RightAboveCenter, FromCenterToUpperRightTight }
+            public enum MarkerLabelPositioning { FromCenterToUpperLeft, FromCenterToUpperRight, RightAboveCenter, FromCenterToUpperRightTight, FromLineCenterToUpperRight }
         }
 
         /// <summary>
