@@ -1099,81 +1099,75 @@ namespace GSCLegendRendererPro.ProWindows
 
                     if (layoutPane == null)
                     {
-                        MessageBoxResult msgBoxResult = MessageBox.Show(Properties.Resources.FormRendererMovingToLayout, Properties.Resources.GenericWarningTitle, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Exclamation);
-                        if (msgBoxResult == MessageBoxResult.OK)
+                        //First case - Layout already activated
+                        PaneCollection panes = ProApp.Panes;
+                        foreach (Pane pane in panes)
                         {
-
-                            //First case - Layout already activated
-                            PaneCollection panes = ProApp.Panes;
-                            foreach (Pane pane in panes)
+                            ILayoutPane lPane = pane as ILayoutPane;
+                            if (lPane != null)
                             {
-                                ILayoutPane lPane = pane as ILayoutPane;
-                                if (lPane != null)
-                                {
-
-                                    //Keep for later use
-                                    pPage = lPane.LayoutView.Layout;
-                                    pLayoutView = lPane.LayoutView;
-
-                                    //Activate
-                                    pane.Activate();
-
-                                    paneFoundAndActivated = true;
-
-                                    break;
-                                }
-                            }
-
-                            //Second case - check within project layouts and open first one
-                            if (!paneFoundAndActivated)
-                            {
-                                List<LayoutProjectItem> layouts = Project.Current.GetItems<LayoutProjectItem>().ToList();
-                                if (layouts != null && layouts.Count() > 0)
-                                {
-                                    Layout firstFoundLayout = await QueuedTask.Run(() => {
-
-                                        LayoutProjectItem firstLayoutItem = layouts.First();
-                                        return firstLayoutItem.GetLayout();
-
-                                    });
-
-                                    if (firstFoundLayout != null)
-                                    {
-                                        //Keep for later use
-                                        pPage = firstFoundLayout;
-
-                                        //Load it up
-                                        ILayoutPane pPane = await ProApp.Panes.CreateLayoutPaneAsync(firstFoundLayout);
-                                        pLayoutView = pPane.LayoutView;
-                                        paneFoundAndActivated = true;
-                                    }
-
-                                }
-                            }
-
-
-                            //Third case - Create a new default one
-                            if (!paneFoundAndActivated)
-                            {
-                                //Create new layout on UI thread.
-                                //Can't use QueuedTask on the whole method since the layout pane build needs to run on another
-                                Layout lyt = await QueuedTask.Run(() =>
-                                {
-                                    //Default size to A2
-                                    Layout newLayout = LayoutFactory.Instance.CreateLayout(420, 594, ArcGIS.Core.Geometry.LinearUnit.Millimeters);
-                                    newLayout.SetName(Properties.Resources.FormRendererNewLayoutName);
-                                    return newLayout;
-                                });
 
                                 //Keep for later use
-                                pPage = lyt;
+                                pPage = lPane.LayoutView.Layout;
+                                pLayoutView = lPane.LayoutView;
 
-                                //Build the layout pane
-                                ILayoutPane pPane = await ProApp.Panes.CreateLayoutPaneAsync(lyt);
-                                pLayoutView = pPane.LayoutView;
+                                //Activate
+                                pane.Activate();
+
                                 paneFoundAndActivated = true;
-                            }
 
+                                break;
+                            }
+                        }
+
+                        //Second case - check within project layouts and open first one
+                        if (!paneFoundAndActivated)
+                        {
+                            List<LayoutProjectItem> layouts = Project.Current.GetItems<LayoutProjectItem>().ToList();
+                            if (layouts != null && layouts.Count() > 0)
+                            {
+                                Layout firstFoundLayout = await QueuedTask.Run(() => {
+
+                                    LayoutProjectItem firstLayoutItem = layouts.First();
+                                    return firstLayoutItem.GetLayout();
+
+                                });
+
+                                if (firstFoundLayout != null)
+                                {
+                                    //Keep for later use
+                                    pPage = firstFoundLayout;
+
+                                    //Load it up
+                                    ILayoutPane pPane = await ProApp.Panes.CreateLayoutPaneAsync(firstFoundLayout);
+                                    pLayoutView = pPane.LayoutView;
+                                    paneFoundAndActivated = true;
+                                }
+
+                            }
+                        }
+
+
+                        //Third case - Create a new default one
+                        if (!paneFoundAndActivated)
+                        {
+                            //Create new layout on UI thread.
+                            //Can't use QueuedTask on the whole method since the layout pane build needs to run on another
+                            Layout lyt = await QueuedTask.Run(() =>
+                            {
+                                //Default size to A2
+                                Layout newLayout = LayoutFactory.Instance.CreateLayout(420, 594, ArcGIS.Core.Geometry.LinearUnit.Millimeters);
+                                newLayout.SetName(Properties.Resources.FormRendererNewLayoutName);
+                                return newLayout;
+                            });
+
+                            //Keep for later use
+                            pPage = lyt;
+
+                            //Build the layout pane
+                            ILayoutPane pPane = await ProApp.Panes.CreateLayoutPaneAsync(lyt);
+                            pLayoutView = pPane.LayoutView;
+                            paneFoundAndActivated = true;
                         }
                     }
                     else
