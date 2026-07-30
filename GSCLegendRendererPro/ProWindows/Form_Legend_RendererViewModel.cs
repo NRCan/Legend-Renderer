@@ -769,13 +769,13 @@ namespace GSCLegendRendererPro.ProWindows
 
                             }
 
-                            //Finalize whole process
-                            await GroupByOrder();
-                            await OrderElementsInTOC();
-                            await GroupLegendElements();
-                            SetPageUnits(originalPageUnits);
-
                         });
+
+                        //Finalize whole process
+                        await GroupByOrder();
+                        await OrderElementsInTOC();
+                        await GroupLegendElements();
+                        SetPageUnits(originalPageUnits);
 
                         if (_warningMessage == string.Empty)
                         {
@@ -2207,41 +2207,47 @@ namespace GSCLegendRendererPro.ProWindows
         private async Task OrderElementsInTOC()
         {
             //Sort by the order value
-            legendOrderPrefixList = legendOrderPrefixList.OrderByDescending(x => {double.TryParse(x.Split(' ')[0], out double value);return value;}).ToList();
+            legendOrderPrefixList = legendOrderPrefixList.AsParallel().OrderByDescending(x => {double.TryParse(x.Split(' ')[0], out double value);return value;}).ToList();
 
-            foreach (string legendOrder in legendOrderPrefixList)
+            await QueuedTask.Run(() =>
             {
-                Element orderGroupElement = pPage.GetElements().Where(x => x is GroupElement && x.Name == legendOrder).FirstOrDefault();
-
-                if (orderGroupElement != null)
+                foreach (string legendOrder in legendOrderPrefixList)
                 {
-                    pPage.SelectElement(orderGroupElement);
-                    if (pPage.CanBringForward(orderGroupElement))
-                    {
-                        pPage.BringToFront(orderGroupElement);
-                    }
-                }
-            }
+                    Element orderGroupElement = pPage.GetElements().Where(x => x is GroupElement && x.Name == legendOrder).FirstOrDefault();
 
-            //EDGE CASE - UNIT_PARENT needs to be send lower than their child
-            List<Element> parentElements = pPage.GetElementsAsFlattenedList().Where(e => e.Name.Contains(Constants.Graphics.unitParent)).ToList();
-            if (parentElements != null && parentElements.Count() > 0)
-            {
-                foreach (Element pe in parentElements)
-                {
-                    //Select the whole group
-                    string groupPrefix = pe.Name.Split(" ")[0];
-                    Element parentGroupElement = pPage.GetElements().Where(e => (e is GroupElement) && e.Name == groupPrefix).FirstOrDefault();
-                    if (parentGroupElement != null) 
+                    if (orderGroupElement != null)
                     {
-                        pPage.SelectElement(parentGroupElement);
-                        if (pPage.CanSendBackward(parentGroupElement))
+                        pPage.SelectElement(orderGroupElement);
+                        if (pPage.CanBringForward(orderGroupElement))
                         {
-                            pPage.SendToBack(parentGroupElement);
+                            pPage.BringToFront(orderGroupElement);
                         }
                     }
                 }
-            }
+
+                //EDGE CASE - UNIT_PARENT needs to be send lower than their child
+                List<Element> parentElements = pPage.GetElementsAsFlattenedList().Where(e => e.Name.Contains(Constants.Graphics.unitParent)).ToList();
+                if (parentElements != null && parentElements.Count() > 0)
+                {
+                    foreach (Element pe in parentElements)
+                    {
+                        //Select the whole group
+                        string groupPrefix = pe.Name.Split(" ")[0];
+                        Element parentGroupElement = pPage.GetElements().Where(e => (e is GroupElement) && e.Name == groupPrefix).FirstOrDefault();
+                        if (parentGroupElement != null)
+                        {
+                            pPage.SelectElement(parentGroupElement);
+                            if (pPage.CanSendBackward(parentGroupElement))
+                            {
+                                pPage.SendToBack(parentGroupElement);
+                            }
+                        }
+                    }
+                }
+
+            });
+
+
 
         }
 
@@ -2268,8 +2274,13 @@ namespace GSCLegendRendererPro.ProWindows
             //Need to select elements first
             pPage.SelectElements(desiredGroupedElements);
 
-            //Group
-            ElementFactory.Instance.CreateGroupElement(pPage, pPage.GetSelectedElements(), Properties.Resources.LegendGroupName, false);
+            await QueuedTask.Run(() =>
+            {
+                //Group
+                ElementFactory.Instance.CreateGroupElement(pPage, pPage.GetSelectedElements(), Properties.Resources.LegendGroupName, false);
+            });
+
+
         }
 
         /// <summary>
@@ -2279,26 +2290,29 @@ namespace GSCLegendRendererPro.ProWindows
         private async Task GroupByOrder()
         {
             //Group by order
-            List<List<Element>> groupedOrderList = legendElementList.GroupBy(x => x.Name.Split(" ")[0]).Select(g => g.ToList()).ToList();
+            List<List<Element>> groupedOrderList = legendElementList.AsParallel().GroupBy(x => x.Name.Split(" ")[0]).Select(g => g.ToList()).ToList();
 
-            //Iterate through groups and select them and create a new group
-            foreach (List<Element> group in groupedOrderList)
+            await QueuedTask.Run(() =>
             {
-                string groupName = group.First().Name.Split(" ")[0];
-
-                //Check as to not incorporate anything else that could exist on user layout
-                //If the prefix is only numbers, make a group
-                double orderGroup = 0.0;
-                if (double.TryParse(groupName, out orderGroup))
+                //Iterate through groups and select them and create a new group
+                foreach (List<Element> group in groupedOrderList)
                 {
-                    legendOrderPrefixList.Add(groupName); //Keep for later
-                    pPage.SelectElements(group);
-                    ElementFactory.Instance.CreateGroupElement(pPage, pPage.GetSelectedElements(), groupName, false);
+                    string groupName = group.First().Name.Split(" ")[0];
+
+                    //Check as to not incorporate anything else that could exist on user layout
+                    //If the prefix is only numbers, make a group
+                    double orderGroup = 0.0;
+                    if (double.TryParse(groupName, out orderGroup))
+                    {
+                        legendOrderPrefixList.Add(groupName); //Keep for later
+                        pPage.SelectElements(group);
+                        ElementFactory.Instance.CreateGroupElement(pPage, pPage.GetSelectedElements(), groupName, false);
+                    }
+
+
                 }
+            });
 
-
-            }
-        
         }
 
         /// <summary>
@@ -2524,19 +2538,17 @@ namespace GSCLegendRendererPro.ProWindows
                     //Manage incoming style if needed
                     if (inStyle != null && inStyle != "" && textSymbolDico.ContainsKey(inStyle))
                     {
-
-                        SymbolStyleItem fillSymbol = fillSymbolDico[inStyle];
-
                         if (currentElementGraphic != null)
                         {
-                            CIMTextSymbol cIMTextSymbol = currentElementGraphic.Symbol.Symbol as CIMTextSymbol;
-                            cIMTextSymbol.SetColor(ColorFactory.Instance.RedRGB);
-                            cIMTextSymbol.FontFamilyName = "Arial";
-                            cIMTextSymbol.SetSize(Constants.TextConfiguration.defaultUnitBoxLabelFontSize);
-                            cIMTextSymbol.VerticalAlignment = ArcGIS.Core.CIM.VerticalAlignment.Center;
-                            tElement.SetGraphic(currentElementGraphic);
+                            SymbolStyleItem inStyleItem = textSymbolDico[inStyle];
+                            CIMTextSymbol inTextSymbol = inStyleItem.Symbol as CIMTextSymbol;
+                            if (inTextSymbol != null)
+                            {
+                                CIMTextSymbol cIMTextSymbol = currentElementGraphic.Symbol.Symbol as CIMTextSymbol;
+                                cIMTextSymbol = inTextSymbol;
+                                tElement.SetGraphic(currentElementGraphic);
+                            }
                         }
-
                     }
                     
                     //Mange too long text (mainly to fix when used in UNIT_SPLIT boxes).
