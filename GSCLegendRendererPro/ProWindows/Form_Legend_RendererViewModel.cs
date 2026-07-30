@@ -1834,7 +1834,7 @@ namespace GSCLegendRendererPro.ProWindows
         /// <param name="inText"></param>
         /// <param name="minHeight">A minimal height in case text is a bit bolder or bigger, used for heading for example</param>
         /// <returns></returns>
-        public double GetTextHeight(string inText, double maxWidth, double minHeight = 0.0, double fontSize = 8.0)
+        public double GetTextHeight(string inText, double maxWidth, double resizeRatio = 1, double minHeight = 0.0, double fontSize = 8.0)
         {
             //Count total width of text
             double textWidth = 0.0;
@@ -1843,6 +1843,7 @@ namespace GSCLegendRendererPro.ProWindows
 
             try
             {
+                //EDGE CASE - When user added font directly within the text
                 //Adjust with possible font GSCGeology2015. Need to have bigger box
                 if (otherComponents.GEOLOGY_FONT_NAME != null && inText != null && inText.Contains(otherComponents.GEOLOGY_FONT_NAME))
                 {
@@ -1913,11 +1914,14 @@ namespace GSCLegendRendererPro.ProWindows
                 new ErrorService(GetTextHeightException).WriteToFile();
             }
 
-            //Final validation
+            //Make sure it's never equal to 0
             if (tHeight == 0)
             {
                 tHeight = Constants.TextConfiguration.lineHeight;
             }
+
+            //Resize if needed
+            tHeight = tHeight * resizeRatio;
 
             return tHeight;
 
@@ -2729,10 +2733,11 @@ namespace GSCLegendRendererPro.ProWindows
         /// <param name="inDocument"></param>
         /// <param name="inAnchor"></param>
         /// <returns> Description height for validation purposes</returns>
-        private Element AddDescription(string inDescription, Element parentElem, Tuple<double, double> inAnchor, string parentElemType, bool isLineOrPoint = false)
+        private Element AddDescription(string inDescription, Element parentElem, Tuple<double, double> inAnchor, string parentElemType, bool isLineOrPoint = false, string style = "")
         {
             //Get appropriate element
             Element descriptionElement = null;
+            double textResizeRatio = 1;
 
             //Get different size description
             if (parentElemType == Constants.Graphics.unitindent1)
@@ -2765,11 +2770,27 @@ namespace GSCLegendRendererPro.ProWindows
             }
             else
             {
+                //Set text
                 dtElement.SetTextProperties(new TextProperties(inDescription, dtElement.TextProperties.Font, dtElement.TextProperties.FontSize, dtElement.TextProperties.FontStyle));
+
+                //EDGE CASE - Geology font 2015 needs to be resized to what a description should look like
+                if (style != null && style != string.Empty && style != " ")
+                {
+                    if (textSymbolDico.ContainsKey(style))
+                    {
+                        SymbolStyleItem customTextStyle = textSymbolDico[style];
+                        CIMTextSymbol styleText = customTextStyle.Symbol as CIMTextSymbol;
+                        if (styleText != null)
+                        {
+                            dtElement.SetTextProperties(new TextProperties(inDescription, styleText.FontFamilyName, dtElement.TextProperties.FontSize, styleText.FontStyleName));
+                            textResizeRatio = Constants.Fonts.geologyFontHeightRatio;
+                        } 
+                    }
+                }
             }
 
             #region AddDescriptFromElement code
-            double wantedTextHeight = GetTextHeight(dtElement.TextProperties.Text, descriptionWidth);
+            double calcualtedTextHeight = GetTextHeight(dtElement.TextProperties.Text, descriptionWidth, textResizeRatio);
 
             //Min height setting
             double smallDescHeight = smallDescriptionHeight;
@@ -2795,7 +2816,6 @@ namespace GSCLegendRendererPro.ProWindows
 
             //Set width and height and manage group description for heading 5        
             ArcGIS.Core.Geometry.Geometry descriptionGeometry = descriptionElement.GetGeometry();
-            double descriptionHeight = wantedTextHeight;
 
             if (heading5Text.Count >= 1)
             {
@@ -2803,7 +2823,7 @@ namespace GSCLegendRendererPro.ProWindows
             }
 
             Coordinate2D lowerLeftDescription = new Coordinate2D(descriptionGeometry.Extent.XMin, descriptionGeometry.Extent.YMin);
-            Coordinate2D upperRightDescription = new Coordinate2D(descriptionGeometry.Extent.XMin + descriptionWidth, descriptionGeometry.Extent.YMin + descriptionHeight);
+            Coordinate2D upperRightDescription = new Coordinate2D(descriptionGeometry.Extent.XMin + descriptionWidth, descriptionGeometry.Extent.YMin + calcualtedTextHeight);
 
             Envelope llEnvelope = EnvelopeBuilderEx.CreateEnvelope(lowerLeftDescription, upperRightDescription);
             ArcGIS.Core.Geometry.Polygon descPoly = PolygonBuilderEx.CreatePolygon(llEnvelope);
@@ -2813,30 +2833,30 @@ namespace GSCLegendRendererPro.ProWindows
             SetRectangularPolygonFromAnchorType(descriptionElement, inAnchor);
 
             //Move based on different length of description
-            if (wantedTextHeight <= smallDescHeight)
+            if (calcualtedTextHeight <= smallDescHeight)
             {
                 //When description height is less then align its center on parent center
-                if (wantedTextHeight <= parentHeight || parentHeight <= 1.0)
+                if (calcualtedTextHeight <= parentHeight || parentHeight <= 1.0)
                 {
                     if (!IsElementAllNonFlatLines(parentElem) && !parentElem.Name.Contains(Constants.Graphics.blob) && !parentElem.Name.Contains(Constants.Graphics.unitParent)
                         && !parentElem.Name.Contains(Constants.Graphics.pointAngle) && !parentElem.Name.Contains(Constants.Graphics.pointAngleLine))
                     {
-                        MoveElement(descriptionElement, elementDescriptGapWidth + parentWidth, -(parentHeight / 2.0 - wantedTextHeight / 2.0)); //Anchor is upper left but needs to be centered on unit box.
+                        MoveElement(descriptionElement, elementDescriptGapWidth + parentWidth, -(parentHeight / 2.0 - calcualtedTextHeight / 2.0)); //Anchor is upper left but needs to be centered on unit box.
                     }
                     else if (parentElem.Name.Contains(Constants.Graphics.unitParent))
                     {
-                        MoveElement(descriptionElement, elementDescriptGapWidth + parentWidth, -(parentHeight / 4.0 - wantedTextHeight / 2.0));
+                        MoveElement(descriptionElement, elementDescriptGapWidth + parentWidth, -(parentHeight / 4.0 - calcualtedTextHeight / 2.0));
                     }
                     else
                     {
                         //Special case for wave and blob since it's a line with anchor in center/center but behaves like bottom center...?
-                        MoveElement(descriptionElement, elementDescriptGapWidth + parentWidth, (parentHeight / 2.0) - (parentHeight - wantedTextHeight) / 2.0); //Anchor is upper left but needs to be centered on unit box
+                        MoveElement(descriptionElement, elementDescriptGapWidth + parentWidth, (parentHeight / 2.0) - (parentHeight - calcualtedTextHeight) / 2.0); //Anchor is upper left but needs to be centered on unit box
                     }
 
                 }
                 else
                 {
-                    MoveElement(descriptionElement, elementDescriptGapWidth + parentWidth, wantedTextHeight / 2.0);
+                    MoveElement(descriptionElement, elementDescriptGapWidth + parentWidth, calcualtedTextHeight / 2.0);
                 }
 
             }
@@ -3343,7 +3363,7 @@ namespace GSCLegendRendererPro.ProWindows
                         {
                             tempGroupHeadingDescription = currentHeading + currentDescription;
                         }
-                        double heading3Height = GetTextHeight(tempGroupHeadingDescription, descriptionWidth, Constants.TextConfiguration.lineHeight);
+                        double heading3Height = GetTextHeight(tempGroupHeadingDescription, descriptionWidth, 1, Constants.TextConfiguration.lineHeight);
 
                         //Set new envelope
                         SetRectangularPolygonFromAnchorTypeAndHeight(currentElementObject, anchorPoint, heading3Height);
@@ -3534,7 +3554,7 @@ namespace GSCLegendRendererPro.ProWindows
                     }
 
                     //Add Description
-                    Element newDescriptionElement = AddDescription(currentDescription, originalParent, anchorPoint, currentElementName);
+                    Element newDescriptionElement = AddDescription(currentDescription, originalParent, anchorPoint, currentElementName, false, currentStyle2);
 
                     //Rest anchor point for next element
                     double descriptionHeight = Constants.TextConfiguration.lineHeight;
@@ -3552,7 +3572,7 @@ namespace GSCLegendRendererPro.ProWindows
                     {
                         if (currentColumn != 0)
                         {
-                            anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - descriptionHeight); //New anchor point with proper move inside it
+                            anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - (descriptionHeight - smallDescriptionHeight)); //New anchor point with proper move inside it
 
                         }
 
@@ -3629,7 +3649,7 @@ namespace GSCLegendRendererPro.ProWindows
                     }
 
                     //Add Description
-                    Element newDescriptionElement = AddDescription(currentDescription, originalParent, anchorPoint, currentElementName);
+                    Element newDescriptionElement = AddDescription(currentDescription, originalParent, anchorPoint, currentElementName, false, currentStyle2);
                     double descriptionHeight = currentElementObject.GetHeight();
                     if (descriptionHeight > smallDescriptionHeight)
                     {
@@ -3752,7 +3772,7 @@ namespace GSCLegendRendererPro.ProWindows
                     }
 
                     //Add Description
-                    Element newDescriptionElement = AddDescription(currentDescription, currentElementObject, anchorPoint, originalElementName);
+                    Element newDescriptionElement = AddDescription(currentDescription, currentElementObject, anchorPoint, originalElementName, false, currentStyle2);
                     double descriptionHeight = newDescriptionElement.GetHeight();
                     if (descriptionHeight > smallDescriptionHeight)
                     {
@@ -3844,7 +3864,7 @@ namespace GSCLegendRendererPro.ProWindows
                     }
 
                     //Add Description
-                    Element newDescriptionElement = AddDescription(currentDescription, pointElement, anchorPoint, lastElementType, true);
+                    Element newDescriptionElement = AddDescription(currentDescription, pointElement, anchorPoint, lastElementType, true, currentStyle2);
                     double descriptionHeight = newDescriptionElement.GetHeight();
                     if (descriptionHeight > smallDescriptionHeightLine)
                     {
@@ -3988,7 +4008,7 @@ namespace GSCLegendRendererPro.ProWindows
 
                     //Add Description
                     //NOTES: Usually lines have anchors in the center, that needs special attention
-                    Element newDescriptionElement = AddDescription(currentDescription, currentElementObject, anchorPoint, lastElementType, true);
+                    Element newDescriptionElement = AddDescription(currentDescription, currentElementObject, anchorPoint, lastElementType, true, currentStyle2);
 
                     //Move lines in y axis else AddDescription doesn't align them properly
                     MoveElement(newDescriptionElement, 0, currentElementObject.GetHeight() / 2.0, Anchor.TopLeftCorner);
@@ -4120,7 +4140,7 @@ namespace GSCLegendRendererPro.ProWindows
 
                     }
 
-                    Element newDescriptionElement = AddDescription(currentDescription, currentElementObject, anchorPoint, currentElementName);
+                    Element newDescriptionElement = AddDescription(currentDescription, currentElementObject, anchorPoint, currentElementName, false, currentStyle2);
                     double descriptionHeight = currentElementObject.GetHeight();
                     if (descriptionHeight > smallDescriptionHeight)
                     {
