@@ -3354,25 +3354,30 @@ namespace GSCLegendRendererPro.ProWindows
                     anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - ySpacing);
                     PositionElement(currentElementObject, anchorPoint.Item1, anchorPoint.Item2);
 
-                    //Set height for heading3 
-                    if (currentElementName.Contains(Constants.Graphics.heading3))
-                    {
-                        //Recalculate height
-                        string tempGroupHeadingDescription = currentHeading;
-                        if (currentDescription != null)
-                        {
-                            tempGroupHeadingDescription = currentHeading + currentDescription;
-                        }
-                        double heading3Height = GetTextHeight(tempGroupHeadingDescription, descriptionWidth, 1, Constants.TextConfiguration.lineHeight);
+                    //Set height
+                    double originalHeight = currentElementObject.GetHeight();
+                    double calculateHeight = originalHeight;
+                    double resizeRatio = 1;
+                    string headingText = currentHeading;
 
-                        //Set new envelope
-                        SetRectangularPolygonFromAnchorTypeAndHeight(currentElementObject, anchorPoint, heading3Height);
-                    }
-                    else
+                    //EDGE CASE - Description could be added to heading
+                    if (currentDescription != null && currentDescription != string.Empty && currentDescription != " ")
                     {
-                        //Set new envelope
-                        SetRectangularPolygonFromAnchorType(currentElementObject, anchorPoint);
+                        headingText = currentHeading + currentDescription;
                     }
+
+                    //EDGE CASE - Some headings are smaller in width and we need to compensate for font being capital case and bold
+                    if (currentElementName.Contains(Constants.Graphics.heading3) || currentElementName.Contains(Constants.Graphics.heading4))
+                    {
+                        resizeRatio = Constants.TextConfiguration.headingResizeRatio; 
+                    }
+
+                    calculateHeight = GetTextHeight(headingText, currentElementObject.GetWidth(), resizeRatio, Constants.TextConfiguration.lineHeight);
+
+                    SetRectangularPolygonFromAnchorTypeAndHeight(currentElementObject, anchorPoint, calculateHeight);
+
+                    anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - (calculateHeight - originalHeight));
+
 
                     //Move in X
                     MoveElement(currentElementObject, xSpacing, 0);

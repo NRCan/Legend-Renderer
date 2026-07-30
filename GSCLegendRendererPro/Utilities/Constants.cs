@@ -228,6 +228,7 @@ namespace GSCLegendRendererPro.Utilities
             public const int charactersPerLine = 76;
             public const double lineHeight = 3.28; //mm, used to calculate text box height approx.
             public const double header3LineHeight = 3.66; //mm, used to calculate header 3 text box height approx.
+            public const double headingResizeRatio = 1.53; //mm, used to resize height of some headers that are capital and bold
             //HTML related tags
             public const string tagBold = "<bol>";
             public const string endTagBold = "</bol>";
