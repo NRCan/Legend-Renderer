@@ -4088,11 +4088,7 @@ namespace GSCLegendRendererPro.ProWindows
 
                         //Reset anchor point for next element
                         anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - descriptionAdjustement); //New anchor point with proper move inside it
-                    }
 
-                    if (currentElementName == Constants.Graphics.line)
-                    {
-                        anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - 4.0);
                     }
 
                 }
@@ -4122,6 +4118,9 @@ namespace GSCLegendRendererPro.ProWindows
                     if (currentElementName == Constants.Graphics.blob)
                     {
                         MoveElement(currentElementObject, (xSpacings.ELEMENT_WIDTH / 2.0), 0, Anchor.LeftMidPoint);
+
+                        //Mimic anchor point of other polygons and units
+                        currentElementObject.SetAnchor(Anchor.TopLeftCorner);
                     }
 
                     //Symbolize
@@ -4200,12 +4199,15 @@ namespace GSCLegendRendererPro.ProWindows
 
                     }
 
-                    Element newDescriptionElement = AddDescription(currentDescription, currentElementObject, anchorPoint, currentElementName, false, currentStyle2);
-                    double descriptionHeight = currentElementObject.GetHeight();
+                    Coordinate2D coordinate2D = currentElementObject.GetAnchorPoint();
+                    Element newDescriptionElement = AddDescription(currentDescription, currentElementObject, new Tuple<double, double>(anchorPoint.Item1, coordinate2D.Y), currentElementName, false, currentStyle2);
+                    double descriptionHeight = newDescriptionElement.GetHeight();
                     if (descriptionHeight > smallDescriptionHeight)
                     {
+
                         //Reset anchor point for next element
-                        anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - descriptionHeight); //New anchor point with proper move inside it
+                        double descriptionAdjustement = descriptionHeight - currentElementObject.GetHeight();
+                        anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - descriptionAdjustement); //New anchor point with proper move inside it
 
                     }
                 }
