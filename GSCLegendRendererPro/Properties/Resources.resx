@@ -292,4 +292,7 @@
   <data name="FormHelpInstalledVersion" xml:space="preserve">
     <value>Installed version: {0}</value>
   </data>
+  <data name="FormRendererManualHeaderCasing" xml:space="preserve">
+    <value>Manual handling header casing</value>
+  </data>
 </root>

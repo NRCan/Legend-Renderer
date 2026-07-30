@@ -406,6 +406,15 @@ namespace GSCLegendRendererPro.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Manual handling header casing.
+        /// </summary>
+        public static string FormRendererManualHeaderCasing {
+            get {
+                return ResourceManager.GetString("FormRendererManualHeaderCasing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Changing view to layout mode..
         /// </summary>
         public static string FormRendererMovingToLayout {

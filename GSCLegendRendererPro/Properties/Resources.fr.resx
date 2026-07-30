@@ -273,4 +273,7 @@
   <data name="FormHelpInstalledVersion" xml:space="preserve">
     <value>Version installée {0}</value>
   </data>
+  <data name="FormRendererManualHeaderCasing" xml:space="preserve">
+    <value>Gestion manuelle de la casse des entêtes.</value>
+  </data>
 </root>

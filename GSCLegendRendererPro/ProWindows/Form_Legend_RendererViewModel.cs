@@ -362,6 +362,16 @@ namespace GSCLegendRendererPro.ProWindows
             }
         }
 
+        private bool _legendManualHeadingCasing = false;
+        public bool LegendManualHeadingCasing
+        {
+            get { return _legendManualHeadingCasing; }
+            set
+            {
+                SetProperty(ref _legendManualHeadingCasing, value, () => _legendManualHeadingCasing);
+            }
+        }
+
         private string _warningMessage = string.Empty;
         public string WarningMessage
         {
@@ -3384,9 +3394,17 @@ namespace GSCLegendRendererPro.ProWindows
 
                     //Special case for heading 3 since we can't have bolded all caps setting inside a graphic along
                     //no cap and not bolded description.
-                    if (currentElementName.Contains(Constants.Graphics.heading3))
+                    if (currentElementName.Contains(Constants.Graphics.heading3) )
                     {
-                        currentHeading = Constants.TextConfiguration.tagAllCaps + Constants.TextConfiguration.tagBold + currentHeading + Constants.TextConfiguration.endTagBold + Constants.TextConfiguration.endTagAllCaps + " ";
+                        if (_legendManualHeadingCasing)
+                        {
+                            currentHeading = Constants.TextConfiguration.tagBold + currentHeading + Constants.TextConfiguration.endTagBold + " ";
+                        }
+                        else
+                        {
+                            currentHeading = Constants.TextConfiguration.tagAllCaps + Constants.TextConfiguration.tagBold + currentHeading + Constants.TextConfiguration.endTagBold + Constants.TextConfiguration.endTagAllCaps + " ";
+
+                        }
 
                         //Add Description to text - Only for heading 3 in theory
                         if (!IsTextEmpty(currentDescription))
@@ -3411,6 +3429,20 @@ namespace GSCLegendRendererPro.ProWindows
                     if (currentHeading == null || currentHeading == string.Empty || currentHeading == " ")
                     {
                         tElement = Symbols.SetMissingTextSymbol(tElement);
+                    }
+
+                    //Manage casing
+                    if (_legendManualHeadingCasing)
+                    {
+                        CIMGraphic headingGraphic = tElement.GetGraphic();
+                        if (headingGraphic != null)
+                        {
+                            CIMTextSymbol headingSymbol = headingGraphic.Symbol.Symbol as CIMTextSymbol;
+                            headingSymbol.TextCase = TextCase.Normal;
+
+                            headingGraphic.Symbol.Symbol = headingSymbol;
+                            tElement.SetGraphic(headingGraphic);
+                        }
                     }
 
                     //Manage style if needed
