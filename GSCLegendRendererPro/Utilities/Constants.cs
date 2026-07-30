@@ -260,7 +260,8 @@ namespace GSCLegendRendererPro.Utilities
         public static class Fonts
         {
             public const string geologytFontNameJSON = "GEOLOGY_FONT_NAME";
-            public const double geologyFontHeightAjustement = 0.4; //Add 0.4 mm so it widens the box.
+            public const double geologyFontHeightAjustementHeader = 1.34; //Going from 3.66 mm to 5 for headers
+            public const double geologyFontHeightRatio = 1.37; //Multiple with this value to reset height of other boxes
         }
 
         public static class ObjectNames

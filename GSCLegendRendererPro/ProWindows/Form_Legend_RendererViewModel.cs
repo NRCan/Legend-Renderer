@@ -1846,7 +1846,7 @@ namespace GSCLegendRendererPro.ProWindows
                 //Adjust with possible font GSCGeology2015. Need to have bigger box
                 if (otherComponents.GEOLOGY_FONT_NAME != null && inText != null && inText.Contains(otherComponents.GEOLOGY_FONT_NAME))
                 {
-                    tHeight = tHeight + Constants.Fonts.geologyFontHeightAjustement;
+                    tHeight = tHeight * Constants.Fonts.geologyFontHeightRatio;
 
                     //Strip text of tags that could make it look longer then it is
                     inText = inText.Replace(Constants.TextConfiguration.tagFont + '"' + otherComponents.GEOLOGY_FONT_NAME + '"' + ">", "");
@@ -3357,7 +3357,6 @@ namespace GSCLegendRendererPro.ProWindows
                     //Move in X
                     MoveElement(currentElementObject, xSpacing, 0);
 
-
                     //Special case for heading 3 since we can't have bolded all caps setting inside a graphic along
                     //no cap and not bolded description.
                     if (currentElementName.Contains(Constants.Graphics.heading3))
@@ -3403,11 +3402,32 @@ namespace GSCLegendRendererPro.ProWindows
                                 CIMTextSymbol styleText = inStyleSymbol.Symbol as CIMTextSymbol;
                                 if (cIMTextSymbol != null && styleText != null)
                                 {
-                                    cIMTextSymbol.SetColor(inStyleSymbol.Symbol.GetColor());
-                                    cIMTextSymbol.FontFamilyName = styleText.FontFamilyName;
-                                    cIMTextSymbol.SetSize(styleText.GetSize());
-                                    cIMTextSymbol.VerticalAlignment = styleText.VerticalAlignment;
-                                    tElement.SetGraphic(cimGraphic);
+                                    cIMTextSymbol = styleText;
+
+                                    //EDGE CASE - GSC Geology 2015 font family needs to be faked bold
+                                    if (styleText.FontFamilyName.Contains("2015"))
+                                    {
+                                        CIMStroke cIMStroke = SymbolFactory.Instance.ConstructStroke(cIMTextSymbol.GetColor(),0);
+
+                                        cIMTextSymbol.SetSize(10);
+                                        cIMTextSymbol.HaloSize = 0.18;
+                                        cIMTextSymbol.HaloSymbol = SymbolFactory.Instance.ConstructPolygonSymbol(cIMTextSymbol.GetColor(),SimpleFillStyle.Solid, cIMStroke);
+
+                                        cimGraphic.Symbol.Symbol = cIMTextSymbol;
+                                        tElement.SetGraphic(cimGraphic);
+
+                                        //Set new height because the font doesn't fit the default bounding box
+                                        anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - Constants.Fonts.geologyFontHeightAjustementHeader);
+                                        tElement.SetHeight(tElement.GetHeight() + Constants.Fonts.geologyFontHeightAjustementHeader);
+
+                                    }
+                                    else
+                                    {
+                                        cimGraphic.Symbol.Symbol = cIMTextSymbol;
+                                        tElement.SetGraphic(cimGraphic);
+                                    }
+                                    
+
                                 }
 
                             }
