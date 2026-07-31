@@ -3,9 +3,10 @@
 namespace GSCLegendRendererPro.Utilities
 {
     public class Constants
-    {        /// <summary>
-             /// Mandatory field names found in the legend table
-             /// </summary>
+    {        
+        /// <summary>
+        /// Mandatory field names found in the legend table
+        /// </summary>
         public static class LegendTable
         {
             public const string legendOrderField = "ELEMENT_ORDER";
@@ -65,6 +66,7 @@ namespace GSCLegendRendererPro.Utilities
             //public const string bracketRightEnd = "R_BRACKET_END";
 
             public const string overlay = "OVERLAY";
+            public const string overlay_cut = "OVERLAY_CUT"; //Version 2.1 addition
             public const string breakLine = "BREAK";
             public const string point = "POINT_CC";
             public const string pointAngle = "POINT_CC_45";
@@ -170,16 +172,6 @@ namespace GSCLegendRendererPro.Utilities
             public const string english = "en";
         }
 
-        /// <summary>
-        ///Spatial relation description based on the 9 topologial relations
-        ///https://en.wikipedia.org/wiki/DE-9IM
-        ///http://resources.esri.com/help/9.3/arcgisengine/arcobjects/esriGeoDatabase/ISpatialFilter_SpatialRelDescription.htm
-        /// </summary>
-        public static class TopologicalRelations
-        {
-            public static string disjointQuery = "FF*FF****";
-        }
-
         public static class ESRI
         {
             //http://resources.arcgis.com/en/help/arcobjects-net/conceptualhelp/index.html#//00010000029s000000
@@ -274,6 +266,11 @@ namespace GSCLegendRendererPro.Utilities
             public const string fillTypePicture = "IPictureFillSymbol";
             public const string fillTypeMultilayer = "IMultiLayerFillSymbol";
 
+        }
+
+        public static class Addin
+        {
+            public const string addinVersion = "2.1";
         }
 
     }

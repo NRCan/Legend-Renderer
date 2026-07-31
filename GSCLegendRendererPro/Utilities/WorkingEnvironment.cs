@@ -26,7 +26,7 @@ namespace GSCLegendRendererPro.Utilities
 
         private void SetWorkingEnvironment()
         {
-            if (WorkingEnvironmentPath == string.Empty)
+            if (WorkingEnvironmentPath == string.Empty || !WorkingEnvironmentPath.Contains(Constants.Addin.addinVersion))
             {
                 // 1. get the filename of this .esriAddinX file
                 var fileName = AddIn.GetAddInId();
