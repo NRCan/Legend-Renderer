@@ -280,6 +280,15 @@ namespace GSCLegendRendererPro.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Do not group and sort graphics on order value (faster rendering).
+        /// </summary>
+        public static string FormRendererFasterResult {
+            get {
+                return ResourceManager.GetString("FormRendererFasterResult", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Auto-calculate number of columns (CGM only)..
         /// </summary>
         public static string FormRendererFieldAutoCalculateColumn {

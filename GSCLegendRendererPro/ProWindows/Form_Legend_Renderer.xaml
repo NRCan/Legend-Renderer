@@ -9,7 +9,7 @@
         xmlns:layerControls="clr-namespace:ArcGIS.Desktop.Internal.Mapping.CommonControls.LayerControls;assembly=ArcGIS.Desktop.Mapping"
         mc:Ignorable="d"
         ResizeMode="CanResize"
-        Title="{x:Static local:Resources.FormRendererTitle}"  Width="400" Height="745"
+        Title="{x:Static local:Resources.FormRendererTitle}"  Width="400" Height="765"
         WindowStartupLocation="CenterOwner">
 
     <controls:ProWindow.Resources>
@@ -35,6 +35,7 @@
             <RowDefinition Height="5"/>
 
             <!--Extra options-->
+            <RowDefinition Height="20"/>
             <RowDefinition Height="20"/>
             <RowDefinition Height="20"/>
             <RowDefinition Height="20"/>
@@ -144,8 +145,10 @@
 
         <CheckBox Grid.Row="7" Margin="0,0,0,0" IsChecked="{Binding Path=LegendManualHeadingCasing}" Content="{x:Static local:Resources.FormRendererManualHeaderCasing}" HorizontalAlignment="Left" />
         
+        <CheckBox Grid.Row="8" Margin="0,0,0,0" IsChecked="{Binding Path=LegendFasterResult}" Content="{x:Static local:Resources.FormRendererFasterResult}" HorizontalAlignment="Left" />
+
         <!--Run-->
-        <Button Grid.Row="9" Margin="0,10,0,0"
+        <Button Grid.Row="10" Margin="0,10,0,0"
             Style="{DynamicResource Esri_Button}" HorizontalAlignment="Left" Width="75"
             Command="{Binding RunTool}">
             <Button.Content>
@@ -159,7 +162,7 @@
         </Button>
 
         <!--Warnings-->
-        <Label Grid.Row="10" Margin="-5" Foreground="Red" Content="{Binding Path=WarningMessage, Mode=TwoWay}" Style="{DynamicResource LegendWarningLabel}"/>
+        <Label Grid.Row="11" Margin="-5" Foreground="Red" Content="{Binding Path=WarningMessage, Mode=TwoWay}" Style="{DynamicResource LegendWarningLabel}"/>
 
 
     </Grid>

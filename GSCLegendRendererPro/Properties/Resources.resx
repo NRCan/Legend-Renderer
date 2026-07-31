@@ -295,4 +295,7 @@
   <data name="FormRendererManualHeaderCasing" xml:space="preserve">
     <value>Manual handling header casing</value>
   </data>
+  <data name="FormRendererFasterResult" xml:space="preserve">
+    <value>Do not group and sort graphics on order value (faster rendering)</value>
+  </data>
 </root>

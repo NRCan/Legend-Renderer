@@ -276,4 +276,7 @@
   <data name="FormRendererManualHeaderCasing" xml:space="preserve">
     <value>Gestion manuelle de la casse des entêtes.</value>
   </data>
+  <data name="FormRendererFasterResult" xml:space="preserve">
+    <value>Ne pas grouper et trier en fonction de l'ordre (résultat plus rapide).</value>
+  </data>
 </root>

@@ -372,6 +372,16 @@ namespace GSCLegendRendererPro.ProWindows
             }
         }
 
+        private bool _legendFasterResult = false;
+        public bool LegendFasterResult
+        {
+            get { return _legendFasterResult; }
+            set
+            {
+                SetProperty(ref _legendFasterResult, value, () => _legendFasterResult);
+            }
+        }
+
         private string _warningMessage = string.Empty;
         public string WarningMessage
         {
@@ -782,8 +792,12 @@ namespace GSCLegendRendererPro.ProWindows
                         });
 
                         //Finalize whole process
-                        await GroupByOrder();
-                        await OrderElementsInTOC();
+                        if (!_legendFasterResult)
+                        {
+                            await GroupByOrder();
+                            await OrderElementsInTOC();
+                        }
+
                         await GroupLegendElements();
                         SetPageUnits(originalPageUnits);
 
@@ -2273,7 +2287,7 @@ namespace GSCLegendRendererPro.ProWindows
             foreach (Element element in groupedElements)
             {
                 double elementOrder = 0.0;
-                if (double.TryParse(element.Name, out elementOrder))
+                if (double.TryParse(element.Name.Split(" ")[0], out elementOrder))
                 {
                     desiredGroupedElements.Add(element);
                 }
@@ -4256,8 +4270,13 @@ namespace GSCLegendRendererPro.ProWindows
 
                     }
 
-                    Coordinate2D coordinate2D = currentElementObject.GetAnchorPoint();
-                    Element newDescriptionElement = AddDescription(currentDescription, currentElementObject, new Tuple<double, double>(anchorPoint.Item1, coordinate2D.Y), currentElementName, false, currentStyle2);
+                    double descriptionAnchorY = anchorPoint.Item2;  
+                    if (currentElementName == Constants.Graphics.overlay)
+                    {
+                        descriptionAnchorY = currentElementObject.GetAnchorPoint().Y;
+                    }
+                    Element newDescriptionElement = AddDescription(currentDescription, currentElementObject, new Tuple<double, double>(anchorPoint.Item1, descriptionAnchorY), currentElementName, false, currentStyle2);
+                    
                     double descriptionHeight = newDescriptionElement.GetHeight();
                     if (descriptionHeight > smallDescriptionHeight)
                     {
