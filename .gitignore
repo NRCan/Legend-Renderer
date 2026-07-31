@@ -364,3 +364,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/GSCLegendRendererPro/Documentation/.GSC_Legend_Renderer_Table_Shell.geodatabase-conch
+/GSCLegendRendererPro/Documentation/GSC_Legend_Renderer_Table_Shell.geodatabase
+/GSCLegendRendererPro/Documentation/GSC_Legend_Renderer_Table_Shell.geodatabase-shm
+/GSCLegendRendererPro/Documentation/GSC_Legend_Renderer_Table_Shell.geodatabase-wal
