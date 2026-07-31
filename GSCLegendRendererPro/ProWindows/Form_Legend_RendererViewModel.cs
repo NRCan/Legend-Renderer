@@ -4107,11 +4107,19 @@ namespace GSCLegendRendererPro.ProWindows
         {
             try
             {
-                if (currentElementObject != null && (currentElementName == Constants.Graphics.overlay || currentElementName == Constants.Graphics.blob))
+                if (currentElementObject != null && (currentElementName == Constants.Graphics.overlay || 
+                    currentElementName == Constants.Graphics.blob || currentElementName == Constants.Graphics.overlay_cut))
                 {
 
                     //Set new anchor
                     anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - ySpacing); //New anchor point with proper move inside it
+
+                    //EDGE CASE - overlay cut gets copied from template with lower left anchor...
+                    if (currentElementName == Constants.Graphics.overlay_cut)
+                    {
+                        currentElementObject.SetAnchor(Anchor.TopLeftCorner);
+                    }
+
                     PositionElement(currentElementObject, anchorPoint.Item1, anchorPoint.Item2);
 
                     //Move on x axis smaller symbols and those that have a different anchor
@@ -4124,7 +4132,56 @@ namespace GSCLegendRendererPro.ProWindows
                     }
 
                     //Symbolize
-                    SetPolygonFill(currentElementObject, currentStyle1, false);
+                    if (currentElementName == Constants.Graphics.overlay_cut)
+                    {
+                        ///EDGE CASE - Overlay cut has a digitized outline that makes it look like the polygon is cut
+                        GroupElement grouppedOverlay = currentElementObject as GroupElement;
+                        if (grouppedOverlay != null)
+                        {
+                            for (int el = 0; el < grouppedOverlay.Elements.Count(); el++)
+                            {
+                                Element currentOverlaySubItem = grouppedOverlay.Elements[el];
+                                GraphicElement subGraphic = currentOverlaySubItem as GraphicElement;
+                                if (subGraphic != null)
+                                {
+                                    //Set outline
+                                    CIMLineGraphic subLineGraphic = subGraphic.GetGraphic() as CIMLineGraphic;
+                                    if (subLineGraphic != null)
+                                    {
+                                        if (lineSymbolDico.ContainsKey(currentStyle2))
+                                        {
+                                            SymbolStyleItem lineSymbol = lineSymbolDico[currentStyle2];
+                                            CIMLineSymbol newLineSymbol = lineSymbol.Symbol as CIMLineSymbol;
+                                            subLineGraphic.Symbol.Symbol = newLineSymbol;
+                                            subGraphic.SetGraphic(subLineGraphic);
+                                            
+                                        }
+                                        else
+                                        {
+                                            Symbols.SetMissingLineSymbol(currentOverlaySubItem);
+                                        }
+                                    }
+
+                                    //Set polygon fill
+                                    CIMPolygonGraphic subPolyGraphic = subGraphic.GetGraphic() as CIMPolygonGraphic;
+                                    if (subPolyGraphic != null)
+                                    {
+                                        if (fillSymbolDico.ContainsKey(currentStyle1))
+                                        {
+                                            SetPolygonFill(currentOverlaySubItem, currentStyle1, false);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        //Normal polygon color and style filling
+                        SetPolygonFill(currentElementObject, currentStyle1, false);
+                    }
+
+                    
 
                     //Add annotation or a marker in the middle if needed
                     if ((currentLabel1 != null && currentLabel1Style != string.Empty) || (currentStyle2 != null && currentStyle2 != string.Empty))

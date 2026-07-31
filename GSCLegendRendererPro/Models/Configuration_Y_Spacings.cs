@@ -30,6 +30,7 @@ namespace GSCLegendRendererPro.Models
         public string UNIT_INDENT2 { get; set; }
         public string BREAK { get; set; }
         public string OVERLAY { get; set; }
+        public string OVERLAY_CUT { get; set; }
         public string WAVE { get; set; }
         public string LINE { get; set; }
         public string TWOSIDE { get; set; }
@@ -70,6 +71,7 @@ namespace GSCLegendRendererPro.Models
         public ConfigurationBase UNIT_INDENT2 { get; set; }
         public ConfigurationBase BREAK { get; set; }
         public ConfigurationBase OVERLAY { get; set; }
+        public ConfigurationBase OVERLAY_CUT { get; set; }
         public ConfigurationBase WAVE { get; set; }
         public ConfigurationBase LINE { get; set; }
         public ConfigurationBase TWOSIDE { get; set; }
