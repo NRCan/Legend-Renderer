@@ -2298,8 +2298,16 @@ namespace GSCLegendRendererPro.ProWindows
 
             await QueuedTask.Run(() =>
             {
-                //Group
-                ElementFactory.Instance.CreateGroupElement(pPage, pPage.GetSelectedElements(), Properties.Resources.LegendGroupName, false);
+                try
+                {
+                    //Group
+                    ElementFactory.Instance.CreateGroupElement(pPage, pPage.GetSelectedElements(), Properties.Resources.LegendGroupName, false);
+                }
+                catch (Exception GroupLegendElementsException)
+                {
+                    new ErrorService(GroupLegendElementsException).WriteToFile("", false);
+                }
+                
             });
 
 
@@ -2328,7 +2336,16 @@ namespace GSCLegendRendererPro.ProWindows
                     {
                         legendOrderPrefixList.Add(groupName); //Keep for later
                         pPage.SelectElements(group);
-                        ElementFactory.Instance.CreateGroupElement(pPage, pPage.GetSelectedElements(), groupName, false);
+
+                        try
+                        {
+                            ElementFactory.Instance.CreateGroupElement(pPage, pPage.GetSelectedElements(), groupName, false);
+                        }
+                        catch (Exception GroupLegendElementsException)
+                        {
+                            new ErrorService(GroupLegendElementsException).WriteToFile("", false);
+                        }
+
                     }
 
 

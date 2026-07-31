@@ -1,5 +1,40 @@
 {
+  "ANNO_BREAK": {
+    "ANNO_BREAK": null,
+    "BEACH": "7.0",
+    "BLOB": "7.0",
+    "BREAK": null,
+    "DESCRIPTION": null,
+    "DUNES": "7.0",
+    "HEADING1": "3.0",
+    "HEADING2": "3.0",
+    "HEADING3": "3.0",
+    "HEADING4": "3.0",
+    "HEADING5": "5.0",
+    "LANDSLIDE": "7.0",
+    "LINE": "7.0",
+    "MORAINES": "7.0",
+    "NOTE": "3.0",
+    "OVERLAY": "3.0",
+    "OVERLAY_CUT": "3.0",
+    "POINT_CC": "7.0",
+    "POINT_CC_45": "7.0",
+    "POINT_LC_45": "7.0",
+    "TWOSIDE": "7.0",
+    "TWOSIDE_FLIP": "7.0",
+    "TWOSIDE_FLOW": "7.0",
+    "UNIT_BOX": "3.0",
+    "UNIT_CHILD": null,
+    "UNIT_CHILD_LINE": null,
+    "UNIT_INDENT": "3.0",
+    "UNIT_INDENT2": "3.0",
+    "UNIT_LINE": "3.0",
+    "UNIT_PARENT": "3.0",
+    "UNIT_SPLIT": "3.0",
+    "WAVE": "7.0"
+  },
   "BEACH": {
+    "ANNO_BREAK": "7.0",
     "BEACH": "8.0",
     "BLOB": "8.0",
     "BREAK": "7.0",
@@ -33,6 +68,7 @@
     "WAVE": "8.0"
   },
   "BLOB": {
+    "ANNO_BREAK": "7.0",
     "BEACH": "8.0",
     "BLOB": "8.0",
     "BREAK": "7.0",
@@ -66,6 +102,7 @@
     "WAVE": "8.0"
   },
   "BREAK": {
+    "ANNO_BREAK": null,
     "BEACH": "7.0",
     "BLOB": "7.0",
     "BREAK": null,
@@ -99,6 +136,7 @@
     "WAVE": "7.0"
   },
   "DESCRIPTION": {
+    "ANNO_BREAK": "2.0 from LL",
     "BEACH": "6.0 from LL",
     "BLOB": "6.0 from LL",
     "BREAK": "2.0 from LL",
@@ -132,6 +170,7 @@
     "WAVE": "6.0 from LL"
   },
   "DUNES": {
+    "ANNO_BREAK": "7.0",
     "BEACH": "8.0",
     "BLOB": "8.0",
     "BREAK": "7.0",
@@ -165,6 +204,7 @@
     "WAVE": "8.0"
   },
   "HEADING1": {
+    "ANNO_BREAK": "5.0",
     "BEACH": null,
     "BLOB": null,
     "BREAK": "5.0",
@@ -198,6 +238,7 @@
     "WAVE": null
   },
   "HEADING2": {
+    "ANNO_BREAK": "5.0",
     "BEACH": null,
     "BLOB": null,
     "BREAK": "5.0",
@@ -231,6 +272,7 @@
     "WAVE": null
   },
   "HEADING3": {
+    "ANNO_BREAK": "2.0 from LL",
     "BEACH": "6.0 from LL",
     "BLOB": "6.0 from LL",
     "BREAK": "2.0 from LL",
@@ -264,6 +306,7 @@
     "WAVE": "6.0 from LL"
   },
   "HEADING4": {
+    "ANNO_BREAK": "5.0",
     "BEACH": null,
     "BLOB": null,
     "BREAK": "5.0",
@@ -297,6 +340,7 @@
     "WAVE": null
   },
   "HEADING5": {
+    "ANNO_BREAK": "5.0",
     "BEACH": "5.0",
     "BLOB": "5.0",
     "BREAK": "5.0",
@@ -330,6 +374,7 @@
     "WAVE": "5.0"
   },
   "LANDSLIDE": {
+    "ANNO_BREAK": "7.0",
     "BEACH": "8.0",
     "BLOB": "8.0",
     "BREAK": "7.0",
@@ -363,6 +408,7 @@
     "WAVE": "8.0"
   },
   "LINE": {
+    "ANNO_BREAK": "7.0",
     "BEACH": "8.0",
     "BLOB": "8.0",
     "BREAK": "7.0",
@@ -396,6 +442,7 @@
     "WAVE": "8.0"
   },
   "MORAINES": {
+    "ANNO_BREAK": "7.0",
     "BEACH": "8.0",
     "BLOB": "8.0",
     "BREAK": "7.0",
@@ -429,6 +476,7 @@
     "WAVE": "8.0"
   },
   "NOTE": {
+    "ANNO_BREAK": "2.0 from LL",
     "BEACH": "6.0 from LL",
     "BLOB": "6.0 from LL",
     "BREAK": "2.0 from LL",
@@ -462,6 +510,7 @@
     "WAVE": "6.0 from LL"
   },
   "OVERLAY": {
+    "ANNO_BREAK": "13.0",
     "BEACH": "14.0",
     "BLOB": "14.0",
     "BREAK": "13.0",
@@ -495,6 +544,7 @@
     "WAVE": "14.0"
   },
   "OVERLAY_CUT": {
+    "ANNO_BREAK": "13.0",
     "BEACH": "14.0",
     "BLOB": "14.0",
     "BREAK": "13.0",
@@ -528,6 +578,7 @@
     "WAVE": "14.0"
   },
   "POINT_CC": {
+    "ANNO_BREAK": "7.0",
     "BEACH": "8.0",
     "BLOB": "8.0",
     "BREAK": "7.0",
@@ -561,6 +612,7 @@
     "WAVE": "8.0"
   },
   "POINT_CC_45": {
+    "ANNO_BREAK": "7.0",
     "BEACH": "8.0",
     "BLOB": "8.0",
     "BREAK": "7.0",
@@ -594,6 +646,7 @@
     "WAVE": "8.0"
   },
   "POINT_LC_45": {
+    "ANNO_BREAK": "7.0",
     "BEACH": "8.0",
     "BLOB": "8.0",
     "BREAK": "7.0",
@@ -627,6 +680,7 @@
     "WAVE": "8.0"
   },
   "TOP_NOTE": {
+    "ANNO_BREAK": "2.0 from LL",
     "BEACH": "6.0 from LL",
     "BLOB": "6.0 from LL",
     "BREAK": "2.0 from LL",
@@ -660,6 +714,7 @@
     "WAVE": "6.0 from LL"
   },
   "TWOSIDE": {
+    "ANNO_BREAK": "7.0",
     "BEACH": "8.0",
     "BLOB": "8.0",
     "BREAK": "7.0",
@@ -693,6 +748,7 @@
     "WAVE": "10.0"
   },
   "TWOSIDE_FLIP": {
+    "ANNO_BREAK": "7.0",
     "BEACH": "8.0",
     "BLOB": "8.0",
     "BREAK": "7.0",
@@ -726,6 +782,7 @@
     "WAVE": "10.0"
   },
   "TWOSIDE_FLOW": {
+    "ANNO_BREAK": "7.0",
     "BEACH": "8.0",
     "BLOB": "8.0",
     "BREAK": "7.0",
@@ -759,6 +816,7 @@
     "WAVE": "10.0"
   },
   "UNIT_BOX": {
+    "ANNO_BREAK": "13.0",
     "BEACH": "17.0",
     "BLOB": "17.0",
     "BREAK": "13.0",
@@ -792,6 +850,7 @@
     "WAVE": "17.0"
   },
   "UNIT_CHILD": {
+    "ANNO_BREAK": "13.0",
     "BEACH": "17.0",
     "BLOB": "17.0",
     "BREAK": "13.0",
@@ -825,6 +884,7 @@
     "WAVE": "17.0"
   },
   "UNIT_CHILD_LINE": {
+    "ANNO_BREAK": "13.0",
     "BEACH": "17.0",
     "BLOB": "17.0",
     "BREAK": "13.0",
@@ -858,6 +918,7 @@
     "WAVE": "17.0"
   },
   "UNIT_INDENT": {
+    "ANNO_BREAK": "13.0",
     "BEACH": "17.0",
     "BLOB": "17.0",
     "BREAK": "13.0",
@@ -891,6 +952,7 @@
     "WAVE": "17.0"
   },
   "UNIT_INDENT2": {
+    "ANNO_BREAK": "13.0",
     "BEACH": "17.0",
     "BLOB": "17.0",
     "BREAK": "13.0",
@@ -924,6 +986,7 @@
     "WAVE": "17.0"
   },
   "UNIT_LINE": {
+    "ANNO_BREAK": "13.0",
     "BEACH": "17.0",
     "BLOB": "17.0",
     "BREAK": "13.0",
@@ -957,6 +1020,7 @@
     "WAVE": "17.0"
   },
   "UNIT_PARENT": {
+    "ANNO_BREAK": "3.0 from LL",
     "BEACH": "7.0 from LL",
     "BLOB": "7.0 from LL",
     "BREAK": "3.0 from LL",
@@ -990,6 +1054,7 @@
     "WAVE": "7.0 from LL"
   },
   "UNIT_SPLIT": {
+    "ANNO_BREAK": "13.0",
     "BEACH": "17.0",
     "BLOB": "17.0",
     "BREAK": "13.0",
@@ -1023,6 +1088,7 @@
     "WAVE": "17.0"
   },
   "WAVE": {
+    "ANNO_BREAK": "7.0",
     "BEACH": "8.0",
     "BLOB": "8.0",
     "BREAK": "7.0",

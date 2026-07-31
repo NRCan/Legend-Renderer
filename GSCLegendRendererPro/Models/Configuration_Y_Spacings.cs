@@ -28,6 +28,7 @@ namespace GSCLegendRendererPro.Models
         public string UNIT_CHILD_LINE { get; set; }
         public string UNIT_INDENT { get; set; }
         public string UNIT_INDENT2 { get; set; }
+        public string ANNO_BREAK { get; set; }
         public string BREAK { get; set; }
         public string OVERLAY { get; set; }
         public string OVERLAY_CUT { get; set; }
@@ -69,6 +70,7 @@ namespace GSCLegendRendererPro.Models
         public ConfigurationBase UNIT_CHILD_LINE { get; set; }
         public ConfigurationBase UNIT_INDENT { get; set; }
         public ConfigurationBase UNIT_INDENT2 { get; set; }
+        public ConfigurationBase ANNO_BREAK { get; set; }
         public ConfigurationBase BREAK { get; set; }
         public ConfigurationBase OVERLAY { get; set; }
         public ConfigurationBase OVERLAY_CUT { get; set; }
