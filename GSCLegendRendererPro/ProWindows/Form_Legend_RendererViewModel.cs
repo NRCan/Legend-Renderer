@@ -4287,12 +4287,9 @@ namespace GSCLegendRendererPro.ProWindows
 
                     }
 
-                    double descriptionAnchorY = anchorPoint.Item2;  
-                    if (currentElementName == Constants.Graphics.overlay)
-                    {
-                        descriptionAnchorY = currentElementObject.GetAnchorPoint().Y;
-                    }
-                    Element newDescriptionElement = AddDescription(currentDescription, currentElementObject, new Tuple<double, double>(anchorPoint.Item1, descriptionAnchorY), currentElementName, false, currentStyle2);
+
+                    //Add description and manage longer ones
+                    Element newDescriptionElement = AddDescription(currentDescription, currentElementObject, new Tuple<double, double>(anchorPoint.Item1, currentElementObject.GetAnchorPoint().Y), currentElementName, false, currentStyle2);
                     
                     double descriptionHeight = newDescriptionElement.GetHeight();
                     if (descriptionHeight > smallDescriptionHeight)
