@@ -792,14 +792,7 @@ namespace GSCLegendRendererPro.ProWindows
                         });
 
                         //Finalize whole process
-                        if (!_legendFasterResult)
-                        {
-                            await GroupByOrder();
-                            await OrderElementsInTOC();
-                        }
-
-                        await GroupLegendElements();
-                        SetPageUnits(originalPageUnits);
+                        await Finalize();
 
                         if (_warningMessage == string.Empty)
                         {
@@ -831,6 +824,28 @@ namespace GSCLegendRendererPro.ProWindows
             {
                 new ErrorService(CreateLegendException).WriteToFile();
             }
+        }
+
+        /// <summary>
+        /// Will launch a bunch of different functions that will help close and finalize the whole operation
+        /// </summary>
+        /// <returns></returns>
+        public async Task Finalize()
+        {
+            //Manage element in table of content of the layout
+            if (!_legendFasterResult)
+            {
+                await GroupByOrder();
+                await OrderElementsInTOC();
+            }
+
+            await GroupLegendElements();
+
+            //Reset originals
+            SetPageUnits(originalPageUnits);
+
+            //Force unselect on every items to prevent tool from glitching when launched a second time
+            pPage.UnSelectElements(pPage.GetElements());
         }
 
         /// <summary>
