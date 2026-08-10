@@ -270,7 +270,7 @@ namespace GSCLegendRendererPro.Utilities
 
         public static class Addin
         {
-            public const string addinVersion = "2.1";
+            public const string addinVersion = "2.1.1";
         }
 
     }
