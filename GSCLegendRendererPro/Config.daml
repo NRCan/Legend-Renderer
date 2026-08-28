@@ -1,11 +1,11 @@
 ﻿<ArcGIS defaultAssembly="GSCLegendRendererPro.dll" defaultNamespace="GSCLegendRendererPro" xmlns="http://schemas.esri.com/DADF/Registry" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://schemas.esri.com/DADF/Registry file:///C:/Users/ghuotvez/AppData/Local/Programs/ArcGIS/Pro/bin/ArcGIS.Desktop.Framework.xsd">
-  <AddInInfo id="{b7ab16a1-0c66-48dd-9d98-e39529ab9053}" version="2.1.1" desktopVersion="3.5.57366" product="ArcGISPro">
+  <AddInInfo id="{b7ab16a1-0c66-48dd-9d98-e39529ab9053}" version="2.1.2" desktopVersion="3.5.57366" product="ArcGISPro">
     <Name>GSC Legend Renderer</Name>
     <Description>This tool is meant to create a graphic legend inside ArcGIS, from a given legend table.</Description>
     <Image>Images\AddInDesktop32.png</Image>
     <Author>Geological Survey Canada - Commission géologique du Canada</Author>
     <Company>Government of Canada - Gouvernement du Canada; Natural Resources Canada - Ressources naturelles Canada</Company>
-    <Date>8/10/2026 12:00:00 AM</Date>
+    <Date>8/28/2026 12:00:00 AM</Date>
     <Subject>Framework, Layout, Map, Geoscience, Cartography, GSC, Geology, Bedrock, Surficial</Subject>
     <!-- Note subject can be one or more of these topics:
                     Content, Framework, Editing, Geodatabase, Geometry, Geoprocessing, Layouts, Map Authoring, Map Exploration -->
