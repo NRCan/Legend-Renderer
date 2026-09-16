@@ -4194,7 +4194,7 @@ namespace GSCLegendRendererPro.ProWindows
                                     CIMLineGraphic subLineGraphic = subGraphic.GetGraphic() as CIMLineGraphic;
                                     if (subLineGraphic != null)
                                     {
-                                        if (lineSymbolDico.ContainsKey(currentStyle2))
+                                        if (currentStyle2 != null && lineSymbolDico.ContainsKey(currentStyle2))
                                         {
                                             SymbolStyleItem lineSymbol = lineSymbolDico[currentStyle2];
                                             CIMLineSymbol newLineSymbol = lineSymbol.Symbol as CIMLineSymbol;
