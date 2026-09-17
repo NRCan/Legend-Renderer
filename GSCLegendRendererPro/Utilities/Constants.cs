@@ -53,6 +53,11 @@ namespace GSCLegendRendererPro.Utilities
             public const string subLineDoubleFLowMiddle = "TWOSIDE_FLOW_MIDDLE";
             public const string subLineDoubleFLowBottom = "TWOSIDE_BOTTOM";
 
+            public const string subLineDoubleFlowTopKey = "TOP";
+            public const string subLineDoubleFlowMiddleKey = "MIDDLE";
+            public const string subLineDoubleFlowBottomKey = "BOTTOM";
+
+
             public const string bracketLeftLower = "L_BRACKET_L";
             public const string bracketLeftCenter = "L_BRACKET_C";
             public const string bracketLeftUpper = "L_BRACKET_U";

@@ -1491,7 +1491,8 @@ namespace GSCLegendRendererPro.ProWindows
                 List<Element> cimElements = new List<Element>();
                 foreach (CIMElement elem in cimGroupElement.Elements)
                 {
-                   cimElements.Add(ElementFactory.Instance.CreateElement(pPage, elem));
+                    elem.Name = elementNamePrefix + " " + elem.Name + elementNameSuffix;
+                    cimElements.Add(ElementFactory.Instance.CreateElement(pPage, elem));
                 }
 
                 //Create new object and add it to current layout
@@ -4021,12 +4022,12 @@ namespace GSCLegendRendererPro.ProWindows
                                     if (cimLine != null)
                                     {
                                         //Generic symbolize
-                                        if (currentLine.Name != Constants.Graphics.subLineDoubleFLowBottom && currentLine.Name != Constants.Graphics.subLineDoubleFLowMiddle)
+                                        if (!currentLine.Name.Contains(Constants.Graphics.subLineDoubleFlowBottomKey) && !currentLine.Name.Contains(Constants.Graphics.subLineDoubleFlowMiddleKey))
                                         {
                                             if (lineStyleItem != null)
                                             {
                                                 CIMLineSymbol newLineSymbol = lineStyleItem.Symbol as CIMLineSymbol;
-                                                cimLine.Symbol.Symbol = newLineSymbol;  
+                                                cimLine.Symbol.Symbol = newLineSymbol;
                                                 currentLineGraphic.SetGraphic(cimLine);
                                             }
                                             else
@@ -4036,34 +4037,32 @@ namespace GSCLegendRendererPro.ProWindows
                                         }
 
                                         // EDGE CASE 
-                                        if (currentLine.Name == Constants.Graphics.subLineDoubleFLowBottom)
+                                        if (currentLine.Name.Contains(Constants.Graphics.subLineDoubleFlowBottomKey))
                                         {
+                                            string doubleLineStyle = currentStyle1;
                                             //If something isn't found in style2 revert to first one
                                             if (currentStyle2 != null && currentStyle2 != string.Empty && currentStyle2 != " " && lineSymbolDico.ContainsKey(currentStyle2))
                                             {
-                                                // For double line, two style might be used if it's not inside a double line flow symbol
-                                                SymbolStyleItem lineStyleItem2 = lineSymbolDico[currentStyle2];
-                                                CIMLineSymbol newLineSymbol2 = lineStyleItem2.Symbol as CIMLineSymbol;
-                                                cimLine.Symbol.Symbol = newLineSymbol2;
-                                                currentLineGraphic.SetGraphic(cimLine);
-
-                                                if (currentElementName == Constants.Graphics.lineDoubleFLow)
-                                                {
-                                                    //For double line flow symbol keep bottom line just like the top one and take style2 field for the flow symbol
-                                                    CIMLineSymbol newLineSymbol = lineStyleItem.Symbol as CIMLineSymbol;
-                                                    cimLine.Symbol.Symbol = newLineSymbol;
-                                                    currentLineGraphic.SetGraphic(cimLine);
-                                                }
-
+                                                doubleLineStyle = currentStyle2;
                                             }
-                                            else
+
+                                            // For double line, two style might be used if it's not inside a double line flow symbol
+                                            SymbolStyleItem lineStyleItem2 = lineSymbolDico[doubleLineStyle];
+                                            CIMLineSymbol newLineSymbol2 = lineStyleItem2.Symbol as CIMLineSymbol;
+                                            cimLine.Symbol.Symbol = newLineSymbol2;
+                                            currentLineGraphic.SetGraphic(cimLine);
+
+                                            if (currentElementName == Constants.Graphics.lineDoubleFLow)
                                             {
-                                                Symbols.SetMissingLineSymbol(currentLineGraphic);
+                                                //For double line flow symbol keep bottom line just like the top one and take style2 field for the flow symbol
+                                                CIMLineSymbol newLineSymbol = lineStyleItem.Symbol as CIMLineSymbol;
+                                                cimLine.Symbol.Symbol = newLineSymbol;
+                                                currentLineGraphic.SetGraphic(cimLine);
                                             }
                                         }
 
                                         // EDGE CASE 
-                                        if (currentLine.Name == Constants.Graphics.subLineDoubleFLowMiddle)
+                                        if (currentLine.Name.Contains(Constants.Graphics.subLineDoubleFlowMiddleKey))
                                         {
                                             if (currentStyle2 != null && lineSymbolDico.ContainsKey(currentStyle2))
                                             {
