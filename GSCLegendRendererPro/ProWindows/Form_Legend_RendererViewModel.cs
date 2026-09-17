@@ -3993,7 +3993,7 @@ namespace GSCLegendRendererPro.ProWindows
 
                     //Set new anchor
                     anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - ySpacing); 
-                    PositionElement(currentElementObject, anchorPoint.Item1, anchorPoint.Item2, Anchor.BottomLeftCorner);
+                    PositionElement(currentElementObject, anchorPoint.Item1, anchorPoint.Item2, Anchor.TopLeftCorner);
 
                     //Move on x axis smaller symbols and those that have a different anchor
                     if (currentElementName == Constants.Graphics.beach || currentElementName == Constants.Graphics.dunes ||
@@ -4116,7 +4116,7 @@ namespace GSCLegendRendererPro.ProWindows
                     Element newDescriptionElement = AddDescription(currentDescription, currentElementObject, anchorPoint, lastElementType, true, currentStyle2);
 
                     //Move lines in y axis else AddDescription doesn't align them properly
-                    MoveElement(newDescriptionElement, 0, currentElementObject.GetHeight() / 2.0, Anchor.TopLeftCorner);
+                    MoveElement(newDescriptionElement, 0, -(currentElementObject.GetHeight() / 2.0), Anchor.TopLeftCorner);
 
                     double descriptionHeight = newDescriptionElement.GetHeight();
                     if (descriptionHeight >= smallDescriptionHeightLine)
