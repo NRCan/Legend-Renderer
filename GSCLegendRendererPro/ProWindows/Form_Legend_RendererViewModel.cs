@@ -4134,6 +4134,12 @@ namespace GSCLegendRendererPro.ProWindows
                         //Reset anchor point for next element
                         anchorPoint = new Tuple<double, double>(anchorPoint.Item1, anchorPoint.Item2 - descriptionAdjustement); //New anchor point with proper move inside it
 
+                        //Edge case, if symbol is a single line, center it on the long description 
+                        if (currentElementName == Constants.Graphics.line)
+                        {
+                            MoveElement(currentElementObject, 0, -((newDescriptionElement.GetHeight() / 2.0) - (newDescriptionElement.GetAnchorPoint().Y - currentElementObject.GetAnchorPoint().Y)));
+                        }
+
                     }
 
                 }
